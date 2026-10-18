@@ -1,7 +1,4 @@
 buildscript {
-    // ZeroTermux add {@
-    ext.kotlin_version = '2.2.0'
-    // @}
     repositories {
         mavenCentral()
         google()
@@ -16,9 +13,6 @@ buildscript {
     }
     dependencies {
         classpath "com.android.tools.build:gradle:9.4.1"
-        // ZeroTermux add {@
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        // @}
 
     }
 }

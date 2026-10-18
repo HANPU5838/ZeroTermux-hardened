@@ -19,98 +19,97 @@ android {
     namespace "com.termux"
 
     compileSdk = project.properties.compileSdkVersion.toInteger()
+    compileSdkMinor = project.properties.compileSdkMinorVersion.toInteger()
     ndkVersion = System.getenv("JITPACK_NDK_VERSION") ?: project.properties.ndkVersion
     def appVersionName = System.getenv("TERMUX_APP_VERSION_NAME") ?: ""
     def apkVersionTag = System.getenv("TERMUX_APK_VERSION_TAG") ?: ""
     dependencies {
-        implementation "androidx.annotation:annotation:1.9.0"
-        implementation "androidx.core:core:1.13.1"
-        implementation "androidx.drawerlayout:drawerlayout:1.2.0"
-        implementation "androidx.preference:preference:1.2.1"
-        implementation "androidx.viewpager:viewpager:1.0.0"
-        implementation "com.google.android.material:material:1.12.0"
-        implementation "io.noties.markwon:core:$markwonVersion"
-        implementation "io.noties.markwon:ext-strikethrough:$markwonVersion"
-        implementation "io.noties.markwon:ext-tables:$markwonVersion"
-        implementation "io.noties.markwon:linkify:$markwonVersion"
-        implementation "io.noties.markwon:recycler:$markwonVersion"
-        implementation 'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava'
+        implementation libs.androidx.annotation
+        implementation libs.androidx.core
+        implementation libs.androidx.drawerlayout
+        implementation libs.androidx.preference
+        implementation libs.androidx.viewpager
+        implementation libs.androidx.material
+    implementation libs.androidx.localbroadcastmanager
+    implementation libs.androidx.documentfile
+        implementation libs.markwon.core
+        implementation libs.markwon.ext.strikethrough
+        implementation libs.markwon.ext.tables
+        implementation libs.markwon.linkify
+        implementation libs.markwon.recycler
+        implementation libs.guava.listenablefuture
 
         implementation project(":terminal-view")
         implementation project(":termux-shared")
         //ZeroTermux {@
-        def libsuVersion = '5.2.1'
         implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
-        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+        implementation libs.kotlinx.coroutines.core
+        implementation libs.kotlinx.coroutines.android
         implementation('cn.hotapk:fastandrutils:0.8.0') {
             exclude group: 'com.android.support'
         }
-        implementation "com.google.guava:guava:31.0.1-jre"
-        implementation 'com.google.code.gson:gson:2.8.6'
+        implementation libs.guava
+        implementation libs.gson
         //网络框架
-        implementation 'com.lzy.net:okgo:3.0.4'
+        implementation libs.okgo
         //switch Btn
-        implementation 'com.github.iielse:switchbutton:1.0.4'
+        implementation libs.switchbutton
 
-        implementation 'com.github.getActivity:XXPermissions:11.5'
+        implementation libs.xxpermissions
         implementation 'com.daimajia.numberprogressbar:library:1.4@aar'
 
-        implementation 'me.laoyuyu.aria:core:3.8.16'
-        annotationProcessor 'me.laoyuyu.aria:compiler:3.8.16'
+        implementation libs.aria.core
+        annotationProcessor libs.aria.compiler
 
         // The core module that provides APIs to a shell
-        implementation "com.github.topjohnwu.libsu:core:${libsuVersion}"
+        implementation libs.libsu.core
         // Optional: APIs for creating root services. Depends on ":core"
-        implementation "com.github.topjohnwu.libsu:service:${libsuVersion}"
+        implementation libs.libsu.service
         // Optional: Provides remote file system support
-        implementation "com.github.topjohnwu.libsu:nio:${libsuVersion}"
+        implementation libs.libsu.nio
         // debugImplementation 'com.github.getActivity:Logcat:9.6'
-        implementation 'com.scottyab:rootbeer-lib:0.1.0'
+        implementation libs.rootbeer
         //OTG0
-        implementation 'me.jahnen:libaums:0.8.0'
-        implementation 'me.jahnen:libaums-httpserver:0.5.3'
-        implementation 'me.jahnen:libaums-storageprovider:0.5.1'
-        implementation 'uk.co.alt236:usbdeviceenumerator:2.0.0'
+        implementation libs.libaums
+                implementation libs.usbdeviceenumerator
         //webview框架
-        implementation 'com.just.agentweb:agentweb:4.0.2'
-        implementation 'com.just.agentweb:download:4.0.2'
+        implementation libs.agentweb
+        implementation libs.agentweb.download
         //颜色取色器
-        implementation 'com.github.rtugeek:colorseekbar:2.0.3'
+        implementation libs.colorseekbar
         //图片/视频选择器
-        implementation 'com.lcw.library:imagepicker:2.2.7'
+        implementation libs.imagepicker
         //滑动器
-        implementation 'com.billy.android:smart-swipe:1.1.0'
+        implementation libs.smart.swipe
 //compat for android support library
-        implementation 'com.billy.android:smart-swipe-x:1.1.0'
+        implementation libs.smart.swipe.x
         //glide
-        implementation 'com.github.bumptech.glide:glide:4.10.0'
-        annotationProcessor 'com.github.bumptech.glide:compiler:4.10.0'
+        implementation libs.glide
         //状态栏
         //https://github.com/gyf-dev/ImmersionBar
-        implementation 'com.geyifeng.immersionbar:immersionbar:3.2.2'
+        implementation libs.immersionbar
         // 线性背景
-        implementation 'com.googlecode.plist:dd-plist:1.16'
-        implementation 'com.tananaev:adblib:1.3'
-        implementation group: 'commons-fileupload', name: 'commons-fileupload', version: '1.3.1'
-        implementation 'org.nanohttpd:nanohttpd:2.3.1'
-        implementation 'org.nanohttpd:nanohttpd-websocket:2.3.1'
-        api group: 'javax.servlet', name: 'servlet-api', version: '2.5'
-        implementation 'com.hzy:un7zip:+'
+        implementation libs.ddplist
+        implementation libs.adblib
+        implementation libs.commons.fileupload
+        implementation libs.nanohttpd
+        implementation libs.nanohttpd.websocket
+        api libs.servlet.api
+        implementation libs.un7zip
 
         //ZFlie
-        implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+        implementation libs.androidx.swiperefreshlayout
 
         //Avnc
-        implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1"
+        implementation libs.androidx.lifecycle.viewmodel.ktx
         // 二维码
-        implementation 'com.google.zxing:core:3.5.3'
+        implementation libs.zxing
         // deepseek
-        implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+        implementation libs.okhttp
 
-        implementation 'com.mallotec.reb:plugin-locale:1.0.12'
+        implementation libs.plugin.locale
 
-        implementation 'org.jsoup:jsoup:1.22.1'
+        implementation libs.jsoup
         // @}
 //        implementation project(":FHttpServer")
         //       implementation project(":z_file")
@@ -122,8 +121,8 @@ android {
         // ZeroTermux modify {@
         // versionCode 118
         // versionName "0.118.0"
-        versionCode 304
-        versionName "0.118.3.65"
+        versionCode 305
+        versionName "0.118.3.66"
         // @}
         if (appVersionName) versionName = appVersionName
         validateVersionName(versionName)
@@ -174,7 +173,6 @@ android {
     // 添加 Kotlin 编译选项
     // AGP9 内置 Kotlin：jvmTarget 默认取 compileOptions.targetCompatibility(17)
     buildFeatures {
-        dataBinding true
         buildConfig true
     }
     // @}
@@ -281,28 +279,27 @@ androidComponents {
 }
 
 dependencies {
-    testImplementation "junit:junit:4.13.2"
-    testImplementation "org.robolectric:robolectric:4.10"
+    testImplementation libs.junit
+    testImplementation libs.robolectric
     // ZeroTermux add {@
     // 语法编辑器
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
-    implementation 'io.github.rosemoe:editor:0.24.4'
-    implementation 'io.github.rosemoe:language-textmate:0.24.4'
+    coreLibraryDesugaring libs.desugar
+    implementation libs.editor
+    implementation libs.editor.language.textmate
 
-    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation libs.androidx.cardview
 //    implementation project(path: ':xh_lib')
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+    implementation libs.androidx.constraintlayout
     implementation files('libs/commons-logging-1.2.jar')
-    implementation files('libs/commons-net-3.8.0.jar')
+    implementation libs.commons.net
     implementation files('libs/ftplet-api-1.1.1.jar')
     implementation files('libs/ftpserver-core-1.1.1-edited.jar')
     implementation files('libs/jlan-5.jar')
-    implementation files('libs/log4j-1.2.17.jar')
     implementation files('libs/mina-core-2.0.16.jar')
-    implementation files('libs/slf4j-api-1.7.21.jar')
-    implementation files('libs/slf4j-log4j12-1.7.21.jar')
+    implementation libs.slf4j.api
+    implementation libs.slf4j.reload4j
+    implementation libs.reload4j
     implementation files('libs/commons-codec-1.10-rep.jar')
-    implementation "androidx.biometric:biometric-ktx:1.2.0-alpha05"
     // @}
 }
 

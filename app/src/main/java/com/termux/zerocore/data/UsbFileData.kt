@@ -1,6 +1,6 @@
 package com.termux.zerocore.data
 
-import com.github.mjdev.libaums.fs.UsbFile
+import me.jahnen.libaums.fs.UsbFile
 import java.io.File
 
 public class UsbFileData {

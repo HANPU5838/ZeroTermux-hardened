@@ -7,7 +7,7 @@ import android.hardware.usb.UsbManager
 import android.view.View
 import com.example.xh_lib.utils.LogUtils
 import com.example.xh_lib.utils.UUtils
-import com.github.mjdev.libaums.UsbMassStorageDevice
+import me.jahnen.libaums.UsbMassStorageDevice
 import com.termux.R
 import com.termux.zerocore.data.UsbFileData.Companion.get
 import com.termux.zerocore.dialog.LoadingDialog

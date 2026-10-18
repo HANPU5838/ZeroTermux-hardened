@@ -16,7 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.xh_lib.utils.UUtils;
-import com.github.mjdev.libaums.fs.UsbFile;
+import me.jahnen.libaums.fs.UsbFile;
 import com.termux.R;
 import com.termux.app.TermuxActivity;
 import com.termux.app.TermuxInstaller;

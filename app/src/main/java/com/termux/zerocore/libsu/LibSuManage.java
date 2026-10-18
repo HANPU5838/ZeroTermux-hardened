@@ -269,7 +269,7 @@ public class LibSuManage {
         }
         @Override
         public void run() {
-            Shell.sh(mFunName).to(mConsoleList).submit();
+            Shell.cmd(mFunName).to(mConsoleList).submit();
             LogUtils.e(TAG, "ShellCommandSubmitRunnable is end.");
         }
     }
