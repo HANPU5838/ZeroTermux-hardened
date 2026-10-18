@@ -1,0 +1,39 @@
+# ---- 构建与本地环境 ----
+build/
+.gradle/
+.kotlin/
+.cxx/
+.externalNativeBuild/
+local.properties
+/captures
+*.apk
+*.aab
+*.so
+.externalNativeBuild
+*.zip
+!app/src/main/assets/x11/libXlorie-*.so
+
+# ---- 本项目统一收纳目录（内容是垃圾/测试产物，不入库）----
+垃圾箱/
+测试/
+
+# ---- 签名文件（phone.jks 需随源码保留，下游覆盖更新依赖它）----
+.signing/
+
+# ---- IDE ----
+.idea/
+*.iml
+.agents/
+
+# ---- OS ----
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+*.swp
+ehthumbs.db
+Thumbs.db
+
+# ---- Gradle 生成 ----
+build/
