@@ -9,6 +9,7 @@
 > - 本项目（`HANPU5838/ZeroTermux-hardened`）仅在上游源码基础上做**构建工具链现代化、依赖升级与打包整理**，不改变项目归属。
 > - 原项目采用 **GPLv3 only** 许可证（含若干例外条款），本项目遵循同一许可证，详见 [LICENSE.md](LICENSE.md)。
 > - 上游项目相关的问题与反馈请提交到[原仓库](https://github.com/hanxinhao000/ZeroTermux)，**不要打扰原作者**。
+> - 本项目维护者主页：**[hanpuhan.cn](https://hanpuhan.cn)**
 
 ---
 
@@ -32,8 +33,18 @@
 
 1. 允许浏览器/文件管理器「安装未知来源应用」；
 2. 先装主程序，再装 Termux:API（两者签名一致，可共存更新）；
-3. 首次启动会解压 bootstrap，请耐心等待，**不要中途杀进程**；
-4. 若已装官方 Termux 且签名不同，需先卸载（数据会丢，请先备份 `~`）。
+3. Termux:API 自带无障碍服务（`com.termux.api/.apis.TermuxAccessibilityService`），如需相关能力可到系统「设置 → 无障碍」中手动开启；
+4. 首次启动会解压 bootstrap，请耐心等待，**不要中途杀进程**；
+5. 若已装官方 Termux 且签名不同，需先卸载（数据会丢，请先备份 `~`）。
+
+### 🔗 相关链接
+
+| 用途 | 地址 |
+| --- | --- |
+| 维护者主页（个人网站） | **<https://hanpuhan.cn>** |
+| 本仓库（加固版源码） | <https://github.com/HANPU5838/ZeroTermux-hardened> |
+| 下载页（Releases） | <https://github.com/HANPU5838/ZeroTermux-hardened/releases> |
+| 上游原项目（原作者） | <https://github.com/hanxinhao000/ZeroTermux> |
 
 ---
 
