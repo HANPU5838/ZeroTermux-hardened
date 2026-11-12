@@ -56,11 +56,18 @@ jobs:
         with:
           cache-read-only: false
 
+      - name: Download bootstrap archives
+        run: |
+          chmod +x gradlew
+          # termux-bootstrap-zip.S 用 .incbin 直接嵌入 bootstrap-*.zip，
+          # 原生编译比 Java 更早执行，所以必须先单独下好，否则 CI 会报
+          # "Could not find incbin file 'bootstrap-aarch64.zip'"。
+          ./gradlew downloadBootstraps --no-daemon --stacktrace
+
       - name: Build release APK
         env:
           ARCH: ${{ inputs.arch || 'arm64' }}
         run: |
-          chmod +x gradlew
           ./gradlew :app:assembleRelease -Darch="$ARCH" --no-daemon --stacktrace
 
       - name: Collect artifacts
