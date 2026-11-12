@@ -31,7 +31,8 @@ public class GitHubClickConfig extends BaseMenuClickConfig {
     @Override
     public void onClick(View view, Context context) {
         Intent intent = new Intent();
-        intent.setData(Uri.parse("https://github.com/hanxinhao000/ZeroTermux"));//Url 就是你要打开的网址
+        // 指向本加固版仓库
+        intent.setData(Uri.parse("https://github.com/HANPU5838/ZeroTermux-hardened"));
         intent.setAction(Intent.ACTION_VIEW);
         context.startActivity(intent); //启动浏览器
     }
