@@ -16,7 +16,6 @@ android {
 
     defaultConfig {
         minSdk = project.properties["minSdkVersion"].toString().toInt()
-        targetSdk = project.properties["targetSdkVersion"].toString().toInt()
 
         externalNativeBuild {
             ndkBuild {

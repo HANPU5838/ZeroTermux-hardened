@@ -15,7 +15,6 @@ android {
 
     defaultConfig {
         minSdk = project.properties["minSdkVersion"].toString().toInt()
-        targetSdk = project.properties["targetSdkVersion"].toString().toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             ndkBuild {
