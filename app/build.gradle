@@ -121,8 +121,8 @@ android {
         // ZeroTermux modify {@
         // versionCode 118
         // versionName "0.118.0"
-        versionCode 305
-        versionName "0.118.3.66"
+        versionCode 308
+        versionName "0.118.3.69"
         // @}
         if (appVersionName) versionName = appVersionName
         validateVersionName(versionName)
@@ -404,7 +404,17 @@ task downloadBootstraps() {
 }
 
 afterEvaluate {
-    tasks.matching { it.name.endsWith("JavaWithJavac") || it.name.endsWith("JavaWithJavacCreation") }.configureEach {
-        dependsOn(downloadBootstraps)
+    // 原生编译会把 bootstrap-*.zip 用 .incbin 直接嵌进 .so，而它的执行时机比
+    // Java 编译更早；只挂在 JavaWithJavac 上会漏，CI 上就会报
+    // "Could not find incbin file 'bootstrap-aarch64.zip'"。所以挂到 preBuild
+    // 与所有 ExternalNativeBuild 任务上（Gradle 会自己去重，避免重复下载）。
+    tasks.configureEach { task ->
+        def name = task.name
+        if (name.endsWith("JavaWithJavac") ||
+            name.endsWith("JavaWithJavacCreation") ||
+            name == "preBuild" ||
+            name.toLowerCase().contains("externalnativebuild")) {
+            task.dependsOn(downloadBootstraps)
+        }
     }
 }
