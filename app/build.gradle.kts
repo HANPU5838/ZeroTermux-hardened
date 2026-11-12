@@ -92,7 +92,7 @@ android {
             storeFile = rootProject.file("phone.jks")
             storePassword = System.getenv("STORE_PASSWORD") ?: "123456"
         }
-        maybeCreate("debug") {
+        maybeCreate("debug").apply {
             keyAlias = System.getenv("KEY_ALIAS") ?: "phone1"
             keyPassword = System.getenv("KEY_PASSWORD") ?: "654321"
             storeFile = rootProject.file("phone.jks")
@@ -293,8 +293,8 @@ fun downloadBootstrap(arch: String, expectedChecksum: String, version: String) {
 
     file.parentFile.mkdirs()
 
-    val connection = URL(remoteUrl).openConnection()
-    connection.setInstanceFollowRedirects(true)
+    val connection = URL(remoteUrl).openConnection() as java.net.HttpURLConnection
+    connection.instanceFollowRedirects = true
     BufferedOutputStream(FileOutputStream(file)).use { out ->
         DigestInputStream(connection.getInputStream(), digest).use { digestStream ->
             digestStream.copyTo(out)
