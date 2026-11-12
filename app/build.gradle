@@ -22,98 +22,6 @@ android {
     compileSdkMinor = project.properties.compileSdkMinorVersion.toInteger()
     ndkVersion = System.getenv("JITPACK_NDK_VERSION") ?: project.properties.ndkVersion
     def appVersionName = System.getenv("TERMUX_APP_VERSION_NAME") ?: ""
-    def apkVersionTag = System.getenv("TERMUX_APK_VERSION_TAG") ?: ""
-    dependencies {
-        implementation libs.androidx.annotation
-        implementation libs.androidx.core
-        implementation libs.androidx.drawerlayout
-        implementation libs.androidx.preference
-        implementation libs.androidx.viewpager
-        implementation libs.androidx.material
-    implementation libs.androidx.localbroadcastmanager
-    implementation libs.androidx.documentfile
-        implementation libs.markwon.core
-        implementation libs.markwon.ext.strikethrough
-        implementation libs.markwon.ext.tables
-        implementation libs.markwon.linkify
-        implementation libs.markwon.recycler
-        implementation libs.guava.listenablefuture
-
-        implementation project(":terminal-view")
-        implementation project(":termux-shared")
-        //ZeroTermux {@
-        implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
-        implementation libs.kotlinx.coroutines.core
-        implementation libs.kotlinx.coroutines.android
-        implementation('cn.hotapk:fastandrutils:0.8.0') {
-            exclude group: 'com.android.support'
-        }
-        implementation libs.guava
-        implementation libs.gson
-        //网络框架
-        implementation libs.okgo
-        //switch Btn
-        implementation libs.switchbutton
-
-        implementation libs.xxpermissions
-        implementation 'com.daimajia.numberprogressbar:library:1.4@aar'
-
-        implementation libs.aria.core
-        annotationProcessor libs.aria.compiler
-
-        // The core module that provides APIs to a shell
-        implementation libs.libsu.core
-        // Optional: APIs for creating root services. Depends on ":core"
-        implementation libs.libsu.service
-        // Optional: Provides remote file system support
-        implementation libs.libsu.nio
-        // debugImplementation 'com.github.getActivity:Logcat:9.6'
-        implementation libs.rootbeer
-        //OTG0
-        implementation libs.libaums
-                implementation libs.usbdeviceenumerator
-        //webview框架
-        implementation libs.agentweb
-        implementation libs.agentweb.download
-        //颜色取色器
-        implementation libs.colorseekbar
-        //图片/视频选择器
-        implementation libs.imagepicker
-        //滑动器
-        implementation libs.smart.swipe
-//compat for android support library
-        implementation libs.smart.swipe.x
-        //glide
-        implementation libs.glide
-        //状态栏
-        //https://github.com/gyf-dev/ImmersionBar
-        implementation libs.immersionbar
-        // 线性背景
-        implementation libs.ddplist
-        implementation libs.adblib
-        implementation libs.commons.fileupload
-        implementation libs.nanohttpd
-        implementation libs.nanohttpd.websocket
-        api libs.servlet.api
-        implementation libs.un7zip
-
-        //ZFlie
-        implementation libs.androidx.swiperefreshlayout
-
-        //Avnc
-        implementation libs.androidx.lifecycle.viewmodel.ktx
-        // 二维码
-        implementation libs.zxing
-        // deepseek
-        implementation libs.okhttp
-
-        implementation libs.plugin.locale
-
-        implementation libs.jsoup
-        // @}
-//        implementation project(":FHttpServer")
-        //       implementation project(":z_file")
-    }
 
     defaultConfig {
         minSdk = project.properties.minSdkVersion.toInteger()
@@ -262,11 +170,98 @@ android {
     }
 
     // AGP9: APK 命名迁移到 androidComponents.onVariants（见 android 块之后）
-
-    buildFeatures {
-        buildConfig true
-    }
 }
+    dependencies {
+        implementation libs.androidx.annotation
+        implementation libs.androidx.core
+        implementation libs.androidx.drawerlayout
+        implementation libs.androidx.preference
+        implementation libs.androidx.viewpager
+        implementation libs.androidx.material
+    implementation libs.androidx.localbroadcastmanager
+    implementation libs.androidx.documentfile
+        implementation libs.markwon.core
+        implementation libs.markwon.ext.strikethrough
+        implementation libs.markwon.ext.tables
+        implementation libs.markwon.linkify
+        implementation libs.markwon.recycler
+        implementation libs.guava.listenablefuture
+
+        implementation project(":terminal-view")
+        implementation project(":termux-shared")
+        //ZeroTermux {@
+        implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
+        implementation libs.kotlinx.coroutines.core
+        implementation libs.kotlinx.coroutines.android
+        implementation('cn.hotapk:fastandrutils:0.8.0') {
+            exclude group: 'com.android.support'
+        }
+        implementation libs.guava
+        implementation libs.gson
+        //网络框架
+        implementation libs.okgo
+        //switch Btn
+        implementation libs.switchbutton
+
+        implementation libs.xxpermissions
+        implementation 'com.daimajia.numberprogressbar:library:1.4@aar'
+
+        implementation libs.aria.core
+        annotationProcessor libs.aria.compiler
+
+        // The core module that provides APIs to a shell
+        implementation libs.libsu.core
+        // Optional: APIs for creating root services. Depends on ":core"
+        implementation libs.libsu.service
+        // Optional: Provides remote file system support
+        implementation libs.libsu.nio
+        // debugImplementation 'com.github.getActivity:Logcat:9.6'
+        implementation libs.rootbeer
+        //OTG0
+        implementation libs.libaums
+                implementation libs.usbdeviceenumerator
+        //webview框架
+        implementation libs.agentweb
+        implementation libs.agentweb.download
+        //颜色取色器
+        implementation libs.colorseekbar
+        //图片/视频选择器
+        implementation libs.imagepicker
+        //滑动器
+        implementation libs.smart.swipe
+//compat for android support library
+        implementation libs.smart.swipe.x
+        //glide
+        implementation libs.glide
+        //状态栏
+        //https://github.com/gyf-dev/ImmersionBar
+        implementation libs.immersionbar
+        // 线性背景
+        implementation libs.ddplist
+        implementation libs.adblib
+        implementation libs.commons.fileupload
+        implementation libs.nanohttpd
+        implementation libs.nanohttpd.websocket
+        api libs.servlet.api
+        implementation libs.un7zip
+
+        //ZFlie
+        implementation libs.androidx.swiperefreshlayout
+
+        //Avnc
+        implementation libs.androidx.lifecycle.viewmodel.ktx
+        // 二维码
+        implementation libs.zxing
+        // deepseek
+        implementation libs.okhttp
+
+        implementation libs.plugin.locale
+
+        implementation libs.jsoup
+        // @}
+//        implementation project(":FHttpServer")
+        //       implementation project(":z_file")
+    }
 
 androidComponents {
     onVariants(selector().all()) { variant ->
