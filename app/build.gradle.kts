@@ -12,7 +12,7 @@ plugins {
 }
 
 // ZeroTermux: bootstrap 变体（必须与 TermuxBootstrap.PackageVariant 对应，否则启动崩溃）
-extra["packageVariant"] = System.getenv("TERMUX_PACKAGE_VARIANT") ?: "apt-android-7"
+val packageVariant = System.getenv("TERMUX_PACKAGE_VARIANT") ?: "apt-android-7"
 
 android {
     namespace = "com.termux"
@@ -32,7 +32,7 @@ android {
         if (appVersionName.isNotEmpty()) versionName = appVersionName
         validateVersionName(versionName!!)
 
-        buildConfigField("String", "TERMUX_PACKAGE_VARIANT", "\"" + extra["packageVariant"] + "\"")
+        buildConfigField("String", "TERMUX_PACKAGE_VARIANT", "\"" + packageVariant + "\"")
 
         manifestPlaceholders["TERMUX_PACKAGE_NAME"] = "com.termux"
         manifestPlaceholders["TERMUX_APP_NAME"] = "Termux"
