@@ -312,6 +312,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_marginRight="5dp"
+                android:visibility="gone"
                 app:cardBackgroundColor="@color/color_55000000"
                 app:cardCornerRadius="6dp"
                 app:cardElevation="0dp">
@@ -471,12 +472,12 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content">
                 <com.termux.zerocore.config.mainmenu.view.NonScrollRecyclerView
                     android:id="@+id/main_menu_list"
                     android:background="@android:color/transparent"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:nestedScrollingEnabled="false" />
                 <TextView
@@ -490,10 +491,6 @@
                     android:layout_margin="10dp"
                     android:layout_height="wrap_content"/>
             </RelativeLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="50dp" />
 
         </LinearLayout>
 
