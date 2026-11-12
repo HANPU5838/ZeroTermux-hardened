@@ -285,7 +285,7 @@ dependencies {
     implementation libs.androidx.cardview
 //    implementation project(path: ':xh_lib')
     implementation libs.androidx.constraintlayout
-    implementation files('libs/commons-logging-1.2.jar')
+    implementation libs.jcl.over.slf4j
     implementation libs.commons.net
     implementation files('libs/ftplet-api-1.1.1.jar')
     implementation files('libs/ftpserver-core-1.1.1-edited.jar')
