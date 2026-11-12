@@ -73,11 +73,10 @@ gh workflow run build.yml -R HANPU5838/ZeroTermux-hardened -f arch=arm64
 
 | 项 | 值 |
 | --- | --- |
-| 仓库源码默认版本 | `0.118.3.66`（versionCode 305） |
-| Release 安装包版本 | `0.118.3.68`（versionCode 307，后续本地构建） |
+| 仓库源码 / Release 安装包 | `0.118.3.69`（versionCode 308） |
 | Termux:API | `0.53.0-zero.14`（versionCode 1016） |
 
-> 源码与安装包版本存在小版本差：安装包为源码之后的本地构建产物，源码会在后续提交中同步。
+> 源码版本与安装包版本保持一致；发布时推送 `v*` tag 会由 CI 自动构建并挂到对应 Release。
 
 ---
 
