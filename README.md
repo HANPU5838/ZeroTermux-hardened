@@ -19,12 +19,12 @@
 
 | 文件 | 版本 | 大小 | 说明 |
 | --- | --- | --- | --- |
-| `ZeroTermux-0.118.3.68-arm64-v8a-release.apk` | `0.118.3.68`（versionCode 307） | ≈74 MB | 主程序，**仅 arm64-v8a** |
+| `ZeroTermux-0.118.3.69-release_arm64-v8a.apk` | `0.118.3.69`（versionCode 308） | ≈76 MB | 主程序，**仅 arm64-v8a** |
 | `Termux-API-0.53.0-zero.14.apk` | `0.53.0-zero.14`（versionCode 1016） | ≈7 MB | 配套的 Termux:API，无原生库（全架构通用） |
 
 - **包名**：`com.termux`（主程序）/ `com.termux.api`（API 组件）
 - **SHA-256**：
-  - 主程序：`fb6d12f933efef8e8e1e1c125cad5b735de35cbd76f4b36e78ff392521069cad`
+  - 主程序：`2936727678d436dd490565d766b71db35c08fe9b8da5aebe5cf154ec85d27fa2`
   - API 组件：`ce7c7a2455737fade160622a8ecbfa73417e2371e3f7e28cb07497f3452ec12c`
 - **签名**：与上游分发版**同一证书**（`phone.jks`），因此可以**直接覆盖安装**已有的 ZeroTermux/Termux，无需卸载，数据不丢。
 - **系统要求**：Android 7.0+（minSdk 23），targetSdk 28（Termux 生态兼容性所需）。
@@ -50,14 +50,24 @@
 
 ## 这个「加固版」做了什么
 
-在上游 ZeroTermux 源码基础上，完成了一轮构建体系与依赖的现代化（对应源码版本 `0.118.3.66`）：
+在上游 ZeroTermux 源码基础上，完成了一轮构建体系与依赖的现代化（对应源码版本 `0.118.3.69`）：
 
-- **构建工具链**：Gradle **9.8.1**、AGP **9.4.1**、JDK 21、compileSdk **37**、NDK **r30**
-- **依赖全面升级**：androidx（core 1.19.1 / appcompat 1.8.0 / material 1.14.0 / lifecycle 2.11.0）、Kotlin 协程 1.11、Gson 2.14、Glide **5.0.9**、libsu **6.0.0**、libaums **0.9.0**、log4j 1.2.17 → **reload4j 1.2.27 + slf4j 2.0.20（修复 CVE）** 等
+- **构建工具链**：Gradle **9.9.1**、AGP **9.5.1**、JDK 21、compileSdk **37**、NDK **r30**、Build-Tools **37.0.0**
+- **依赖全面升级**：androidx（core 1.19.1 / appcompat 1.8.0 / material 1.14.0 / lifecycle 2.11.0）、Kotlin 协程 1.11、Gson **2.15**、Guava **33.8.0**、jsoup **1.24.1**、Glide **5.0.9**、libsu **6.0.0**、libaums **0.9.0**、commons-fileupload **1.6.0**、log4j 1.2.17 → **reload4j 1.2.27 + slf4j 2.0.20（修复 CVE）** 等
+- **内置用户态**：bootstrap 升级到上游 **2026.11.08-r1**（每周滚动）
 - **工程化**：引入 Gradle 版本目录 `gradle/libs.versions.toml`，依赖版本集中管理
+- **CI**：GitHub Actions 托管 Runner 编译（`.github/workflows/build.yml`），可手动触发、可选 ABI
 - **兼容性保留项**（有明确原因）：targetSdk 28、OkHttp 4.12、XXPermissions 11.5 等
 
-完整变更清单见仓库内 [`升级说明-0.118.3.66.md`](升级说明-0.118.3.66.md)。
+完整变更清单见仓库内 [`升级说明-0.118.3.69.md`](升级说明-0.118.3.69.md)。
+### 用 GitHub Actions 自行编译
+
+仓库已内置工作流 `.github/workflows/build.yml`：**Actions → Build APK → Run workflow**，可选 `arch`（默认 `arm64`）。构建完成后在该次运行页面底部 **Artifacts** 下载 APK；推送 `v*` tag 会自动构建并挂到 Release。
+
+```bash
+gh workflow run build.yml -R HANPU5838/ZeroTermux-hardened -f arch=arm64
+```
+
 
 ### 版本对照
 
