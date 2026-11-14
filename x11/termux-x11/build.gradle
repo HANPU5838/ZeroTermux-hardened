@@ -1,0 +1,82 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+//
+// ZeroTermux hardened 修改 {@
+// 上游 zt 分支构建时从 XiaoTong6666/termux-x11 的 nightly release 下载预编译 libXlorie.so。
+// 本仓库把这些预编译产物收编进 prebuilt/xlorie/（含 SHA256SUMS），构建时离线校验，
+// 不再依赖任何外部 Release 下载，保证构建可复现、供应链自包含。
+// @}
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+        classpath 'com.android.tools.build:gradle:9.5.1'
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url "https://jitpack.io" }
+    }
+}
+
+ext.prebuiltXlorieAbis = ["arm64-v8a", "armeabi-v7a", "x86", "x86_64"]
+
+tasks.register("verifyPrebuiltXlorie") {
+    group = "build"
+    description = "Verifies vendored prebuilt libXlorie.so binaries and their SHA-256 checksums."
+
+    def prebuiltDir = rootProject.file("prebuilt/xlorie")
+    def abis = prebuiltXlorieAbis
+
+    inputs.dir(prebuiltDir)
+    outputs.upToDateWhen { false }
+
+    doLast {
+        def expectedChecksums = [:]
+        def checksumFile = new File(prebuiltDir, "SHA256SUMS")
+        if (!checksumFile.isFile()) {
+            throw new GradleException("Missing vendored checksum file: ${checksumFile}")
+        }
+        checksumFile.eachLine { line ->
+            def parts = line.trim().split(/\s+/, 2)
+            if (parts.length == 2) expectedChecksums[parts[1].replaceFirst(/^\*/, "")] = parts[0].toLowerCase()
+        }
+
+        def problems = []
+        abis.each { abi ->
+            def file = new File(prebuiltDir, "$abi/libXlorie.so")
+            if (!file.isFile()) {
+                problems << "$abi: file missing"
+                return
+            }
+            def expected = expectedChecksums["libXlorie-$abi.so"]
+            if (expected == null) {
+                problems << "$abi: no checksum entry"
+                return
+            }
+            def digest = java.security.MessageDigest.getInstance("SHA-256")
+            file.withInputStream { input ->
+                byte[] buffer = new byte[8192]
+                int bytesRead
+                while ((bytesRead = input.read(buffer)) != -1) digest.update(buffer, 0, bytesRead)
+            }
+            def actual = digest.digest().collect { String.format("%02x", it) }.join()
+            if (actual != expected) problems << "$abi: SHA-256 mismatch (expected $expected, got $actual)"
+        }
+
+        if (!problems.isEmpty()) {
+            throw new GradleException("Vendored prebuilt libXlorie.so validation failed:\n  " + problems.join("\n  "))
+        }
+    }
+}
+
+tasks.register('clean', Delete) {
+    delete layout.buildDirectory
+}

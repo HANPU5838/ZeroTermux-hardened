@@ -13,6 +13,8 @@ on:
   push:
     tags:
       - 'v*'
+    branches:
+      - feat/x11-integration
 
 permissions:
   contents: write
@@ -55,6 +57,24 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           cache-read-only: false
+
+      # ===== termux-x11（并入的 zt 源码）构建：AAR + 内部通道 loader =====
+      - name: Build termux-x11 AAR and zt loader
+        working-directory: x11/termux-x11
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :app:assembleDebug :shell-loader:assembleDebug --no-daemon --stacktrace
+          echo "== x11 artifacts =="
+          ls -lh app/build/outputs/aar/ || true
+          ls -lh shell-loader/build/outputs/apk/debug/ || true
+
+      - name: Inject termux-x11 artifacts into ZeroTermux app
+        run: |
+          set -euo pipefail
+          cp -v x11/termux-x11/app/build/outputs/aar/app-debug.aar app/libs/termux-x11.aar
+          cp -v x11/termux-x11/shell-loader/build/outputs/apk/debug/shell-loader-debug-unsigned.apk app/src/main/assets/x11/aisle_zt_loader.apk
+          ls -l app/libs/termux-x11.aar app/src/main/assets/x11/aisle_zt_loader.apk
 
       - name: Build release APK
         env:

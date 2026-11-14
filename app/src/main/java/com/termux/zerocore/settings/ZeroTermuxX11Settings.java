@@ -124,9 +124,17 @@ public class ZeroTermuxX11Settings extends BaseTitleActivity {
                 } catch (ErrnoException e) {
                     e.printStackTrace();
                 }
-                if (!aislePathAPKFile.exists()) {
-                    boolean delete = aislePathAPKFile.delete();
-                    Log.i("TAG", "installAisleFile delete: " + delete);
+                // 旧文件存在时先删除（之前文件权限是 444，必须删掉再写入）
+                if (aislePathAPKFile.exists() && !aislePathAPKFile.delete()) {
+                    Log.w("TAG", "installAisleFile: failed to delete old loader.apk: " + aislePathAPKFile);
+                }
+                // 保证目录存在（首次安装时 /usr/libexec/termux-x11 可能不存在）
+                File apkParent = aislePathAPKFile.getParentFile();
+                if (apkParent != null && !apkParent.exists() && !apkParent.mkdirs()) {
+                    UUtils.runOnUIThread(() -> showInstallLog(getString(R.string.x11_environment_error)));
+                    runnable.run(false);
+                    UUtils.runOnUIThread(loadingDialog::dismiss);
+                    return;
                 }
                 if (!ZFileUUtils.writerFile("x11/aisle_zt_loader.apk", aislePathAPKFile)) {
                     UUtils.runOnUIThread(() -> {
@@ -173,13 +181,17 @@ public class ZeroTermuxX11Settings extends BaseTitleActivity {
                 e.printStackTrace();
             }
             UUtils.runOnThread(() -> {
-                // 安装APK
-                if (!aislePathAPKFile.exists()) {
-                    // 创建目录
-                    boolean delete = aislePathAPKFile.delete();
-                    if (!delete) {
-                        showInstallLog(getString(R.string.x11_environment_error));
-                    }
+                // 安装APK：旧文件存在时先删除（之前文件权限是 444，必须删掉再写入）
+                if (aislePathAPKFile.exists() && !aislePathAPKFile.delete()) {
+                    showInstallLog(getString(R.string.x11_environment_error));
+                }
+                // 保证目录存在（首次安装时 /usr/libexec/termux-x11 可能不存在）
+                File apkParent = aislePathAPKFile.getParentFile();
+                if (apkParent != null && !apkParent.exists() && !apkParent.mkdirs()) {
+                    showInstallLog(getString(R.string.x11_environment_error));
+                    runnable.run(false);
+                    UUtils.runOnUIThread(loadingDialog::dismiss);
+                    return;
                 }
                 if (!ZFileUUtils.writerFile("x11/aisle_x11_loader.apk", aislePathAPKFile)) {
                     UUtils.runOnUIThread(() -> {
