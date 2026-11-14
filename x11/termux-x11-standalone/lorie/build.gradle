@@ -28,7 +28,10 @@ android {
     compileSdkMinor = 1
     defaultConfig {
         minSdkVersion 24
-        targetSdk = 37
+        // ZeroTermux hardened：targetSdk 保持上游验证过的 34。
+        // 提到 35+ 会触发 Android 15/16 强制 edge-to-edge（内容顶到状态栏/挖孔下）
+        // 并对 16KB page size 设备强制要求 16KB 对齐原生库，导致部分新机型无法启动。
+        targetSdk = 34
         buildConfigField "String", "VERSION_NAME", "\"${termuxX11VersionName}\""
         buildConfigField "String", "COMMIT", "\"" + ("git rev-parse HEAD\n".execute().getText().trim() ?: (System.getenv('CURRENT_COMMIT') ?: "NO_COMMIT")) + "\""
         buildConfigField "String", "APPLICATION_ID", "\"${hostApplicationId}\""

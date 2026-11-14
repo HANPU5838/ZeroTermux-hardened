@@ -16,8 +16,9 @@ android {
     defaultConfig {
         applicationId "com.termux.x11"
         minSdk = 24
-        targetSdk = 37
-        versionCode 16
+        // ZeroTermux hardened：与上游一致保持 34（避免强制 edge-to-edge 与 16KB 页限制）
+        targetSdk = 34
+        versionCode 17
         versionName termuxX11VersionName
     }
 
