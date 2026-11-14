@@ -74,6 +74,15 @@ jobs:
           cp -v x11/termux-x11/shell-loader/build/outputs/apk/debug/shell-loader-debug-unsigned.apk app/src/main/assets/x11/aisle_zt_loader.apk
           ls -l app/libs/termux-x11.aar app/src/main/assets/x11/aisle_zt_loader.apk
 
+      - name: Build standalone Termux:X11 APK (外部通道)
+        working-directory: x11/termux-x11-standalone
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :lorie-app:assembleDebug --no-daemon --stacktrace
+          echo "== standalone x11 apk =="
+          ls -lh lorie-app/build/outputs/apk/debug/ || true
+
       - name: Build release APK
         env:
           ARCH: ${{ inputs.arch || 'arm64' }}
@@ -86,6 +95,9 @@ jobs:
           mkdir -p out
           find 垃圾箱/build/app/outputs/apk/release -name '*.apk' -exec cp -v {} out/ \;
           find 垃圾箱/build/app/outputs/mapping -name '*.txt' -exec cp -v {} out/ \; 2>/dev/null || true
+          # 独立 Termux:X11（外部通道）与 Termux:API 配套组件
+          cp -v x11/termux-x11-standalone/lorie-app/build/outputs/apk/debug/termux-x11-debug-universal.apk out/Termux-X11-universal.apk
+          cp -v apk/Termux-API-0.53.0-zero.14.apk out/Termux-API-0.53.0-zero.14.apk
           ls -lh out
           (cd out && sha256sum *.apk > SHA256SUMS.txt)
           cat out/SHA256SUMS.txt

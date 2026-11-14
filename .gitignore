@@ -14,6 +14,10 @@ local.properties
 !app/src/main/assets/x11/libXlorie-*.so
 # X11 loader APK 需要随源码入库（内部/外部通道安装依赖它们；CI 会用源码重建 zt loader 覆盖）
 !app/src/main/assets/x11/*.apk
+# 配套 Termux:API 安装包（版本固定，供 CI 附带到每个 Release）
+!apk/*.apk
+# 独立 Termux:X11（外部通道）收编的预编译 native 库
+!x11/termux-x11-standalone/prebuilt/xlorie/*/libXlorie.so
 # 并入的 termux-x11 源码里收编的预编译 libXlorie.so（受上面的 *.so 规则影响，需要放行）
 !x11/termux-x11/prebuilt/xlorie/*/libXlorie.so
 

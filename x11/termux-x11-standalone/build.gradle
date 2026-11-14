@@ -1,0 +1,66 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+//
+// ZeroTermux hardened 修改 {@
+// 本目录是「外部通道」使用的独立 Termux:X11 App 源码（上游 termux/termux-x11 master，
+// commit 与官方 nightly 488dbbd 对齐）。
+// - 关闭 externalNativeBuild，改用与源码同 commit 的官方 nightly 中提取的
+//   预编译 libXlorie.so（prebuilt/xlorie/，含 SHA256SUMS），避免 16 个原生子模块。
+// - 已中文化（values-zh + 硬编码文案）。
+// @}
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:9.5.1'
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url "https://jitpack.io" }
+    }
+}
+
+ext.prebuiltXlorieAbis = ["arm64-v8a", "armeabi-v7a", "x86", "x86_64"]
+
+tasks.register("verifyPrebuiltXlorie") {
+    group = "build"
+    description = "Verifies vendored prebuilt libXlorie.so binaries and their SHA-256 checksums."
+    def prebuiltDir = rootProject.file("prebuilt/xlorie")
+    def abis = prebuiltXlorieAbis
+    inputs.dir(prebuiltDir)
+    outputs.upToDateWhen { false }
+    doLast {
+        def expected = [:]
+        def checksumFile = new File(prebuiltDir, "SHA256SUMS")
+        if (!checksumFile.isFile()) throw new GradleException("Missing ${checksumFile}")
+        checksumFile.eachLine { line ->
+            def parts = line.trim().split(/\s+/, 2)
+            if (parts.length == 2) expected[parts[1].replaceFirst(/^\*/, "")] = parts[0].toLowerCase()
+        }
+        def problems = []
+        abis.each { abi ->
+            def file = new File(prebuiltDir, "$abi/libXlorie.so")
+            if (!file.isFile()) { problems << "$abi: missing"; return }
+            def want = expected["$abi/libXlorie.so"]
+            if (want == null) { problems << "$abi: no checksum"; return }
+            def digest = java.security.MessageDigest.getInstance("SHA-256")
+            file.withInputStream { input ->
+                byte[] buf = new byte[8192]; int n
+                while ((n = input.read(buf)) != -1) digest.update(buf, 0, n)
+            }
+            def got = digest.digest().collect { String.format("%02x", it) }.join()
+            if (got != want) problems << "$abi: SHA-256 mismatch"
+        }
+        if (!problems.isEmpty()) throw new GradleException("Prebuilt libXlorie.so validation failed:\n  " + problems.join("\n  "))
+    }
+}
+
+tasks.register('clean', Delete) {
+    delete layout.buildDirectory
+}
