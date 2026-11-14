@@ -24,7 +24,7 @@
 
 - **包名**：`com.termux`（主程序）/ `com.termux.api`（API 组件）
 - **SHA-256**：
-  - 主程序：`4b35ec8e5bf73f63aafe5ee2a3bc675d20d547b719f8883a330bd6d72d5b8415`
+  - 主程序：`a3b1d4f24a4a663bf1d99b8a596c93171329685ac8cf0bec92c58c4749cdf9e7`
   - API 组件：`ce7c7a2455737fade160622a8ecbfa73417e2371e3f7e28cb07497f3452ec12c`
 - **签名**：与上游分发版**同一证书**（`phone.jks`），因此可以**直接覆盖安装**已有的 ZeroTermux/Termux，无需卸载，数据不丢。
 - **系统要求**：Android 7.0+（minSdk 23），targetSdk 28（Termux 生态兼容性所需）。
