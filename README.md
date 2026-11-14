@@ -79,12 +79,12 @@
 
 | 项 | 值 |
 | --- | --- |
-| 版本 | **1.03.01-547b2fb-14.11.26**（versionCode 16） |
+| 版本 | **1.03.01-fa6d456-14.11.26**（versionCode 17） |
 | 源码基线 | [termux/termux-x11](https://github.com/termux/termux-x11) master @ `488dbbd`（与官方 nightly 同 commit） |
 | 安装包 | [`Termux-X11-universal.apk`](https://github.com/HANPU5838/ZeroTermux-hardened/releases/download/v0.118.3.70/Termux-X11-universal.apk) |
 | 大小 | 13,985,846 字节（≈13.3 MiB） |
 | ABI | 全架构 universal（arm64 / arm / x86 / x86_64） |
-| SHA-256 | `a6792767a778eed3a08fd6ab0ca7dd79992c865a7bde8dee0283b6c76f18e305` |
+| SHA-256 | `f20d041b7c9bb37fbc44742dcdce2848edf073228291871b49351d250f4d634b` |
 | 界面语言 | **中文**（本地化自上游英文文案） |
 
 **使用（外部通道）**：
