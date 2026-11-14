@@ -13,8 +13,6 @@ on:
   push:
     tags:
       - 'v*'
-    branches:
-      - feat/x11-integration
 
 permissions:
   contents: write
@@ -89,7 +87,8 @@ jobs:
           find 垃圾箱/build/app/outputs/apk/release -name '*.apk' -exec cp -v {} out/ \;
           find 垃圾箱/build/app/outputs/mapping -name '*.txt' -exec cp -v {} out/ \; 2>/dev/null || true
           ls -lh out
-          sha256sum out/*.apk | tee out/SHA256SUMS.txt
+          (cd out && sha256sum *.apk > SHA256SUMS.txt)
+          cat out/SHA256SUMS.txt
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
@@ -103,5 +102,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: out/*.apk
+          files: |
+            out/*.apk
+            out/SHA256SUMS.txt
           generate_release_notes: true
