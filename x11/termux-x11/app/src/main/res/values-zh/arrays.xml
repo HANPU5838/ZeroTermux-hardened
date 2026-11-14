@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ZeroTermux hardened：中文界面用的「显示文案」数组。
+  注意：带 Values 后缀的数组是持久化值，必须保持英文原样，绝不翻译；
+  这里只覆盖 *Entries 显示数组。
+-->
+<resources>
+    <string-array name="displayResolutionVariantsEntries">
+        <item>原生</item>
+        <item>缩放</item>
+        <item>精确</item>
+        <item>自定义</item>
+    </string-array>
+
+    <string-array name="forceOrientationVariantsEntries">
+        <item>自动</item>
+        <item>竖屏</item>
+        <item>横屏</item>
+        <item>反向竖屏</item>
+        <item>反向横屏</item>
+    </string-array>
+
+    <string-array name="touchscreenInputModesEntries">
+        <item>触控板</item>
+        <item>模拟触屏</item>
+        <item>直接触摸</item>
+    </string-array>
+
+    <string-array name="transformCapturedPointerEntries">
+        <item>否</item>
+        <item>顺时针</item>
+        <item>逆时针</item>
+        <item>上下颠倒</item>
+        <item>自动（触控板）</item>
+    </string-array>
+
+    <string-array name="userActionsEntries">
+        <item>无操作</item>
+        <item>切换软键盘</item>
+        <item>切换附加按键栏</item>
+        <item>打开设置</item>
+        <item>释放指针与键盘捕获</item>
+        <item>切换全屏</item>
+        <item>重启界面</item>
+        <item>退出</item>
+    </string-array>
+
+    <string-array name="userActionsVolumeUpEntries">
+        <item>@array/userActionsEntries</item>
+        <item>发送音量 +</item>
+    </string-array>
+
+    <string-array name="userActionsVolumeDownEntries">
+        <item>@array/userActionsEntries</item>
+        <item>发送音量 -</item>
+    </string-array>
+
+    <string-array name="userActionsMediaKeyEntries">
+        <item>@array/userActionsEntries</item>
+        <item>发送媒体操作</item>
+    </string-array>
+</resources>

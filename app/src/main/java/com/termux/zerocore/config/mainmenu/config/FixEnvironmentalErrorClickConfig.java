@@ -47,9 +47,14 @@ public class FixEnvironmentalErrorClickConfig extends BaseMenuClickConfig {
             } catch (ErrnoException e) {
                 e.printStackTrace();
             }
-            if (!aislePathAPKFile.exists()) {
-                boolean delete = aislePathAPKFile.delete();
-                Log.i("TAG", "installAisleFile delete: " + delete);
+            // 旧文件存在时先删除（之前文件权限是 444，必须删掉再写入）
+            if (aislePathAPKFile.exists() && !aislePathAPKFile.delete()) {
+                Log.w("TAG", "installAisleFile: failed to delete old loader.apk: " + aislePathAPKFile);
+            }
+            File apkParent = aislePathAPKFile.getParentFile();
+            if (apkParent != null && !apkParent.exists() && !apkParent.mkdirs()) {
+                UUtils.showMsg(context.getString(R.string.x11_so_install_error));
+                return;
             }
             if (!ZFileUUtils.writerFile(termuxActivity.mInternalPassage? "x11/aisle_zt_loader.apk"
                 : "x11/aisle_x11_loader.apk", aislePathAPKFile)) {

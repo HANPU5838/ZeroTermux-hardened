@@ -56,6 +56,24 @@ jobs:
         with:
           cache-read-only: false
 
+      # ===== termux-x11（并入的 zt 源码）构建：AAR + 内部通道 loader =====
+      - name: Build termux-x11 AAR and zt loader
+        working-directory: x11/termux-x11
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :app:assembleDebug :shell-loader:assembleDebug --no-daemon --stacktrace
+          echo "== x11 artifacts =="
+          ls -lh app/build/outputs/aar/ || true
+          ls -lh shell-loader/build/outputs/apk/debug/ || true
+
+      - name: Inject termux-x11 artifacts into ZeroTermux app
+        run: |
+          set -euo pipefail
+          cp -v x11/termux-x11/app/build/outputs/aar/app-debug.aar app/libs/termux-x11.aar
+          cp -v x11/termux-x11/shell-loader/build/outputs/apk/debug/shell-loader-debug-unsigned.apk app/src/main/assets/x11/aisle_zt_loader.apk
+          ls -l app/libs/termux-x11.aar app/src/main/assets/x11/aisle_zt_loader.apk
+
       - name: Build release APK
         env:
           ARCH: ${{ inputs.arch || 'arm64' }}
@@ -69,7 +87,8 @@ jobs:
           find 垃圾箱/build/app/outputs/apk/release -name '*.apk' -exec cp -v {} out/ \;
           find 垃圾箱/build/app/outputs/mapping -name '*.txt' -exec cp -v {} out/ \; 2>/dev/null || true
           ls -lh out
-          sha256sum out/*.apk | tee out/SHA256SUMS.txt
+          (cd out && sha256sum *.apk > SHA256SUMS.txt)
+          cat out/SHA256SUMS.txt
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
@@ -83,5 +102,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: out/*.apk
+          files: |
+            out/*.apk
+            out/SHA256SUMS.txt
           generate_release_notes: true
