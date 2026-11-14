@@ -227,8 +227,8 @@ public class TermuxX11ExtraKeys implements ExtraKeysView.IExtraKeysView {
             mExtraKeysInfo = new ExtraKeysInfo(extrakeys, "extra-keys-style", ExtraKeysConstants.CONTROL_CHARS_ALIASES);
         } catch (JSONException e) {
             // ZeroTermux modify {@
-            Toast.makeText(MainActivity.getInstance().mActivity, "Could not load and set the \"extra-keys\" property from the properties file: " + e, Toast.LENGTH_LONG).show();
-            //Toast.makeText(MainActivity.getInstance(), "Could not load and set the \"extra-keys\" property from the properties file: " + e, Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.getInstance().mActivity, "无法从属性文件读取并设置 \"extra-keys\" 属性：" + e, Toast.LENGTH_LONG).show();
+            //Toast.makeText(MainActivity.getInstance(), "无法从属性文件读取并设置 \"extra-keys\" 属性：" + e, Toast.LENGTH_LONG).show();
             // @}
             Log.e(LOG_TAG, "Could not load and set the \"extra-keys\" property from the properties file: ", e);
 
@@ -236,8 +236,8 @@ public class TermuxX11ExtraKeys implements ExtraKeysView.IExtraKeysView {
                 mExtraKeysInfo = new ExtraKeysInfo(TermuxX11ExtraKeys.DEFAULT_IVALUE_EXTRA_KEYS, "default", ExtraKeysConstants.CONTROL_CHARS_ALIASES);
             } catch (JSONException e2) {
                 // ZeroTermux modify {@
-                Toast.makeText(MainActivity.getInstance().mActivity, "Can't create default extra keys", Toast.LENGTH_LONG).show();
-                // Toast.makeText(MainActivity.getInstance(), "Can't create default extra keys", Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.getInstance().mActivity, "无法创建默认附加按键", Toast.LENGTH_LONG).show();
+                // Toast.makeText(MainActivity.getInstance(), "无法创建默认附加按键", Toast.LENGTH_LONG).show();
                 // @}
                 Log.e(LOG_TAG, "Could create default extra keys: ", e);
                 mExtraKeysInfo = null;

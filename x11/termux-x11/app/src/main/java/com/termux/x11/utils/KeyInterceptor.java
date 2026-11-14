@@ -36,11 +36,11 @@ public class KeyInterceptor extends AccessibilityService {
             launchedAutomatically = true;
         } catch (SecurityException e) {
             new AlertDialog.Builder(ctx)
-                    .setTitle("Permission denied")
-                    .setMessage("Android requires WRITE_SECURE_SETTINGS permission to start accessibility service automatically.\n" +
-                            "Please, launch this command using ADB:\n" +
+                    .setTitle("权限不足")
+                    .setMessage("Android 需要 WRITE_SECURE_SETTINGS 权限才能自动启动无障碍服务。\n" +
+                            "请通过 ADB 执行以下命令：\n" +
                             "adb shell pm grant com.termux.x11 android.permission.WRITE_SECURE_SETTINGS")
-                    .setNegativeButton("OK", null)
+                    .setNegativeButton("确定", null)
                     .create()
                     .show();
 

@@ -56,7 +56,7 @@ tasks.register("verifyPrebuiltXlorie") {
                 problems << "$abi: file missing"
                 return
             }
-            def expected = expectedChecksums["libXlorie-$abi.so"]
+            def expected = expectedChecksums["libXlorie-${abi}.so"]
             if (expected == null) {
                 problems << "$abi: no checksum entry"
                 return

@@ -424,7 +424,7 @@ public class LoriePreferences extends AppCompatActivity implements PreferenceFra
                 if (ctx != null) {
                     ((ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE))
                             .setPrimaryClip(ClipData.newPlainText(p.getSummary(), p.getSummary()));
-                    Toast.makeText(ctx, "Copied to clipboard", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ctx, "已复制到剪贴板", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -462,7 +462,7 @@ public class LoriePreferences extends AppCompatActivity implements PreferenceFra
                     Integer.parseInt(resolution[0]);
                     Integer.parseInt(resolution[1]);
                 } catch (NumberFormatException | PatternSyntaxException ignored) {
-                    Toast.makeText(getActivity(), "Wrong resolution format", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "分辨率格式错误", Toast.LENGTH_SHORT).show();
                     return false;
                 }
             }
@@ -475,11 +475,11 @@ public class LoriePreferences extends AppCompatActivity implements PreferenceFra
                     KeyInterceptor.shutdown(false);
                 if (requireContext().checkSelfPermission(WRITE_SECURE_SETTINGS) != PERMISSION_GRANTED) {
                     new AlertDialog.Builder(requireContext())
-                            .setTitle("Permission denied")
-                            .setMessage("Android requires WRITE_SECURE_SETTINGS permission to start accessibility service automatically.\n" +
-                                    "Please, launch this command using ADB:\n" +
+                            .setTitle("权限不足")
+                            .setMessage("Android 需要 WRITE_SECURE_SETTINGS 权限才能自动启动无障碍服务。\n" +
+                                    "请通过 ADB 执行以下命令：\n" +
                                     "adb shell pm grant com.termux.x11 android.permission.WRITE_SECURE_SETTINGS")
-                            .setNegativeButton("OK", null)
+                            .setNegativeButton("确定", null)
                             .create()
                             .show();
                     return false;
@@ -513,16 +513,16 @@ public class LoriePreferences extends AppCompatActivity implements PreferenceFra
                 desc.setMovementMethod(LinkMovementMethod.getInstance());
                 new android.app.AlertDialog.Builder(getActivity())
                         .setView(view)
-                        .setTitle("Extra keys config")
-                        .setPositiveButton("OK",
+                        .setTitle("附加按键配置")
+                        .setPositiveButton("确定",
                                 (dialog, whichButton) -> {
                                     String text = config.getText().toString();
                                     prefs.extra_keys_config.put(!text.isEmpty() ? text : TermuxX11ExtraKeys.DEFAULT_IVALUE_EXTRA_KEYS);
                                 }
                         )
-                        .setNeutralButton("Reset",
+                        .setNeutralButton("重置",
                                 (dialog, whichButton) -> prefs.extra_keys_config.put(TermuxX11ExtraKeys.DEFAULT_IVALUE_EXTRA_KEYS))
-                        .setNegativeButton("Cancel", (dialog, whichButton) -> dialog.dismiss())
+                        .setNegativeButton("取消", (dialog, whichButton) -> dialog.dismiss())
                         .create()
                         .show();
             } else super.onDisplayPreferenceDialog(preference);
