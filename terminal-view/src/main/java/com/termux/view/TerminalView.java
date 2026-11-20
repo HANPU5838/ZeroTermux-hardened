@@ -71,6 +71,10 @@ public final class TerminalView extends View {
      * coalesced and applied once the window has settled.
      */
     private static final long RESIZE_DEBOUNCE_MS = 60;
+
+    /** Extra pixels added around a repainted row so text shadows are not clipped. */
+    private static final int ROW_REPAINT_MARGIN_PX = 10;
+
     private Handler mResizeHandler;
     private final Runnable mApplyResizeRunnable = new Runnable() {
         @Override
@@ -543,7 +547,6 @@ public final class TerminalView extends View {
         }
         TerminalBuffer screen = mEmulator.getScreen();
         int rows = mEmulator.mRows;
-        int lineHeight = mRenderer.mFontLineSpacing;
         int cursorRow = mEmulator.getCursorRow();
 
         int dirtyTop = Integer.MAX_VALUE;
@@ -565,8 +568,11 @@ public final class TerminalView extends View {
             // Nothing changed; skip the repaint entirely.
             return;
         }
-        int top = dirtyTop * lineHeight;
-        int bottom = (dirtyBottom + 1) * lineHeight;
+        // Rows are drawn at [row * lineSpacing + mFontLineSpacingAndAscent, ...], not at
+        // row * lineSpacing, so the offset must be applied or the bottom of the last dirty row
+        // (descenders, underlines) would be left stale. A small margin covers text shadow bleed.
+        int top = Math.max(0, rowTopPx(dirtyTop) - ROW_REPAINT_MARGIN_PX);
+        int bottom = Math.min(getHeight(), rowTopPx(dirtyBottom + 1) + ROW_REPAINT_MARGIN_PX);
         invalidate(0, top, getWidth(), bottom);
     }
 
@@ -584,10 +590,14 @@ public final class TerminalView extends View {
             invalidate();
             return;
         }
-        int lineHeight = mRenderer.mFontLineSpacing;
-        int top = cursorRow * lineHeight;
-        int bottom = (cursorRow + 1) * lineHeight;
+        int top = Math.max(0, rowTopPx(cursorRow) - ROW_REPAINT_MARGIN_PX);
+        int bottom = Math.min(getHeight(), rowTopPx(cursorRow + 1) + ROW_REPAINT_MARGIN_PX);
         invalidate(0, top, getWidth(), bottom);
+    }
+
+    /** Top edge in pixels of the given screen row, matching where {@link TerminalRenderer} draws it. */
+    private int rowTopPx(int row) {
+        return row * mRenderer.mFontLineSpacing + mRenderer.mFontLineSpacingAndAscent;
     }
 
     /** This must be called by the hosting activity in {@link Activity#onContextMenuClosed(Menu)}
@@ -606,6 +616,9 @@ public final class TerminalView extends View {
     public void setTextSize(int textSize) {
         mRenderer = new TerminalRenderer(textSize, mRenderer == null ? Typeface.MONOSPACE : mRenderer.mTypeface);
         updateSize();
+        // The grid may keep the same columns/rows for a small size change, in which case updateSize()
+        // does not repaint, so force one to apply the new glyph metrics.
+        invalidate();
     }
 
     public void setTypeface(Typeface newTypeface) {
