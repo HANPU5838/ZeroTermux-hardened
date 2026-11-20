@@ -537,7 +537,7 @@ public final class TerminalView extends View {
      * or when no renderer/emulator is available.
      */
     private void invalidateDirtyRegions() {
-        if (mEmulator == null || mRenderer == null || mTopRow != 0) {
+        if (mEmulator == null || mRenderer == null || mTopRow != 0 || computeVerticalOffset() != 0) {
             invalidate();
             return;
         }
@@ -575,7 +575,7 @@ public final class TerminalView extends View {
      * force a full-screen repaint every blink interval.
      */
     private void invalidateCursorRow() {
-        if (mEmulator == null || mRenderer == null || mTopRow != 0) {
+        if (mEmulator == null || mRenderer == null || mTopRow != 0 || computeVerticalOffset() != 0) {
             invalidate();
             return;
         }
@@ -1138,6 +1138,20 @@ public final class TerminalView extends View {
         }
     }
 
+    /**
+     * Pixels by which the rendered rows must be shifted up so that the bottom row stays visible.
+     *
+     * <p>This is non-zero only while the view is temporarily shorter than the terminal content,
+     * which happens while the soft keyboard animates and the pty resize is still debounced. Pinning
+     * the bottom row to the bottom of the view keeps the prompt visible (sliding with the keyboard)
+     * instead of letting it be clipped away until the resize lands.</p>
+     */
+    private int computeVerticalOffset() {
+        if (mEmulator == null || mRenderer == null) return 0;
+        int contentHeight = mEmulator.mRows * mRenderer.mFontLineSpacing + mRenderer.mFontLineSpacingAndAscent;
+        return Math.min(0, getHeight() - contentHeight);
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         if (mEmulator == null) {
@@ -1149,7 +1163,7 @@ public final class TerminalView extends View {
                 mTextSelectionCursorController.getSelectors(sel);
             }
 
-            mRenderer.render(mEmulator, canvas, mTopRow, sel[0], sel[1], sel[2], sel[3]);
+            mRenderer.render(mEmulator, canvas, mTopRow, sel[0], sel[1], sel[2], sel[3], computeVerticalOffset());
 
             // render the text selection handles
             renderTextSelection();
@@ -1169,7 +1183,9 @@ public final class TerminalView extends View {
     }
 
     public int getCursorY(float y) {
-        return (int) (((y - 40) / mRenderer.mFontLineSpacing) + mTopRow);
+        // Account for the transient shift applied in onDraw() while the view is shorter than the
+        // terminal content, so hit-testing stays aligned with what is on screen.
+        return (int) (((y - computeVerticalOffset() - 40) / mRenderer.mFontLineSpacing) + mTopRow);
     }
 
     public int getPointX(int cx) {
@@ -1180,7 +1196,7 @@ public final class TerminalView extends View {
     }
 
     public int getPointY(int cy) {
-        return Math.round((cy - mTopRow) * mRenderer.mFontLineSpacing);
+        return Math.round((cy - mTopRow) * mRenderer.mFontLineSpacing) + computeVerticalOffset();
     }
 
     public int getTopRow() {
