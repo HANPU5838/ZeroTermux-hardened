@@ -64,31 +64,9 @@ public final class TerminalView extends View {
     private Handler mTerminalCursorBlinkerHandler;
     private TerminalCursorBlinkerRunnable mTerminalCursorBlinkerRunnable;
 
-    /**
-     * While the soft keyboard animates in or out the window is resized on every animation frame.
-     * Resizing the pty on each of those frames makes the shell (and full-screen TUI programs)
-     * reflow and repaint dozens of times, which is visible as flicker. Size changes are therefore
-     * coalesced and applied once the window has settled.
-     */
-    private static final long RESIZE_DEBOUNCE_MS = 60;
-
     /** Extra pixels added around a repainted row so text shadows are not clipped. */
     private static final int ROW_REPAINT_MARGIN_PX = 10;
 
-    /**
-     * Minimum interval between accessibility content-description rebuilds. Rebuilding it means
-     * flattening the whole screen into a string, which is far too expensive to do for every batch
-     * of output when an accessibility service is enabled.
-     */
-    private static final long CONTENT_DESCRIPTION_INTERVAL_MS = 250;
-
-    private Handler mResizeHandler;
-    private final Runnable mApplyResizeRunnable = new Runnable() {
-        @Override
-        public void run() {
-            updateSize();
-        }
-    };
     private int mTerminalCursorBlinkerRate;
     private boolean mCursorInvisibleIgnoreOnce;
     public static final int TERMINAL_CURSOR_BLINK_RATE_MIN = 100;
@@ -100,17 +78,6 @@ public final class TerminalView extends View {
     /** Last screen row the cursor was drawn on, used to erase it when it moves to another row. */
     private int mLastCursorRow = -1;
 
-    /** Time of the last accessibility content-description rebuild. */
-    private long mLastContentDescriptionTime;
-
-    private final Runnable mUpdateContentDescriptionRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (!mAccessibilityEnabled || mEmulator == null) return;
-            mLastContentDescriptionTime = SystemClock.uptimeMillis();
-            setContentDescription(getText());
-        }
-    };
     int[] mDefaultSelectors = new int[]{-1,-1,-1,-1};
 
     float mScaleFactor = 1.f;
@@ -555,24 +522,7 @@ public final class TerminalView extends View {
         } else {
             invalidateDirtyRegions();
         }
-        if (mAccessibilityEnabled) scheduleContentDescriptionUpdate();
-    }
-
-    /**
-     * Rebuild the accessibility content description at most every
-     * {@link #CONTENT_DESCRIPTION_INTERVAL_MS} ms, with a trailing update so the final state is
-     * always published.
-     */
-    private void scheduleContentDescriptionUpdate() {
-        long now = SystemClock.uptimeMillis();
-        long elapsed = now - mLastContentDescriptionTime;
-        removeCallbacks(mUpdateContentDescriptionRunnable);
-        if (elapsed >= CONTENT_DESCRIPTION_INTERVAL_MS) {
-            mLastContentDescriptionTime = now;
-            setContentDescription(getText());
-        } else {
-            postDelayed(mUpdateContentDescriptionRunnable, CONTENT_DESCRIPTION_INTERVAL_MS - elapsed);
-        }
+        if (mAccessibilityEnabled) setContentDescription(getText());
     }
 
     /**
@@ -582,7 +532,7 @@ public final class TerminalView extends View {
      * or when no renderer/emulator is available.
      */
     private void invalidateDirtyRegions() {
-        if (mEmulator == null || mRenderer == null || mTopRow != 0 || computeVerticalOffset() != 0) {
+        if (mEmulator == null || mRenderer == null || mTopRow != 0) {
             invalidate();
             return;
         }
@@ -634,7 +584,7 @@ public final class TerminalView extends View {
         }
         int cursorRow = mEmulator.getCursorRow();
         mLastCursorRow = (cursorRow >= 0 && cursorRow < mEmulator.mRows) ? cursorRow : -1;
-        if (mTopRow != 0 || computeVerticalOffset() != 0 || mLastCursorRow < 0) {
+        if (mTopRow != 0 || mLastCursorRow < 0) {
             invalidate();
             return;
         }
@@ -1157,16 +1107,7 @@ public final class TerminalView extends View {
      */
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        // The first size (or the first size after a session switch) must be applied immediately so
-        // that the very first frame is rendered at the correct dimensions. Afterwards, coalesce the
-        // rapid size changes that happen while the soft keyboard animates.
-        if (mEmulator == null || mTermSession == null) {
-            updateSize();
-            return;
-        }
-        if (mResizeHandler == null) mResizeHandler = new Handler(Looper.getMainLooper());
-        mResizeHandler.removeCallbacks(mApplyResizeRunnable);
-        mResizeHandler.postDelayed(mApplyResizeRunnable, RESIZE_DEBOUNCE_MS);
+        updateSize();
     }
 
     /** Check if the terminal size in rows and columns should be updated. */
@@ -1206,13 +1147,6 @@ public final class TerminalView extends View {
      * which happens while the soft keyboard animates and the pty resize is still debounced. Pinning
      * the bottom row to the bottom of the view keeps the prompt visible (sliding with the keyboard)
      * instead of letting it be clipped away until the resize lands.</p>
-     */
-    private int computeVerticalOffset() {
-        if (mEmulator == null || mRenderer == null) return 0;
-        int contentHeight = mEmulator.mRows * mRenderer.mFontLineSpacing + mRenderer.mFontLineSpacingAndAscent;
-        return Math.min(0, getHeight() - contentHeight);
-    }
-
     @Override
     protected void onDraw(Canvas canvas) {
         if (mEmulator == null) {
@@ -1224,7 +1158,7 @@ public final class TerminalView extends View {
                 mTextSelectionCursorController.getSelectors(sel);
             }
 
-            mRenderer.render(mEmulator, canvas, mTopRow, sel[0], sel[1], sel[2], sel[3], computeVerticalOffset());
+            mRenderer.render(mEmulator, canvas, mTopRow, sel[0], sel[1], sel[2], sel[3]);
 
             // render the text selection handles
             renderTextSelection();
@@ -1244,9 +1178,7 @@ public final class TerminalView extends View {
     }
 
     public int getCursorY(float y) {
-        // Account for the transient shift applied in onDraw() while the view is shorter than the
-        // terminal content, so hit-testing stays aligned with what is on screen.
-        return (int) (((y - computeVerticalOffset() - 40) / mRenderer.mFontLineSpacing) + mTopRow);
+        return (int) (((y - 40) / mRenderer.mFontLineSpacing) + mTopRow);
     }
 
     public int getPointX(int cx) {
@@ -1257,7 +1189,7 @@ public final class TerminalView extends View {
     }
 
     public int getPointY(int cy) {
-        return Math.round((cy - mTopRow) * mRenderer.mFontLineSpacing) + computeVerticalOffset();
+        return Math.round((cy - mTopRow) * mRenderer.mFontLineSpacing);
     }
 
     public int getTopRow() {
@@ -1652,9 +1584,6 @@ public final class TerminalView extends View {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-
-        if (mResizeHandler != null) mResizeHandler.removeCallbacks(mApplyResizeRunnable);
-        removeCallbacks(mUpdateContentDescriptionRunnable);
 
         if (mTextSelectionCursorController != null) {
             // Might solve the following exception

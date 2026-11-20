@@ -73,20 +73,6 @@ public final class TerminalRenderer {
     /** Render the terminal to a canvas with at a specified row scroll, and an optional rectangular selection. */
     public final void render(TerminalEmulator mEmulator, Canvas canvas, int topRow,
                              int selectionY1, int selectionY2, int selectionX1, int selectionX2) {
-        render(mEmulator, canvas, topRow, selectionY1, selectionY2, selectionX1, selectionX2, 0);
-    }
-
-    /**
-     * Render the terminal, shifting every row by {@code yOffset} pixels.
-     *
-     * <p>A negative offset is used while the view is temporarily shorter than the terminal content
-     * (for example while the soft keyboard animates and the pty resize is still pending): it pins
-     * the bottom row to the bottom of the view so that the prompt stays visible instead of being
-     * clipped away, and the content slides with the keyboard.</p>
-     */
-    public final void render(TerminalEmulator mEmulator, Canvas canvas, int topRow,
-                             int selectionY1, int selectionY2, int selectionX1, int selectionX2,
-                             int yOffset) {
         final boolean reverseVideo = mEmulator.isReverseVideo();
         final int endRow = topRow + mEmulator.mRows;
         final int columns = mEmulator.mColumns;
@@ -114,7 +100,7 @@ public final class TerminalRenderer {
         for (int row = topRow; row < endRow; row++) {
             heightOffset += mFontLineSpacing;
 
-            final float y = heightOffset + yOffset;
+            final float y = heightOffset;
             final float rowTop = y - mFontLineSpacingAndAscent + mFontAscent;
             if (y + rowSkipMargin <= clipTop || rowTop - rowSkipMargin >= clipBottom)
                 continue;
