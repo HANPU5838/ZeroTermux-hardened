@@ -83,7 +83,6 @@
 -keep class com.tang.** { *; }
 -dontwarn java.beans.Introspector
 
--dontobfuscate
 -keepattributes SourceFile,LineNumberTable
 
 # These are mainly needed in full R8 mode, but Connectbot uses these by default
@@ -147,3 +146,9 @@
 
 # 保留左菜单配置类：XML 菜单通过 Class.forName 反射按类名加载，R8 看不到引用
 -keep class com.termux.zerocore.config.mainmenu.config.** { *; }
+
+# Gson 通过反射读写字段，R8 看不到引用；保留带 @SerializedName 的字段与模型类
+-keep class * { @com.google.gson.annotations.SerializedName <fields>; }
+-keep class com.termux.zerocore.ai.** { *; }
+-keep class com.termux.zerocore.control.** { *; }
+-keep class com.termux.zerocore.aidebug.** { *; }

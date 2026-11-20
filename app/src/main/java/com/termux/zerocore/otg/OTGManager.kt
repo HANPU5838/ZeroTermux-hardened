@@ -61,7 +61,7 @@ class OTGManager {
                 mContext,
                 0,
                 Intent(OTGManagerConstant.ACTION_USB_PERMISSION),
-                0
+                PendingIntent.FLAG_IMMUTABLE
             )
             for (device in storageDevices) { //可能有几个 一般只有一个 因为大部分手机只有1个otg插口
                 LogUtils.d(TAG, "initOtg devices hasPermission:${usbManager.hasPermission(device.usbDevice)}")

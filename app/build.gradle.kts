@@ -85,18 +85,23 @@ android {
         buildConfig = true
     }
 
+    // Signing credentials come from CI secrets (no plaintext in source). The same phone.jks
+    // certificate is kept so覆盖安装 upgrades keep working — do not rotate the key here.
+    val keyAliasEnv = System.getenv("KEY_ALIAS")
+    val keyPasswordEnv = System.getenv("KEY_PASSWORD")
+    val storePasswordEnv = System.getenv("STORE_PASSWORD")
     signingConfigs {
         create("release") {
-            keyAlias = System.getenv("KEY_ALIAS") ?: "phone1"
-            keyPassword = System.getenv("KEY_PASSWORD") ?: "654321"
+            keyAlias = keyAliasEnv ?: throw GradleException("KEY_ALIAS env var is required for release signing")
+            keyPassword = keyPasswordEnv ?: throw GradleException("KEY_PASSWORD env var is required for release signing")
             storeFile = rootProject.file("phone.jks")
-            storePassword = System.getenv("STORE_PASSWORD") ?: "123456"
+            storePassword = storePasswordEnv ?: throw GradleException("STORE_PASSWORD env var is required for release signing")
         }
         maybeCreate("debug").apply {
-            keyAlias = System.getenv("KEY_ALIAS") ?: "phone1"
-            keyPassword = System.getenv("KEY_PASSWORD") ?: "654321"
+            keyAlias = keyAliasEnv ?: "phone1"
+            keyPassword = keyPasswordEnv ?: "654321"
             storeFile = rootProject.file("phone.jks")
-            storePassword = System.getenv("STORE_PASSWORD") ?: "123456"
+            storePassword = storePasswordEnv ?: "123456"
         }
     }
 

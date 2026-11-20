@@ -56,6 +56,15 @@ jobs:
         with:
           cache-read-only: false
 
+      # Bootstrap zips are downloaded at build time and pinned by SHA256 in app/build.gradle.kts.
+      # Cache them so CI does not re-download ~4 archives on every run (and survives `clean`,
+      # which deletes them from the workspace). The hash is verified by the build itself.
+      - name: Cache bootstraps
+        uses: actions/cache@v4
+        with:
+          path: app/src/main/cpp/bootstrap-*.zip
+          key: bootstraps-2026.11.08-r1-apt.android-7
+
       # ===== termux-x11（并入的 zt 源码）构建：AAR + 内部通道 loader =====
       - name: Build termux-x11 AAR and zt loader
         working-directory: x11/termux-x11
@@ -86,6 +95,9 @@ jobs:
       - name: Build release APK
         env:
           ARCH: ${{ inputs.arch || 'arm64' }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
         run: |
           chmod +x gradlew
           ./gradlew :app:assembleRelease -Darch="$ARCH" --no-daemon --stacktrace
