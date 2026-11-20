@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 
 import com.termux.terminal.TerminalBuffer;
@@ -36,6 +37,9 @@ public final class TerminalRenderer {
     final int mFontLineSpacingAndAscent;
 
     private final float[] asciiMeasures = new float[127];
+
+    /** Reused by {@link #render} so that per-frame clip lookups do not allocate. */
+    private final Rect mClipBounds = new Rect();
 
     public TerminalRenderer(int textSize, Typeface typeface) {
         mTextSize = textSize;
@@ -73,9 +77,23 @@ public final class TerminalRenderer {
         if (reverseVideo)
             canvas.drawColor(palette[TextStyle.COLOR_INDEX_FOREGROUND], PorterDuff.Mode.SRC);
 
+        // Only rows intersecting the invalidated region need to be drawn. When a partial region was
+        // invalidated (dirty rows), this turns the per-frame work from "whole screen" into "a few
+        // rows", which is where the real saving of dirty-region rendering comes from.
+        canvas.getClipBounds(mClipBounds);
+        final int clipTop = mClipBounds.top;
+        final int clipBottom = mClipBounds.bottom;
+        // Text shadows (TEXT_SHADOW_PROGRESS) can bleed outside a row by up to ~8px; keep a small
+        // margin so a skipped row can never contribute visible pixels inside the clip.
+        final float rowSkipMargin = 10f;
+
         float heightOffset = mFontLineSpacingAndAscent;
         for (int row = topRow; row < endRow; row++) {
             heightOffset += mFontLineSpacing;
+
+            final float rowTop = heightOffset - mFontLineSpacingAndAscent + mFontAscent;
+            if (heightOffset + rowSkipMargin <= clipTop || rowTop - rowSkipMargin >= clipBottom)
+                continue;
 
             final int cursorX = (row == cursorRow && cursorVisible) ? cursorCol : -1;
             int selx1 = -1, selx2 = -1;

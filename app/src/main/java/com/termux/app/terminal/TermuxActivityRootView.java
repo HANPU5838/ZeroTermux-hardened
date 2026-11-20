@@ -129,6 +129,13 @@ public class TermuxActivityRootView extends ZeroTermuxBackLayout implements View
                 postDelayed(mClearImeAnimatingRunnable, 600);
             }
 
+            @NonNull
+            @Override
+            public WindowInsetsCompat onProgress(@NonNull WindowInsetsCompat insets,
+                                                 @NonNull java.util.List<WindowInsetsAnimationCompat> runningAnimations) {
+                return insets;
+            }
+
             @Override
             public void onEnd(@NonNull WindowInsetsAnimationCompat animation) {
                 if ((animation.getTypeMask() & WindowInsetsCompat.Type.ime()) == 0) return;
