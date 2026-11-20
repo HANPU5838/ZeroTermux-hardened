@@ -152,3 +152,18 @@
 -keep class com.termux.zerocore.ai.** { *; }
 -keep class com.termux.zerocore.control.** { *; }
 -keep class com.termux.zerocore.aidebug.** { *; }
+
+# R8：第三方 Java EE/桌面库（log4j、jlan、commons-fileupload、biometric）引用的
+# 服务端/桌面类在 Android 上不存在。编译缓存失效后 R8 会报 Missing class，统一忽略。
+-dontwarn android.hardware.fingerprint.**
+-dontwarn java.awt.**
+-dontwarn javax.jms.**
+-dontwarn javax.mail.**
+-dontwarn javax.naming.**
+-dontwarn javax.portlet.**
+-dontwarn javax.security.auth.**
+-dontwarn javax.security.sasl.**
+-dontwarn javax.swing.**
+-dontwarn org.ietf.jgss.**
+-dontwarn org.tanukisoftware.wrapper.**
+-dontwarn sun.security.krb5.**
