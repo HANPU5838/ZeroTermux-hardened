@@ -24,21 +24,29 @@ class UserSetManage private constructor() {
         public val ITEM_GEON = "0"
     }
 
+    // 单例 Gson + 内存缓存：设置读取在终端/UI 热路径上被调用，避免每次 new Gson() 并全量反序列化。
+    private val gson = Gson()
+    private var cachedUserBean: ZTUserBean? = null
+
     public fun getZTUserBean(): ZTUserBean {
+        cachedUserBean?.let { return it }
         val zTUserBeanJson = SaveData.getStringOther(ZTConstant.ZT_USER_BEAN_KEY)
         if (zTUserBeanJson.isNullOrEmpty() || zTUserBeanJson == "def") {
-            return ZTUserBean()
+            return ZTUserBean().also { cachedUserBean = it }
         }
-        return try {
-            Gson().fromJson(zTUserBeanJson, ZTUserBean::class.java)
+        val bean = try {
+            gson.fromJson(zTUserBeanJson, ZTUserBean::class.java)
         } catch (e: Exception) {
             e.printStackTrace()
             ZTUserBean()
         }
+        cachedUserBean = bean
+        return bean
     }
 
     public fun setZTUserBean(mZTUserBean: ZTUserBean) {
-        val toJson = Gson().toJson(mZTUserBean)
+        cachedUserBean = mZTUserBean
+        val toJson = gson.toJson(mZTUserBean)
         SaveData.saveStringOther(ZTConstant.ZT_USER_BEAN_KEY, toJson)
     }
 

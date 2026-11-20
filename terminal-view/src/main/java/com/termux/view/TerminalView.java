@@ -28,6 +28,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewTreeObserver;
 import android.view.accessibility.AccessibilityManager;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.autofill.AutofillManager;
 import android.view.autofill.AutofillValue;
 import android.view.inputmethod.BaseInputConnection;
@@ -560,7 +561,20 @@ public final class TerminalView extends View {
         } else {
             invalidateDirtyRegions();
         }
-        if (mAccessibilityEnabled) setContentDescription(getText());
+        // The screen content description is generated lazily in onInitializeAccessibilityNodeInfo()
+        // instead of on every output batch. Building it flattens the whole visible screen into a
+        // string, which is far too expensive to repeat for each chunk of terminal output.
+    }
+
+    @Override
+    public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
+        super.onInitializeAccessibilityNodeInfo(info);
+        if (mAccessibilityEnabled && mEmulator != null) {
+            // Only build the full-screen text when an accessibility service actually queries us.
+            // Building it flattens the whole screen into a string, so doing this per output batch
+            // (the old behaviour) was needlessly expensive.
+            info.setContentDescription(getText());
+        }
     }
 
     /**
