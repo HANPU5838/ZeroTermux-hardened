@@ -1140,13 +1140,6 @@ public final class TerminalView extends View {
         }
     }
 
-    /**
-     * Pixels by which the rendered rows must be shifted up so that the bottom row stays visible.
-     *
-     * <p>This is non-zero only while the view is temporarily shorter than the terminal content,
-     * which happens while the soft keyboard animates and the pty resize is still debounced. Pinning
-     * the bottom row to the bottom of the view keeps the prompt visible (sliding with the keyboard)
-     * instead of letting it be clipped away until the resize lands.</p>
     @Override
     protected void onDraw(Canvas canvas) {
         if (mEmulator == null) {
