@@ -1256,6 +1256,9 @@ public final class TerminalEmulator {
                     boolean resized = !(newScreen.mColumns == mColumns && newScreen.mScreenRows == mRows);
                     if (setting) saveCursor();
                     mScreen = newScreen;
+                    // The whole visible screen is replaced by the other buffer's content, so every
+                    // row must be repainted even though the buffer's own rows did not change.
+                    newScreen.markAllRowsDirty();
                     if (!setting) {
                         int col = mSavedStateMain.mSavedCursorCol;
                         int row = mSavedStateMain.mSavedCursorRow;

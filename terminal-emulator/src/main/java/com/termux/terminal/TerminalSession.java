@@ -294,6 +294,8 @@ public final class TerminalSession extends TerminalOutput {
 
     @Override
     public void onColorsChanged() {
+        // Every cell is drawn with the palette, so the whole screen must be repainted.
+        if (mEmulator != null) mEmulator.getScreen().markAllRowsDirty();
         mClient.onColorsChanged(this);
     }
 

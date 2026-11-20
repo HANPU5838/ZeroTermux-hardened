@@ -244,8 +244,11 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
 
     @Override
     public void onColorsChanged(@NonNull TerminalSession changedSession) {
-        if (mActivity.getCurrentSession() == changedSession)
+        if (mActivity.getCurrentSession() == changedSession) {
             updateBackgroundColor();
+            // Repaint with the new palette instead of waiting for the next output.
+            mActivity.getTerminalView().onScreenUpdated();
+        }
     }
 
     @Override
