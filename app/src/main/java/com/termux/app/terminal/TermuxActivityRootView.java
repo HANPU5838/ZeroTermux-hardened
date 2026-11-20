@@ -17,6 +17,8 @@ import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsAnimationCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.xh_lib.utils.UUtils;
@@ -81,6 +83,14 @@ public class TermuxActivityRootView extends ZeroTermuxBackLayout implements View
     /** Log root view events. */
     private boolean ROOT_VIEW_LOGGING_ENABLED = false;
 
+    /**
+     * True while the IME animates. The window height is recomputed every animation frame, and the
+     * bottom-margin compensation below would otherwise call setLayoutParams() on every one of those
+     * frames, fighting the window resize and producing visible jitter. Margin is recomputed exactly
+     * once, from the settled layout, when the animation ends.
+     */
+    private boolean mImeAnimating;
+
     private static final String LOG_TAG = "TermuxActivityRootView";
 
     private static int mStatusBarHeight;
@@ -99,6 +109,28 @@ public class TermuxActivityRootView extends ZeroTermuxBackLayout implements View
 
     public void setActivity(TermuxActivity activity) {
         mActivity = activity;
+        ViewCompat.setWindowInsetsAnimationCallback(this, new WindowInsetsAnimationCompat.Callback(
+            WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_CONTINUE_ON_SUBTREE) {
+            @Override
+            public void onPrepare(@NonNull WindowInsetsAnimationCompat animation) {
+                if ((animation.getTypeMask() & WindowInsetsCompat.Type.ime()) == 0) return;
+                mImeAnimating = true;
+            }
+
+            @Override
+            public WindowInsetsCompat onProgress(@NonNull WindowInsetsCompat insets,
+                                                  @NonNull java.util.List<WindowInsetsAnimationCompat> runningAnimations) {
+                return insets;
+            }
+
+            @Override
+            public void onEnd(@NonNull WindowInsetsAnimationCompat animation) {
+                if ((animation.getTypeMask() & WindowInsetsCompat.Type.ime()) == 0) return;
+                mImeAnimating = false;
+                // Recompute the margin once against the settled layout.
+                ViewCompat.postOnAnimation(TermuxActivityRootView.this, TermuxActivityRootView.this::onGlobalLayout);
+            }
+        });
     }
 
     /**
@@ -129,6 +161,11 @@ public class TermuxActivityRootView extends ZeroTermuxBackLayout implements View
     @Override
     public void onGlobalLayout() {
         if (mActivity == null || !mActivity.isVisible()) return;
+
+        // While the keyboard animates, the window resizes each frame. Recomputing the margin here
+        // on each of those frames calls setLayoutParams() and fights that resize (visible jitter).
+        // The callback above re-runs this method once with the settled layout after onEnd().
+        if (mImeAnimating) return;
 
         View bottomSpaceView = mActivity.getTermuxActivityBottomSpaceView();
         if (bottomSpaceView == null) return;

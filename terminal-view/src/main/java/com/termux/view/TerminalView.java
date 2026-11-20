@@ -35,8 +35,12 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.Scroller;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsAnimationCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.termux.terminal.KeyHandler;
 import com.termux.terminal.TerminalEmulator;
@@ -66,6 +70,14 @@ public final class TerminalView extends View {
 
     /** Extra pixels added around a repainted row so text shadows are not clipped. */
     private static final int ROW_REPAINT_MARGIN_PX = 10;
+
+    /**
+     * True while the IME is animating in/out. SOFT_INPUT_ADJUST_RESIZE changes the view height on
+     * every animation frame; because the emulator is not thread-safe and a resize sends SIGWINCH
+     * to the shell, resizing the pty on each frame makes full-screen TUIs visibly flicker. During
+     * animation we defer all resizes and apply exactly one resize when the animation ends.
+     */
+    private boolean mImeAnimating;
 
     private int mTerminalCursorBlinkerRate;
     private boolean mCursorInvisibleIgnoreOnce;
@@ -276,6 +288,32 @@ public final class TerminalView extends View {
         mScroller = new Scroller(context);
         AccessibilityManager am = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
         mAccessibilityEnabled = am.isEnabled();
+
+        // Track the IME animation so the pty is resized exactly once per keyboard toggle. Without
+        // this, SOFT_INPUT_ADJUST_RESIZE fires onSizeChanged on every animation frame and the pty
+        // is resized (SIGWINCH) just as often, making full-screen TUIs flicker.
+        ViewCompat.setWindowInsetsAnimationCallback(this, new WindowInsetsAnimationCompat.Callback(
+            WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_CONTINUE_ON_SUBTREE) {
+            @Override
+            public void onPrepare(@NonNull WindowInsetsAnimationCompat animation) {
+                if ((animation.getTypeMask() & WindowInsetsCompat.Type.ime()) == 0) return;
+                mImeAnimating = true;
+            }
+
+            @Override
+            public WindowInsetsCompat onProgress(@NonNull WindowInsetsCompat insets,
+                                                  @NonNull java.util.List<WindowInsetsAnimationCompat> runningAnimations) {
+                return insets;
+            }
+
+            @Override
+            public void onEnd(@NonNull WindowInsetsAnimationCompat animation) {
+                if ((animation.getTypeMask() & WindowInsetsCompat.Type.ime()) == 0) return;
+                mImeAnimating = false;
+                // Post to the next frame so getHeight() reflects the final settled layout.
+                ViewCompat.postOnAnimation(TerminalView.this, TerminalView.this::updateSize);
+            }
+        });
     }
 
 
@@ -1107,6 +1145,10 @@ public final class TerminalView extends View {
      */
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        // While the soft keyboard animates the window height changes every frame. Resizing the pty
+        // on each frame sends a SIGWINCH per frame and makes full-screen TUIs flicker. The single
+        // final resize is applied by the IME animation callback's onEnd().
+        if (mImeAnimating) return;
         updateSize();
     }
 

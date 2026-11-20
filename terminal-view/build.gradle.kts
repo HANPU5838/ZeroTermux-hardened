@@ -40,6 +40,7 @@ android {
 
 dependencies {
     implementation(libs.androidx.annotation)
+    implementation(libs.androidx.core)
     api(project(":terminal-emulator"))
     testImplementation(libs.junit)
 }

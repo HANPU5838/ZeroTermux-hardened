@@ -101,7 +101,9 @@ public class ZeroTermuxBackLayout extends RelativeLayout {
 
         x11_view.setPadding(0, 0, 0, 0);
         x11_view.setClipToPadding(true);
-        mBackgroundRoot.requestLayout();
+        // Only the root needs a layout pass; requesting it on the injected background child too
+        // causes a redundant measure/layout of the whole MATCH_PARENT subtree on every insets
+        // change (visible as jitter when the keyboard toggles).
         requestLayout();
     }
 
