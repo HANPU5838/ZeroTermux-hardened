@@ -297,7 +297,7 @@ public final class TerminalRenderer {
                 mTextPaintColor = foreColor;
             }
             boolean shadowSet = false;
-            if (TEXT_SHADOW_PROGRESS > 0 && !isExcludedShadowRange(text, startCharIndex)) {
+            if (TEXT_SHADOW_PROGRESS > 0 && !isExcludedShadowRange(text, startCharIndex, runWidthChars)) {
                 float t = TEXT_SHADOW_PROGRESS / 100f;
                 float strength;
                 if (t <= 0.33f) {
@@ -337,7 +337,10 @@ public final class TerminalRenderer {
 
     /** Whether the given run consists only of space characters (i.e. paints no glyph ink). */
     private static boolean isAllSpaces(char[] text, int startCharIndex, int charCount) {
-        if (charCount == 0) return true;
+        if (charCount <= 0) return true;
+        // Guard the run bounds: a run may end at the edge of the backing char array, and a stale
+        // length after a resize must never read past it.
+        if (text == null || startCharIndex < 0 || startCharIndex + charCount > text.length) return false;
         // Fast path: most runs start with a visible character.
         if (text[startCharIndex] != ' ') return false;
         final int end = startCharIndex + charCount;
@@ -347,9 +350,21 @@ public final class TerminalRenderer {
         return true;
     }
 
-    private static boolean isExcludedShadowRange(char[] text, int startCharIndex) {
-        if (text == null || startCharIndex >= text.length) return false;
-        int codePoint = Character.codePointAt(text, startCharIndex);
+    private static boolean isExcludedShadowRange(char[] text, int startCharIndex, int charCount) {
+        if (text == null || charCount <= 0 || startCharIndex < 0 || startCharIndex + charCount > text.length) return false;
+        final int end = startCharIndex + charCount;
+        // A run is excluded only if every code point in it is a box-drawing/block/powerline glyph.
+        // Checking just the first character left shadows bleeding onto mixed runs (e.g. a label
+        // followed by a border); checking every code point keeps the exclusion exact.
+        for (int i = startCharIndex; i < end; ) {
+            int codePoint = Character.codePointAt(text, i);
+            if (!isShadowExcludedCodePoint(codePoint)) return false;
+            i += Character.charCount(codePoint);
+        }
+        return true;
+    }
+
+    private static boolean isShadowExcludedCodePoint(int codePoint) {
         return (codePoint >= 0x2500 && codePoint <= 0x257F) || // Box Drawing
                (codePoint >= 0x2580 && codePoint <= 0x259F) || // Block Elements
                (codePoint >= 0xE0A0 && codePoint <= 0xE0DF) || // Powerline

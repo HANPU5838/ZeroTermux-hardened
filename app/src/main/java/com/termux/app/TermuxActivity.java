@@ -795,12 +795,11 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
     private void setToggleKeyboardView() {
         findViewById(R.id.toggle_keyboard_button).setOnClickListener(v -> {
-		  // ZeroTermux add {@
-          /*  mTermuxTerminalViewClient.onToggleSoftKeyboardRequest();
-            getDrawer().closeDrawers();*/
-            indexSwitch(0);
-            fragmentManager(0);
-			// @}
+            // The button is labelled "toggle keyboard": restore its real behaviour (show/hide the
+            // soft keyboard) instead of switching to the file page. ZeroTermux's SlidingConsumer
+            // drawer uses smoothClose() (upstream commented closeDrawers() did not exist here).
+            mTermuxTerminalViewClient.onToggleSoftKeyboardRequest();
+            if (getDrawer().isOpened()) getDrawer().smoothClose();
         });
 
         findViewById(R.id.key_bord_button).setOnLongClickListener(v -> {
