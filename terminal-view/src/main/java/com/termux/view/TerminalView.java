@@ -63,6 +63,21 @@ public final class TerminalView extends View {
 
     private Handler mTerminalCursorBlinkerHandler;
     private TerminalCursorBlinkerRunnable mTerminalCursorBlinkerRunnable;
+
+    /**
+     * While the soft keyboard animates in or out the window is resized on every animation frame.
+     * Resizing the pty on each of those frames makes the shell (and full-screen TUI programs)
+     * reflow and repaint dozens of times, which is visible as flicker. Size changes are therefore
+     * coalesced and applied once the window has settled.
+     */
+    private static final long RESIZE_DEBOUNCE_MS = 60;
+    private Handler mResizeHandler;
+    private final Runnable mApplyResizeRunnable = new Runnable() {
+        @Override
+        public void run() {
+            updateSize();
+        }
+    };
     private int mTerminalCursorBlinkerRate;
     private boolean mCursorInvisibleIgnoreOnce;
     public static final int TERMINAL_CURSOR_BLINK_RATE_MIN = 100;
@@ -1081,7 +1096,16 @@ public final class TerminalView extends View {
      */
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        updateSize();
+        // The first size (or the first size after a session switch) must be applied immediately so
+        // that the very first frame is rendered at the correct dimensions. Afterwards, coalesce the
+        // rapid size changes that happen while the soft keyboard animates.
+        if (mEmulator == null || mTermSession == null) {
+            updateSize();
+            return;
+        }
+        if (mResizeHandler == null) mResizeHandler = new Handler(Looper.getMainLooper());
+        mResizeHandler.removeCallbacks(mApplyResizeRunnable);
+        mResizeHandler.postDelayed(mApplyResizeRunnable, RESIZE_DEBOUNCE_MS);
     }
 
     /** Check if the terminal size in rows and columns should be updated. */
@@ -1095,6 +1119,9 @@ public final class TerminalView extends View {
         int newRows = Math.max(4, (viewHeight - mRenderer.mFontLineSpacingAndAscent) / mRenderer.mFontLineSpacing);
 
         if (mEmulator == null || (newColumns != mEmulator.mColumns || newRows != mEmulator.mRows)) {
+            // Preserve the current scroll position across resizes (e.g. soft keyboard show/hide)
+            // so that viewing history is not yanked back to the bottom.
+            final int savedTopRow = mTopRow;
             mTermSession.updateSize(newColumns, newRows, (int) mRenderer.getFontWidth(), mRenderer.getFontLineSpacing());
             mEmulator = mTermSession.getEmulator();
             mClient.onEmulatorSet();
@@ -1103,7 +1130,9 @@ public final class TerminalView extends View {
             if (mTerminalCursorBlinkerRunnable != null)
                 mTerminalCursorBlinkerRunnable.setEmulator(mEmulator);
 
-            mTopRow = 0;
+            // Clamp the saved scroll offset into the new transcript bounds instead of resetting to 0.
+            final int rowsInHistory = mEmulator.getScreen().getActiveTranscriptRows();
+            mTopRow = Math.max(-rowsInHistory, Math.min(0, savedTopRow));
             scrollTo(0, 0);
             invalidate();
         }
@@ -1546,6 +1575,8 @@ public final class TerminalView extends View {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+
+        if (mResizeHandler != null) mResizeHandler.removeCallbacks(mApplyResizeRunnable);
 
         if (mTextSelectionCursorController != null) {
             // Might solve the following exception

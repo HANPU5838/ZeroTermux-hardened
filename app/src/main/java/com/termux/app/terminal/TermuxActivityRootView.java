@@ -15,7 +15,10 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.VideoView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsAnimationCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.xh_lib.utils.UUtils;
@@ -80,6 +83,20 @@ public class TermuxActivityRootView extends ZeroTermuxBackLayout implements View
     /** Log root view events. */
     private boolean ROOT_VIEW_LOGGING_ENABLED = false;
 
+    /**
+     * True while the IME insets are animating. The window is resized on every animation frame, so
+     * recalculating and applying a new bottom margin on each of those frames would make the
+     * terminal fight the window resize and visibly jitter. The margin is therefore only corrected
+     * once the animation has ended.
+     */
+    private boolean mImeAnimating;
+
+    private final Runnable mClearImeAnimatingRunnable = () -> {
+        // Safety net in case onEnd() is never delivered (e.g. the animation is cancelled).
+        mImeAnimating = false;
+        onGlobalLayout();
+    };
+
     private static final String LOG_TAG = "TermuxActivityRootView";
 
     private static int mStatusBarHeight;
@@ -98,6 +115,29 @@ public class TermuxActivityRootView extends ZeroTermuxBackLayout implements View
 
     public void setActivity(TermuxActivity activity) {
         mActivity = activity;
+
+        // Track the IME insets animation so the bottom margin is not recalculated on every frame
+        // while the keyboard slides in or out. On API < 30 this callback is never invoked, which
+        // simply keeps the previous behaviour.
+        ViewCompat.setWindowInsetsAnimationCallback(this, new WindowInsetsAnimationCompat.Callback(
+            WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_CONTINUE_ON_SUBTREE) {
+            @Override
+            public void onPrepare(@NonNull WindowInsetsAnimationCompat animation) {
+                if ((animation.getTypeMask() & WindowInsetsCompat.Type.ime()) == 0) return;
+                mImeAnimating = true;
+                removeCallbacks(mClearImeAnimatingRunnable);
+                postDelayed(mClearImeAnimatingRunnable, 600);
+            }
+
+            @Override
+            public void onEnd(@NonNull WindowInsetsAnimationCompat animation) {
+                if ((animation.getTypeMask() & WindowInsetsCompat.Type.ime()) == 0) return;
+                mImeAnimating = false;
+                removeCallbacks(mClearImeAnimatingRunnable);
+                // Re-evaluate the margin once the window has settled at its final size.
+                postDelayed(TermuxActivityRootView.this::onGlobalLayout, 32);
+            }
+        });
     }
 
     /**
@@ -118,15 +158,21 @@ public class TermuxActivityRootView extends ZeroTermuxBackLayout implements View
                 Logger.logVerbose(LOG_TAG, "onMeasure: Setting bottom margin to " + marginBottom);
             ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) getLayoutParams();
             params.setMargins(0, 0, 0, marginBottom);
+            // setLayoutParams() already triggers requestLayout(); the extra explicit call caused
+            // a redundant measure/layout pass on every keyboard change (visible as jitter).
             setLayoutParams(params);
             marginBottom = null;
-            requestLayout();
         }
     }
 
     @Override
     public void onGlobalLayout() {
         if (mActivity == null || !mActivity.isVisible()) return;
+
+        // Skip while the keyboard is animating; the window itself already follows the IME, and
+        // adjusting the margin mid-animation causes jitter. onEnd() re-runs this method once the
+        // animation has finished.
+        if (mImeAnimating) return;
 
         View bottomSpaceView = mActivity.getTermuxActivityBottomSpaceView();
         if (bottomSpaceView == null) return;
