@@ -75,6 +75,13 @@ public final class TerminalView extends View {
     /** Extra pixels added around a repainted row so text shadows are not clipped. */
     private static final int ROW_REPAINT_MARGIN_PX = 10;
 
+    /**
+     * Minimum interval between accessibility content-description rebuilds. Rebuilding it means
+     * flattening the whole screen into a string, which is far too expensive to do for every batch
+     * of output when an accessibility service is enabled.
+     */
+    private static final long CONTENT_DESCRIPTION_INTERVAL_MS = 250;
+
     private Handler mResizeHandler;
     private final Runnable mApplyResizeRunnable = new Runnable() {
         @Override
@@ -89,6 +96,21 @@ public final class TerminalView extends View {
 
     /** The top row of text to display. Ranges from -activeTranscriptRows to 0. */
     int mTopRow;
+
+    /** Last screen row the cursor was drawn on, used to erase it when it moves to another row. */
+    private int mLastCursorRow = -1;
+
+    /** Time of the last accessibility content-description rebuild. */
+    private long mLastContentDescriptionTime;
+
+    private final Runnable mUpdateContentDescriptionRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!mAccessibilityEnabled || mEmulator == null) return;
+            mLastContentDescriptionTime = SystemClock.uptimeMillis();
+            setContentDescription(getText());
+        }
+    };
     int[] mDefaultSelectors = new int[]{-1,-1,-1,-1};
 
     float mScaleFactor = 1.f;
@@ -322,6 +344,7 @@ public final class TerminalView extends View {
         mTermSession = session;
         mEmulator = null;
         mCombiningAccent = 0;
+        mLastCursorRow = -1;
 
         updateSize();
 
@@ -527,11 +550,29 @@ public final class TerminalView extends View {
         if (scrolledToBottom) {
             // Returning from history reflows the whole screen; repaint everything.
             mEmulator.getScreen().clearDirtyRows();
+            mLastCursorRow = mEmulator.getCursorRow();
             invalidate();
         } else {
             invalidateDirtyRegions();
         }
-        if (mAccessibilityEnabled) setContentDescription(getText());
+        if (mAccessibilityEnabled) scheduleContentDescriptionUpdate();
+    }
+
+    /**
+     * Rebuild the accessibility content description at most every
+     * {@link #CONTENT_DESCRIPTION_INTERVAL_MS} ms, with a trailing update so the final state is
+     * always published.
+     */
+    private void scheduleContentDescriptionUpdate() {
+        long now = SystemClock.uptimeMillis();
+        long elapsed = now - mLastContentDescriptionTime;
+        removeCallbacks(mUpdateContentDescriptionRunnable);
+        if (elapsed >= CONTENT_DESCRIPTION_INTERVAL_MS) {
+            mLastContentDescriptionTime = now;
+            setContentDescription(getText());
+        } else {
+            postDelayed(mUpdateContentDescriptionRunnable, CONTENT_DESCRIPTION_INTERVAL_MS - elapsed);
+        }
     }
 
     /**
@@ -562,6 +603,12 @@ public final class TerminalView extends View {
             if (cursorRow < dirtyTop) dirtyTop = cursorRow;
             if (cursorRow > dirtyBottom) dirtyBottom = cursorRow;
         }
+        // Moving the cursor does not mark any row dirty, so erase it at its previous position too.
+        if (mLastCursorRow >= 0 && mLastCursorRow < rows && mLastCursorRow != cursorRow) {
+            if (mLastCursorRow < dirtyTop) dirtyTop = mLastCursorRow;
+            if (mLastCursorRow > dirtyBottom) dirtyBottom = mLastCursorRow;
+        }
+        mLastCursorRow = cursorRow;
         screen.clearDirtyRows();
 
         if (dirtyBottom < 0) {
@@ -581,12 +628,13 @@ public final class TerminalView extends View {
      * force a full-screen repaint every blink interval.
      */
     private void invalidateCursorRow() {
-        if (mEmulator == null || mRenderer == null || mTopRow != 0 || computeVerticalOffset() != 0) {
+        if (mEmulator == null || mRenderer == null) {
             invalidate();
             return;
         }
         int cursorRow = mEmulator.getCursorRow();
-        if (cursorRow < 0 || cursorRow >= mEmulator.mRows) {
+        mLastCursorRow = (cursorRow >= 0 && cursorRow < mEmulator.mRows) ? cursorRow : -1;
+        if (mTopRow != 0 || computeVerticalOffset() != 0 || mLastCursorRow < 0) {
             invalidate();
             return;
         }
@@ -1606,6 +1654,7 @@ public final class TerminalView extends View {
         super.onDetachedFromWindow();
 
         if (mResizeHandler != null) mResizeHandler.removeCallbacks(mApplyResizeRunnable);
+        removeCallbacks(mUpdateContentDescriptionRunnable);
 
         if (mTextSelectionCursorController != null) {
             // Might solve the following exception

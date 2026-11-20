@@ -23,6 +23,14 @@ public final class TerminalRenderer {
     final int mTextSize;
     final Typeface mTypeface;
     private final Paint mTextPaint = new Paint();
+    /**
+     * Paint used for cell/cursor rectangles. Kept separate from {@link #mTextPaint} so that
+     * changing a rectangle colour does not invalidate the text paint state (and vice versa).
+     */
+    private final Paint mRectPaint = new Paint();
+    // Last values applied to mTextPaint, so unchanged properties are not re-applied for every run.
+    private int mTextPaintColor = Integer.MIN_VALUE;
+    private boolean mTextPaintBold, mTextPaintUnderline, mTextPaintItalic, mTextPaintStrike;
 	// ZeroTermux add {@
     public static int COLOR_TEXT = Color.parseColor("#ffffff");
     public static int TEXT_SHADOW_PROGRESS = 50;
@@ -48,6 +56,7 @@ public final class TerminalRenderer {
         mTextPaint.setTypeface(typeface);
         mTextPaint.setAntiAlias(true);
         mTextPaint.setTextSize(textSize);
+        mRectPaint.setAntiAlias(true);
 
         mFontLineSpacing = (int) Math.ceil(mTextPaint.getFontSpacing());
         mFontAscent = (int) Math.ceil(mTextPaint.ascent());
@@ -223,6 +232,19 @@ public final class TerminalRenderer {
             backColor = tmp;
         }
 
+        final boolean defaultBackground = backColor == palette[TextStyle.COLOR_INDEX_BACKGROUND];
+
+        // A run of spaces has no glyph ink, but underline/strikethrough still paint a line.
+        final boolean blankRun = isAllSpaces(text, startCharIndex, runWidthChars);
+        final boolean drawsInk = !blankRun || underline || strikeThrough;
+
+        // A blank run on the default background paints nothing at all. Most of a terminal screen
+        // is exactly this, so skipping it avoids a glyph lookup and a text draw (and, with shadows
+        // enabled, a blur) for every blank cell of every repainted row.
+        if (defaultBackground && cursor == 0 && !drawsInk) {
+            return;
+        }
+
         float left = startColumn * mFontWidth;
         float right = left + runWidthColumns * mFontWidth;
 
@@ -236,21 +258,21 @@ public final class TerminalRenderer {
             savedMatrix = true;
         }
 
-        if (backColor != palette[TextStyle.COLOR_INDEX_BACKGROUND]) {
+        if (!defaultBackground) {
             // Only draw non-default background.
-            mTextPaint.setColor(backColor);
-            canvas.drawRect(left, y - mFontLineSpacingAndAscent + mFontAscent, right, y, mTextPaint);
+            mRectPaint.setColor(backColor);
+            canvas.drawRect(left, y - mFontLineSpacingAndAscent + mFontAscent, right, y, mRectPaint);
         }
 
         if (cursor != 0) {
-            mTextPaint.setColor(cursor);
+            mRectPaint.setColor(cursor);
             float cursorHeight = mFontLineSpacingAndAscent - mFontAscent;
             if (cursorStyle == TerminalEmulator.TERMINAL_CURSOR_STYLE_UNDERLINE) cursorHeight /= 4.;
             else if (cursorStyle == TerminalEmulator.TERMINAL_CURSOR_STYLE_BAR) right -= ((right - left) * 3) / 4.;
-            canvas.drawRect(left, y - cursorHeight, right, y, mTextPaint);
+            canvas.drawRect(left, y - cursorHeight, right, y, mRectPaint);
         }
 
-        if ((effect & TextStyle.CHARACTER_ATTRIBUTE_INVISIBLE) == 0) {
+        if (drawsInk && (effect & TextStyle.CHARACTER_ATTRIBUTE_INVISIBLE) == 0) {
             if (dim) {
                 int red = (0xFF & (foreColor >> 16));
                 int green = (0xFF & (foreColor >> 8));
@@ -263,17 +285,32 @@ public final class TerminalRenderer {
                 foreColor = 0xFF000000 + (red << 16) + (green << 8) + blue;
             }
 
-            mTextPaint.setFakeBoldText(bold);
-            mTextPaint.setUnderlineText(underline);
-            mTextPaint.setTextSkewX(italic ? -0.35f : 0.f);
-            mTextPaint.setStrikeThruText(strikeThrough);
+            if (mTextPaintBold != bold) {
+                mTextPaint.setFakeBoldText(bold);
+                mTextPaintBold = bold;
+            }
+            if (mTextPaintUnderline != underline) {
+                mTextPaint.setUnderlineText(underline);
+                mTextPaintUnderline = underline;
+            }
+            if (mTextPaintItalic != italic) {
+                mTextPaint.setTextSkewX(italic ? -0.35f : 0.f);
+                mTextPaintItalic = italic;
+            }
+            if (mTextPaintStrike != strikeThrough) {
+                mTextPaint.setStrikeThruText(strikeThrough);
+                mTextPaintStrike = strikeThrough;
+            }
 			// ZeroTermux add {@
             //mTextPaint.setColor(foreColor);
             if (foreColor == -1) {
-                mTextPaint.setColor(COLOR_TEXT);
-            } else {
-                mTextPaint.setColor(foreColor);
+                foreColor = COLOR_TEXT;
             }
+            if (mTextPaintColor != foreColor) {
+                mTextPaint.setColor(foreColor);
+                mTextPaintColor = foreColor;
+            }
+            boolean shadowSet = false;
             if (TEXT_SHADOW_PROGRESS > 0 && !isExcludedShadowRange(text, startCharIndex)) {
                 float t = TEXT_SHADOW_PROGRESS / 100f;
                 float strength;
@@ -285,12 +322,13 @@ public final class TerminalRenderer {
                 int alpha = (int) (Math.min(strength, 1f) * 255);
                 float radius = 3f * Math.min(strength, 2.5f);
                 mTextPaint.setShadowLayer(radius, 1f, 1f, (alpha << 24) | 0x000000);
+                shadowSet = true;
             }
 			// @}
             // The text alignment is the default Paint.Align.LEFT.
             canvas.drawText(text, startCharIndex, runWidthChars, left, y - mFontLineSpacingAndAscent, mTextPaint);
             // ZeroTermux add {@
-            mTextPaint.setShadowLayer(0, 0, 0, 0);
+            if (shadowSet) mTextPaint.setShadowLayer(0, 0, 0, 0);
 			// @}
         }
 
@@ -309,6 +347,18 @@ public final class TerminalRenderer {
 
 
 
+    }
+
+    /** Whether the given run consists only of space characters (i.e. paints no glyph ink). */
+    private static boolean isAllSpaces(char[] text, int startCharIndex, int charCount) {
+        if (charCount == 0) return true;
+        // Fast path: most runs start with a visible character.
+        if (text[startCharIndex] != ' ') return false;
+        final int end = startCharIndex + charCount;
+        for (int i = startCharIndex + 1; i < end; i++) {
+            if (text[i] != ' ') return false;
+        }
+        return true;
     }
 
     private static boolean isExcludedShadowRange(char[] text, int startCharIndex) {
