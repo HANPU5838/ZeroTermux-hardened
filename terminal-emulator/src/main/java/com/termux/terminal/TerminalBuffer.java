@@ -1,6 +1,7 @@
 package com.termux.terminal;
 
 import java.util.Arrays;
+import java.util.BitSet;
 
 /**
  * A circular buffer of {@link TerminalRow}:s which keeps notes about what is visible on a logical screen and the scroll
@@ -19,6 +20,19 @@ public final class TerminalBuffer {
     private int mActiveTranscriptRows = 0;
     /** The index in the circular buffer where the visible screen starts. */
     private int mScreenFirstRow = 0;
+
+    /**
+     * Dirty-row tracking for incremental rendering. Bit set over external screen rows
+     * (0..mScreenRows-1). A row is marked dirty whenever its visible content changes so the
+     * renderer can invalidate/repaint only the changed rows instead of the whole screen.
+     */
+    private final BitSet mDirtyRows = new BitSet();
+    /**
+     * When true, every visible screen row must be treated as dirty. Used after structural
+     * changes (scroll / resize / block copy) where the whole screen shifts or is rewritten.
+     * Starts true so the first frame repaints everything.
+     */
+    private boolean mAllRowsDirty = true;
 
     /**
      * Create a transcript screen.
@@ -351,6 +365,8 @@ public final class TerminalBuffer {
 
         // Handle cursor scrolling off screen:
         if (cursor[0] < 0 || cursor[1] < 0) cursor[0] = cursor[1] = 0;
+        // Rows were reflowed/reallocated, repaint everything.
+        markAllRowsDirty();
     }
 
     /**
@@ -403,6 +419,8 @@ public final class TerminalBuffer {
         } else {
             mLines[blankRow].clear(style);
         }
+        // Whole screen shifts up by one line, so every visible row changed position.
+        markAllRowsDirty();
     }
 
     /**
@@ -427,6 +445,8 @@ public final class TerminalBuffer {
             TerminalRow sourceRow = allocateFullLineIfNecessary(externalToInternalRow(sy + y2));
             allocateFullLineIfNecessary(externalToInternalRow(dy + y2)).copyInterval(sourceRow, sx, sx + w, dx);
         }
+        // Block copy bypasses setChar(), mark all rows dirty to stay correct.
+        markAllRowsDirty();
     }
 
     /**
@@ -451,6 +471,7 @@ public final class TerminalBuffer {
     public void setChar(int column, int row, int codePoint, long style) {
         if (row  < 0 || row >= mScreenRows || column < 0 || column >= mColumns)
             throw new IllegalArgumentException("TerminalBuffer.setChar(): row=" + row + ", column=" + column + ", mScreenRows=" + mScreenRows + ", mColumns=" + mColumns);
+        mDirtyRows.set(row);
         row = externalToInternalRow(row);
         allocateFullLineIfNecessary(row).setChar(column, codePoint, style);
     }
@@ -482,6 +503,7 @@ public final class TerminalBuffer {
                 line.mStyle[x] = TextStyle.encode(foreColor, backColor, effect);
             }
         }
+        markAllRowsDirty();
     }
 
     public void clearTranscript() {
@@ -492,6 +514,28 @@ public final class TerminalBuffer {
             Arrays.fill(mLines, mScreenFirstRow - mActiveTranscriptRows, mScreenFirstRow, null);
         }
         mActiveTranscriptRows = 0;
+    }
+
+    /** Mark every visible screen row as dirty (e.g. after scroll/resize/structural changes). */
+    public void markAllRowsDirty() {
+        mAllRowsDirty = true;
+        if (mScreenRows > 0) mDirtyRows.set(0, mScreenRows);
+    }
+
+    /** Whether the given external screen row (0..mScreenRows-1) changed since last {@link #clearDirtyRows()}. */
+    public boolean isRowDirty(int externalRow) {
+        return mAllRowsDirty || mDirtyRows.get(externalRow);
+    }
+
+    /** Whether any visible screen row is dirty. */
+    public boolean hasDirtyRows() {
+        return mAllRowsDirty || !mDirtyRows.isEmpty();
+    }
+
+    /** Reset dirty state after the renderer has consumed it. */
+    public void clearDirtyRows() {
+        mDirtyRows.clear();
+        mAllRowsDirty = false;
     }
 
 }

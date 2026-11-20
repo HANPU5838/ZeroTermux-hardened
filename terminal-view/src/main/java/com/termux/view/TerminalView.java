@@ -40,6 +40,7 @@ import androidx.annotation.RequiresApi;
 
 import com.termux.terminal.KeyHandler;
 import com.termux.terminal.TerminalEmulator;
+import com.termux.terminal.TerminalBuffer;
 import com.termux.terminal.TerminalSession;
 import com.termux.view.textselection.TextSelectionCursorController;
 
@@ -489,6 +490,7 @@ public final class TerminalView extends View {
             }
         }
 
+        boolean scrolledToBottom = false;
         if (!skipScrolling && mTopRow != 0) {
             // Scroll down if not already there.
             if (mTopRow < -3) {
@@ -498,12 +500,79 @@ public final class TerminalView extends View {
                 awakenScrollBars();
             }
             mTopRow = 0;
+            scrolledToBottom = true;
         }
 
         mEmulator.clearScrollCounter();
 
-        invalidate();
+        if (scrolledToBottom) {
+            // Returning from history reflows the whole screen; repaint everything.
+            mEmulator.getScreen().clearDirtyRows();
+            invalidate();
+        } else {
+            invalidateDirtyRegions();
+        }
         if (mAccessibilityEnabled) setContentDescription(getText());
+    }
+
+    /**
+     * Invalidate only the rows whose content changed (dirty rows) plus the cursor row, so the
+     * GPU only recomposes those regions instead of the whole screen. Falls back to a full
+     * invalidate when scrolled into history (mTopRow != 0) where the screen-row mapping differs,
+     * or when no renderer/emulator is available.
+     */
+    private void invalidateDirtyRegions() {
+        if (mEmulator == null || mRenderer == null || mTopRow != 0) {
+            invalidate();
+            return;
+        }
+        TerminalBuffer screen = mEmulator.getScreen();
+        int rows = mEmulator.mRows;
+        int lineHeight = mRenderer.mFontLineSpacing;
+        int cursorRow = mEmulator.getCursorRow();
+
+        int dirtyTop = Integer.MAX_VALUE;
+        int dirtyBottom = -1;
+        for (int r = 0; r < rows; r++) {
+            if (screen.isRowDirty(r)) {
+                if (r < dirtyTop) dirtyTop = r;
+                if (r > dirtyBottom) dirtyBottom = r;
+            }
+        }
+        // The cursor row may need a repaint even if its content did not change (cursor moved).
+        if (cursorRow >= 0 && cursorRow < rows) {
+            if (cursorRow < dirtyTop) dirtyTop = cursorRow;
+            if (cursorRow > dirtyBottom) dirtyBottom = cursorRow;
+        }
+        screen.clearDirtyRows();
+
+        if (dirtyBottom < 0) {
+            // Nothing changed; skip the repaint entirely.
+            return;
+        }
+        int top = dirtyTop * lineHeight;
+        int bottom = (dirtyBottom + 1) * lineHeight;
+        invalidate(0, top, getWidth(), bottom);
+    }
+
+    /**
+     * Invalidate only the cursor row. Used by the cursor blinker so that blinking does not
+     * force a full-screen repaint every blink interval.
+     */
+    private void invalidateCursorRow() {
+        if (mEmulator == null || mRenderer == null || mTopRow != 0) {
+            invalidate();
+            return;
+        }
+        int cursorRow = mEmulator.getCursorRow();
+        if (cursorRow < 0 || cursorRow >= mEmulator.mRows) {
+            invalidate();
+            return;
+        }
+        int lineHeight = mRenderer.mFontLineSpacing;
+        int top = cursorRow * lineHeight;
+        int bottom = (cursorRow + 1) * lineHeight;
+        invalidate(0, top, getWidth(), bottom);
     }
 
     /** This must be called by the hosting activity in {@link Activity#onContextMenuClosed(Menu)}
@@ -1366,7 +1435,7 @@ public final class TerminalView extends View {
                     mCursorVisible = !mCursorVisible;
                     //mClient.logVerbose(LOG_TAG, "Toggling cursor blink state to " + mCursorVisible);
                     mEmulator.setCursorBlinkState(mCursorVisible);
-                    invalidate();
+                    invalidateCursorRow();
                 }
             } finally {
                 // Recall the Runnable after mBlinkRate milliseconds to toggle the blink state
