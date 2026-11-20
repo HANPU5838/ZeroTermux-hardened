@@ -512,6 +512,11 @@ public final class WcWidth {
 
     /** Return the terminal display width of a code point: 0, 1 || 2. */
     public static int width(int ucs) {
+        // Fast path: printable ASCII is always one cell wide and is never present in the
+        // zero-width or wide tables below. This is the overwhelmingly common case both when
+        // parsing output and when rendering every cell of every repainted row.
+        if (ucs >= 0x20 && ucs < 0x7F) return 1;
+
         if (ucs == 0 ||
             ucs == 0x034F ||
             (0x200B <= ucs && ucs <= 0x200F) ||
