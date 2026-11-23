@@ -89,6 +89,7 @@ import com.termux.shared.android.PermissionUtils;
 import com.termux.shared.data.DataUtils;
 import com.termux.shared.data.IntentUtils;
 import com.termux.shared.termux.TermuxConstants;
+import com.termux.shared.termux.shell.command.runner.terminal.TermuxSession;
 import com.termux.shared.termux.TermuxConstants.TERMUX_APP.TERMUX_ACTIVITY;
 import com.termux.app.activities.HelpActivity;
 import com.termux.app.activities.SettingsActivity;
@@ -3528,7 +3529,6 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     }
 
 
-    @Override
     /**
      * 直接新建一个 ssh 会话（不往终端里敲命令），成功返回 true。
      * openssh 未安装时退回终端执行安装并连接。
@@ -3573,6 +3573,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         }
     }
 
+    @Override
     public void sendTextToTerminal(String command) {
         LogUtils.i(TAG, "sendTextToTerminal command: " + command);
         getTerminalView().sendTextToTerminal(command);
