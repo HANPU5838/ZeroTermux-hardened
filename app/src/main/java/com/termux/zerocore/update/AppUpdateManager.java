@@ -143,12 +143,19 @@ public class AppUpdateManager {
         r.notes = obj.has("body") && !obj.get("body").isJsonNull()
             ? obj.get("body").getAsString() : "";
 
+        // 按文件名前缀精确匹配本仓库对应的 APK，避免 Release 里混入其它组件时下错包
+        final String apkPrefix;
+        switch (key) {
+            case KEY_MAIN: apkPrefix = "ZeroTermux-"; break;
+            case KEY_API:  apkPrefix = "Termux-API"; break;
+            default:       apkPrefix = "Termux-X11"; break;
+        }
         if (obj.has("assets")) {
             JsonArray assets = obj.getAsJsonArray("assets");
             for (JsonElement e : assets) {
                 JsonObject a = e.getAsJsonObject();
                 String n = a.has("name") ? a.get("name").getAsString() : "";
-                if (n.endsWith(".apk")) {
+                if (n.endsWith(".apk") && n.startsWith(apkPrefix)) {
                     r.apkName = n;
                     r.apkUrl = a.has("browser_download_url")
                         ? a.get("browser_download_url").getAsString() : "";
