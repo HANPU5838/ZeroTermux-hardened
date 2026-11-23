@@ -22,8 +22,10 @@
             android:layout_height="match_parent"
             android:background="@drawable/bg_ssh_rail"
             android:orientation="vertical"
-            android:paddingTop="16dp"
-            android:paddingBottom="16dp">
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:paddingTop="18dp"
+            android:paddingBottom="18dp">
 
             <TextView
                 android:id="@+id/ssh_tab_new"
@@ -40,6 +42,11 @@
                 style="@style/SshRailTab"
                 android:text="@string/ssh_tab_help" />
         </LinearLayout>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="#FF2A2A2A" />
 
         <!-- 右侧内容 -->
         <FrameLayout

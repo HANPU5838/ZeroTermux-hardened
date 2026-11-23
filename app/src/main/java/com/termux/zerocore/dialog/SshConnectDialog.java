@@ -49,6 +49,8 @@ public class SshConnectDialog extends Dialog {
     private TextView keyPathText;
 
     private Uri pickedKeyUri;
+    /** 从最近连接带入的私钥路径（用户没重新选文件时沿用它）。 */
+    private String pendingKeyPath = "";
 
     public SshConnectDialog(TermuxActivity activity) {
         super(activity);
@@ -110,8 +112,11 @@ public class SshConnectDialog extends Dialog {
         for (int i = 0; i < panes.length; i++) {
             boolean selected = i == index;
             panes[i].setVisibility(selected ? View.VISIBLE : View.GONE);
-            tabs[i].setTextColor(selected ? Color.parseColor("#FF4D8DFF")
+            tabs[i].setTextColor(selected ? Color.parseColor("#FF7FB2FF")
                 : Color.parseColor("#FF8FA0B8"));
+            tabs[i].setTypeface(selected ? android.graphics.Typeface.DEFAULT_BOLD
+                : android.graphics.Typeface.DEFAULT);
+            tabs[i].setBackgroundResource(selected ? R.drawable.bg_ssh_tab_selected : 0);
         }
     }
 
@@ -167,7 +172,10 @@ public class SshConnectDialog extends Dialog {
                 }
                 connect();
             };
-            row.setOnClickListener(connectClick);
+            row.setOnClickListener(v -> {
+                pendingKeyPath = keyPath;
+                connectClick.onClick(v);
+            });
             action.setOnClickListener(connectClick);
             row.setOnLongClickListener(v -> {
                 com.termux.zerocore.utils.SshStore.delete(item);
@@ -197,6 +205,7 @@ public class SshConnectDialog extends Dialog {
             return;
         }
         pickedKeyUri = data.getData();
+        pendingKeyPath = "";
         String name = pickedKeyUri.getLastPathSegment();
         keyPathText.setText(name == null ? pickedKeyUri.toString() : name);
     }
@@ -224,33 +233,39 @@ public class SshConnectDialog extends Dialog {
 
         File keyFile = null;
         try {
-            if (!TextUtils.isEmpty(keyText) || pickedKeyUri != null) {
-                File sshDir = new File(TermuxConstants.TERMUX_HOME_DIR, ".ssh");
-                if (!sshDir.exists() && !sshDir.mkdirs()) {
-                    toast(R.string.ssh_key_save_fail);
-                    return;
+            File sshDir = new File(TermuxConstants.TERMUX_HOME_DIR, ".ssh");
+            if (!sshDir.exists() && !sshDir.mkdirs()) {
+                toast(R.string.ssh_key_save_fail);
+                return;
+            }
+            String safeHost = host.replaceAll("[^a-zA-Z0-9_.\\-]", "_");
+            File autoKey = new File(sshDir, "zt_server_" + safeHost + ".key");
+            if (!TextUtils.isEmpty(keyText)) {
+                keyFile = autoKey;
+                try (OutputStream out = new FileOutputStream(keyFile)) {
+                    out.write(keyText.getBytes("UTF-8"));
+                    out.write('\n');
                 }
-                String safeHost = host.replaceAll("[^a-zA-Z0-9_.\\-]", "_");
-                keyFile = new File(sshDir, "zt_server_" + safeHost + ".key");
-                if (!TextUtils.isEmpty(keyText)) {
-                    try (OutputStream out = new FileOutputStream(keyFile)) {
-                        out.write(keyText.getBytes("UTF-8"));
-                        out.write('\n');
+            } else if (pickedKeyUri != null) {
+                keyFile = autoKey;
+                try (InputStream in = activity.getContentResolver().openInputStream(pickedKeyUri);
+                     OutputStream out = new FileOutputStream(keyFile)) {
+                    if (in == null) {
+                        toast(R.string.ssh_key_save_fail);
+                        return;
                     }
-                } else {
-                    try (InputStream in = activity.getContentResolver().openInputStream(pickedKeyUri);
-                         OutputStream out = new FileOutputStream(keyFile)) {
-                        if (in == null) {
-                            toast(R.string.ssh_key_save_fail);
-                            return;
-                        }
-                        byte[] buf = new byte[8192];
-                        int len;
-                        while ((len = in.read(buf)) > 0) {
-                            out.write(buf, 0, len);
-                        }
+                    byte[] buf = new byte[8192];
+                    int len;
+                    while ((len = in.read(buf)) > 0) {
+                        out.write(buf, 0, len);
                     }
                 }
+            } else if (!TextUtils.isEmpty(pendingKeyPath) && new File(pendingKeyPath).exists()) {
+                keyFile = new File(pendingKeyPath);
+            } else if (autoKey.exists() && autoKey.length() > 0) {
+                keyFile = autoKey;
+            }
+            if (keyFile != null) {
                 // 私钥权限必须是 600，否则 ssh 会拒绝使用
                 //noinspection ResultOfMethodCallIgnored
                 keyFile.setReadable(false, false);
