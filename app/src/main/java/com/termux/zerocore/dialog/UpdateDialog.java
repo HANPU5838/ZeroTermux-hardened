@@ -26,7 +26,9 @@ import com.termux.R;
 import com.termux.zerocore.update.AppUpdateManager;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 检查更新弹窗：三个正式版仓库的版本一览 + 一键下载安装。
@@ -41,6 +43,10 @@ public class UpdateDialog extends Dialog {
     private TextView hint;
     private View panel;
     private boolean downloading = false;
+    /** 已下载完成的 APK：再次点击直接安装，不重新下载。 */
+    private final Map<String, File> downloadedFiles = new HashMap<>();
+    /** 每行的操作按钮，用于下载完成后把「下载」改成「安装」。 */
+    private final Map<String, TextView> actionViews = new HashMap<>();
 
     public UpdateDialog(Activity activity) {
         super(activity);
@@ -142,9 +148,16 @@ public class UpdateDialog extends Dialog {
                 notes.setVisibility(View.VISIBLE);
             }
 
+            actionViews.put(r.key, action);
+            File ready = (r.apkUrl == null || r.apkUrl.isEmpty()) ? null : existingApk(r);
             if (r.apkUrl == null || r.apkUrl.isEmpty()) {
                 action.setText(R.string.update_action_open);
                 action.setOnClickListener(v -> openUrl(r.repoUrl));
+            } else if (ready != null) {
+                // 之前已经下载过：直接进入「安装」，不再走网络
+                downloadedFiles.put(r.key, ready);
+                action.setText(R.string.update_action_install);
+                action.setOnClickListener(v -> install(ready));
             } else {
                 action.setText(("main".equals(r.key) && r.hasUpdate)
                     ? activity.getString(R.string.update_action_update)
@@ -167,6 +180,23 @@ public class UpdateDialog extends Dialog {
         list.addView(row);
     }
 
+    /** 上次已下载完成的 APK：存在且非空时直接复用，避免重复下载。 */
+    private File existingApk(AppUpdateManager.Release release) {
+        try {
+            if (release.apkName == null || release.apkName.isEmpty()) {
+                return null;
+            }
+            File base = activity.getExternalFilesDir(null);
+            if (base == null) {
+                base = activity.getCacheDir();
+            }
+            File file = new File(new File(base, "update"), release.apkName);
+            return (file.exists() && file.length() > 0) ? file : null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     private void startDownload(final AppUpdateManager.Release release) {
         if (downloading) return;
         downloading = true;
@@ -185,9 +215,16 @@ public class UpdateDialog extends Dialog {
             @Override
             public void onSuccess(File file) {
                 downloading = false;
+                downloadedFiles.put(release.key, file);
                 progressBar.setProgress(100);
                 progressText.setText(R.string.update_download_done);
-                hint.setText(R.string.update_hint_install);
+                hint.setText(R.string.update_hint_install_ready);
+                // 下载完立刻换成「安装」：自动唤起失败时用户可手动再点，不会重新下载
+                TextView action = actionViews.get(release.key);
+                if (action != null) {
+                    action.setText(R.string.update_action_install);
+                    action.setOnClickListener(v -> install(file));
+                }
                 install(file);
             }
 

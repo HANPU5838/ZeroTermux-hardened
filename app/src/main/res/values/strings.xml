@@ -1575,6 +1575,9 @@ cd ~ &amp;&amp; pkg update -y \n
     <string name="update_status_not_installed">NOT INSTALLED</string>
     <string name="update_action_update">Update</string>
     <string name="update_action_download">Download</string>
+    <string name="update_action_install">Install</string>
+    <string name="update_hint_install_ready">Download finished. If the installer didn\'t open, tap "Install" — no re-download needed.</string>
+    <string name="version_has_new">Update available</string>
     <string name="update_action_open">Open</string>
     <string name="update_hint_has_new">A new main build is available. Tap Update to install it.</string>
     <string name="update_hint_latest">You are up to date. You can still re-download any APK.</string>
@@ -1586,7 +1589,7 @@ cd ~ &amp;&amp; pkg update -y \n
     <string name="update_install_fail">Could not start the installer. Please install the APK manually.</string>
     <string name="update_install_permission">Please allow installing unknown apps, then tap Update again.</string>
     <string name="update_close">Close</string>
-    <string name="update_new_version_tip">New version available — tap 「Check for updates」 at the bottom of the menu.</string>
+    <string name="update_new_version_tip">New version available — tap 「Update available」 next to the version number.</string>
     <string name="menu_settings_title">Menu</string>
     <string name="menu_settings_summary">Fold menu and left-menu options</string>
     <string name="zt_developer_options_title">Developer options</string>

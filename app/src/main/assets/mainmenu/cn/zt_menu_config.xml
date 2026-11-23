@@ -116,6 +116,10 @@
         <item tag="启动 DeepSeek"
             name="启动 DeepSeek"
             click="java:com.termux.zerocore.config.mainmenu.config.StartDeepSeekClickConfig" />
+        <!-- 支持作者 -->
+        <item tag="支持作者"
+            name="支持作者"
+            click="java:com.termux.zerocore.config.mainmenu.config.DonateClickConfig" />
         <!--在name标签修改你的新名称-->
         <item tag="切换源"
             name="切换源"

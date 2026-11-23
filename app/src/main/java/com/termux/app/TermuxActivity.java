@@ -16,6 +16,7 @@ import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
@@ -24,7 +25,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -129,7 +134,7 @@ import com.termux.zerocore.config.ztcommand.config.XmlMenuConfig;
 import com.termux.zerocore.ai.deepseek.markdown.MarkDownAPI;
 import com.termux.zerocore.dialog.BeautifySettingDialog;
 import com.termux.zerocore.dialog.CommonCommandsDialog;
-import com.termux.zerocore.dialog.DonateDialog;
+import com.termux.zerocore.update.AppUpdateManager;
 import com.termux.zerocore.dialog.DownLoadDialogBoom;
 import com.termux.zerocore.dialog.KeyWordFunDialog;
 import com.termux.zerocore.dialog.LoadingDialog;
@@ -1408,8 +1413,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     private TextView qq_group_tv;
     private TextView telegram_group_tv;
     private TextView personal_qq_tv;
-    private CardView donate_card;
     private TextView double_tishi;
+    /** 版本号旁的更新提示只检查一次，避免重复联网。 */
+    private boolean updateBadgeChecked;
     public FrameLayout xue_fragment;
     public FireworkView firework_view;
     private View back_color;
@@ -1456,8 +1462,6 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         telegram_group_tv = findViewById(R.id.telegram_group_tv);
         qq_group_tv = findViewById(R.id.qq_group_tv);
         personal_qq_tv = findViewById(R.id.personal_qq_tv);
-        donate_card = findViewById(R.id.donate_card);
-        findViewById(R.id.update_card).setOnClickListener(v -> new UpdateDialog(TermuxActivity.this).show());
         version = findViewById(R.id.version);
         eg_tv = findViewById(R.id.eg_tv);
         key_bord = findViewById(R.id.key_bord);
@@ -1482,7 +1486,6 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         mMainActivity = mTermuxActivityRootView.getMainActivity();
         qq_group_tv.setOnClickListener(this);
         personal_qq_tv.setOnClickListener(this);
-        donate_card.setOnClickListener(v -> new DonateDialog(TermuxActivity.this).show());
         mKeyBordButton.setOnClickListener(v -> {
             showKeyBord();
         });
@@ -1628,11 +1631,71 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
     private void setEgInstallStatus() {
         version.setText(UUtils.getString(R.string.版本) + " : " + UUtils2.INSTANCE.getVersionName(UUtils.getContext()));
+        refreshUpdateBadge();
         String versionName = ZeroCoreManage.getVersionName();
         if (!TextUtils.isEmpty(versionName)) {
             eg_tv.setText(UUtils.getString(R.string.engine_vision) + " : " + versionName);
         } else {
             eg_tv.setText(UUtils.getString(R.string.engine_vision) + " : " + UUtils.getString(R.string.engine_not_install));
+        }
+    }
+
+    /**
+     * 静默检查主程序是否有新版本。有更新时只在版本号后追加红色「有新版本」，
+     * 点击打开检查更新弹窗；检查失败或已是最新时不显示任何东西。
+     */
+    private void refreshUpdateBadge() {
+        if (updateBadgeChecked) {
+            return;
+        }
+        updateBadgeChecked = true;
+        try {
+            AppUpdateManager.fetchAll(this, new AppUpdateManager.FetchCallback() {
+                @Override
+                public void onResult(java.util.List<AppUpdateManager.Release> releases) {
+                    boolean hasNew = false;
+                    for (AppUpdateManager.Release release : releases) {
+                        if ("main".equals(release.key) && release.available && release.hasUpdate) {
+                            hasNew = true;
+                            break;
+                        }
+                    }
+                    if (!hasNew) {
+                        return;
+                    }
+                    runOnUiThread(TermuxActivity.this::applyUpdateBadge);
+                }
+
+                @Override
+                public void onError(String message) {
+                    // 网络不可用时静默，不打扰用户
+                }
+            });
+        } catch (Exception e) {
+            Log.e(TAG, "refreshUpdateBadge failed", e);
+        }
+    }
+
+    private void applyUpdateBadge() {
+        try {
+            if (version == null) {
+                return;
+            }
+            String tip = getString(R.string.version_has_new);
+            String base = version.getText().toString();
+            if (base.contains(tip)) {
+                return;
+            }
+            SpannableString text = new SpannableString(base + "  " + tip);
+            int start = base.length() + 2;
+            text.setSpan(new ForegroundColorSpan(Color.parseColor("#FF5252")), start, text.length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            text.setSpan(new StyleSpan(Typeface.BOLD), start, text.length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            version.setText(text);
+            version.setOnClickListener(v -> new UpdateDialog(TermuxActivity.this).show());
+        } catch (Exception e) {
+            Log.e(TAG, "applyUpdateBadge failed", e);
         }
     }
 
@@ -2296,6 +2359,13 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     .append("        <item tag=\"启动 DeepSeek\"\n")
                     .append("            name=\"启动 DeepSeek\"\n")
                     .append("            click=\"java:com.termux.zerocore.config.mainmenu.config.StartDeepSeekClickConfig\" />");
+            }
+            if (!updated.contains("DonateClickConfig")) {
+                String label = getString(R.string.donate_title);
+                inject.append("\n        <!-- ").append(label).append(" -->\n")
+                    .append("        <item tag=\"").append(label).append("\"\n")
+                    .append("            name=\"").append(label).append("\"\n")
+                    .append("            click=\"java:com.termux.zerocore.config.mainmenu.config.DonateClickConfig\" />");
             }
             if (inject.length() == 0 && updated.equals(content)) {
                 return;

@@ -112,6 +112,10 @@
         <item tag="Start DeepSeek"
             name="Start DeepSeek"
             click="java:com.termux.zerocore.config.mainmenu.config.StartDeepSeekClickConfig" />
+        <!-- Support the author -->
+        <item tag="Support the author"
+            name="Support the author"
+            click="java:com.termux.zerocore.config.mainmenu.config.DonateClickConfig" />
         <!--Modify your new name in the name tag-->
         <item tag="Switch Source"
             name="Switch Source"

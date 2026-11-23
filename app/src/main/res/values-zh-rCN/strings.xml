@@ -1641,6 +1641,9 @@
     <string name="update_status_not_installed">未安装</string>
     <string name="update_action_update">更新</string>
     <string name="update_action_download">下载</string>
+    <string name="update_action_install">安装</string>
+    <string name="update_hint_install_ready">下载完成。若没有弹出安装界面，点右侧「安装」继续，无需重新下载。</string>
+    <string name="version_has_new">有新版本</string>
     <string name="update_action_open">打开</string>
     <string name="update_hint_has_new">主程序有新版本，点「更新」即可下载安装。</string>
     <string name="update_hint_latest">已是最新版本，也可以重新下载任意 APK。</string>
@@ -1652,7 +1655,7 @@
     <string name="update_install_fail">无法唤起安装，请手动安装下载的 APK。</string>
     <string name="update_install_permission">请允许安装未知应用后，再点一次「更新」。</string>
     <string name="update_close">关闭</string>
-    <string name="update_new_version_tip">发现新版本，点菜单底部「检查更新」即可下载安装。</string>
+    <string name="update_new_version_tip">发现新版本，点版本号旁的「有新版本」即可下载安装。</string>
     <string name="menu_settings_title">菜单设置</string>
     <string name="menu_settings_summary">折叠菜单与左侧菜单相关选项</string>
     <string name="zt_developer_options_title">开发者选项</string>
