@@ -130,6 +130,40 @@
 
             </androidx.cardview.widget.CardView>
 
+            <!-- 第三方衍生构建声明：保留上游原作者归属，不改变项目归属 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                app:cardElevation="0dp"
+                android:layout_marginTop="10dp"
+                app:cardBackgroundColor="@color/color_55000000"
+                app:cardCornerRadius="6dp"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:textColor="@color/color_ffffff"
+                        android:textStyle="bold"
+                        android:textSize="15sp"
+                        android:text="@string/zt_about_upstream_title"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:textColor="@color/md_grey_500"
+                        android:textStyle="bold"
+                        android:textSize="13sp"
+                        android:lineSpacingExtra="3dp"
+                        android:text="@string/zt_about_upstream_note"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 app:cardElevation="0dp"

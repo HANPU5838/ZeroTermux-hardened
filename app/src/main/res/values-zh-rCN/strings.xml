@@ -718,7 +718,7 @@
 
     <string name="ttyd_install_complete">IP:0.0.0.0\n端口:7681</string>
 
-    <string name="qq_group">复制群号</string>
+    <string name="qq_group">群聊 959116552（点击复制）</string>
 
     <string name="telegram_group">Telegram</string>
 
@@ -1164,10 +1164,19 @@
     <string name="log_output">输出LOG到存储卡</string>
     <string name="log_output_note">输出LOG文件到\n【/xinhao/ZeroTermuxLog/ZeroTermux.log】\n可能影响性能请谨慎开启!!!!</string>
     <string name="zt_about">关于ZeroTermux</string>
-    <string name="zt_about_zerotermux">ZeroTermux GITHUB</string>
-    <string name="zt_about_zerotermux_note">跳转到ZeroTermux GITHUB页面</string>
-    <string name="zt_about_zerotermux_core_manage">ZeroCoreManage GITHUB(扩展引擎)</string>
-    <string name="zt_about_zerotermux_core_manage_note">跳转到ZeroTermux GITHUB页面\nZeroTermux的额外扩展引擎包</string>
+    <string name="zt_about_zerotermux">本项目仓库（加固版）</string>
+    <string name="zt_about_zerotermux_note">源码、Release、联系方式均在 HANPU5838/ZeroTermux-hardened</string>
+    <string name="zt_about_zerotermux_core_manage">上游与原作者声明</string>
+    <string name="zt_about_zerotermux_core_manage_note">上游原作者：hanxinhao000/ZeroTermux\n本项目为第三方衍生构建，遵循 GPLv3，不改变项目归属\n完整声明见本仓库 README</string>
+    <string name="zt_about_upstream_title">第三方衍生构建声明</string>
+    <string name="zt_about_upstream_note">本项目不是官方发布。上游原作者为 hanxinhao000/ZeroTermux；本项目仅在其源码基础上做构建工具链现代化、依赖升级、X11 集成与打包整理，不改变项目归属。许可证：GPLv3 only。</string>
+    <string name="info_personal_qq">个人QQ 640615397（点击复制）</string>
+    <string name="copied_to_clip">已复制到剪贴板</string>
+    <string name="donate_title">支持作者</string>
+    <string name="donate_summary">扫码赞赏 · 感谢一路相伴</string>
+    <string name="donate_dialog_title">感谢支持</string>
+    <string name="donate_dialog_subtitle">微信 / QQ 扫码赞赏</string>
+    <string name="donate_close">完成</string>
     <string name="zt_about_card_title">ZeroTermux</string>
     <string name="zt_about_card_title_note">ZeroTermux 是基于Termux二次开发，增加了\n相对于Termux没有的的辅助功能，方便快速上手\n此软件可相当于一个微型linux系统,可额外安装\n其他发行版本如：Ubuntu、CentOs等</string>
     <string name="zeroCore_about_card_title">ZeroCoreManage</string>
@@ -1617,6 +1626,7 @@
     <string name="menu_package_local_label">本地菜单</string>
     <string name="official_website">官网</string>
     <string name="official_website_open_failed">未找到可用浏览器</string>
+    <string name="latest_release_time">【最新版本发布时间】\n【Last Update Date】</string>
     <string name="menu_settings_title">菜单设置</string>
     <string name="menu_settings_summary">折叠菜单与左侧菜单相关选项</string>
     <string name="zt_developer_options_title">开发者选项</string>

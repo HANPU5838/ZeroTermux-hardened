@@ -65,6 +65,7 @@ import com.example.xh_lib.utils.SaveData;
 import com.example.xh_lib.utils.UUtils;
 import com.example.xh_lib.utils.UUtils2;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.hjq.permissions.OnPermissionCallback;
 import com.hjq.permissions.Permission;
 import com.hjq.permissions.XXPermissions;
@@ -128,6 +129,7 @@ import com.termux.zerocore.config.ztcommand.config.XmlMenuConfig;
 import com.termux.zerocore.ai.deepseek.markdown.MarkDownAPI;
 import com.termux.zerocore.dialog.BeautifySettingDialog;
 import com.termux.zerocore.dialog.CommonCommandsDialog;
+import com.termux.zerocore.dialog.DonateDialog;
 import com.termux.zerocore.dialog.DownLoadDialogBoom;
 import com.termux.zerocore.dialog.KeyWordFunDialog;
 import com.termux.zerocore.dialog.LoadingDialog;
@@ -1404,6 +1406,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     private TextView ip_status;
     private TextView qq_group_tv;
     private TextView telegram_group_tv;
+    private TextView personal_qq_tv;
+    private CardView donate_card;
     private TextView double_tishi;
     public FrameLayout xue_fragment;
     public FireworkView firework_view;
@@ -1450,6 +1454,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         session_rl = findViewById(R.id.session_rl);
         telegram_group_tv = findViewById(R.id.telegram_group_tv);
         qq_group_tv = findViewById(R.id.qq_group_tv);
+        personal_qq_tv = findViewById(R.id.personal_qq_tv);
+        donate_card = findViewById(R.id.donate_card);
         version = findViewById(R.id.version);
         eg_tv = findViewById(R.id.eg_tv);
         key_bord = findViewById(R.id.key_bord);
@@ -1473,6 +1479,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         back_video = mTermuxActivityRootView.getBack_video();
         mMainActivity = mTermuxActivityRootView.getMainActivity();
         qq_group_tv.setOnClickListener(this);
+        personal_qq_tv.setOnClickListener(this);
+        donate_card.setOnClickListener(v -> new DonateDialog(TermuxActivity.this).show());
         mKeyBordButton.setOnClickListener(v -> {
             showKeyBord();
         });
@@ -1664,6 +1672,10 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     public void onClick(View v) {
         if (v.getId() == R.id.qq_group_tv) {
             UUtils.copyToClip(ZTConstantConfig.ContactInformation.ZT_QQ_GROUP);
+            UUtils.showMsg(getString(R.string.copied_to_clip));
+        } else if (v.getId() == R.id.personal_qq_tv) {
+            UUtils.copyToClip(ZTConstantConfig.ContactInformation.ZT_PERSONAL_QQ);
+            UUtils.showMsg(getString(R.string.copied_to_clip));
         } else if (v.getId() == R.id.telegram_group_tv) {
             Intent intent1 = new Intent();
             intent1.setData(Uri.parse(ZTConstantConfig.ContactInformation.ZT_TELEGRAM_GROUP));
@@ -2065,35 +2077,67 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     }
 
     /**
-     * 连接服务器获取版本
+     * 版本信息：主程序版本/发布时间取自本加固版仓库最新 Release，
+     * 引擎版本仍来自下载站（本仓库不提供 ZeroCoreManage 引擎包）。
+     * GitHub 不可达时回退旧服务器，保证界面不会出现「未连接」。
      */
+    private boolean mReleaseVersionLoaded = false;
 
     private void getServiceVs() {
         ip_status.setText(UUtils.getHostIP());
+        mReleaseVersionLoaded = false;
+
+        // 引擎版本 + 兜底的主程序版本/公告
         new BaseHttpUtils().getUrl(HTTPIP.IP + "/repository/main.json", new HttpResponseListenerBase() {
             @Override
             public void onSuccessful(@NotNull Message msg, int mWhat) {
-                LogUtils.d(TAG, "getServiceVs onSuccessful connection succeeded");
                 try {
                     ZDYDataBean zdyDataBean = new Gson().fromJson((String) msg.obj, ZDYDataBean.class);
-                    service_status.setText(zdyDataBean.getVersionName());
                     service_eg.setText(zdyDataBean.getEngineName());
-
-                    if (zdyDataBean.getMsg() != null && !(zdyDataBean.getMsg().isEmpty())) {
-                        msg_tv.setText(zdyDataBean.getMsg());
+                    if (!mReleaseVersionLoaded) {
+                        service_status.setText(zdyDataBean.getVersionName());
+                        if (zdyDataBean.getMsg() != null && !zdyDataBean.getMsg().isEmpty()) {
+                            msg_tv.setText(zdyDataBean.getMsg());
+                        }
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    service_status.setText(UUtils.getString(R.string.未连接));
-                    LogUtils.d(TAG, "getServiceVs connection error:" + e.toString());
+                    service_eg.setText(UUtils.getString(R.string.未连接));
+                    if (!mReleaseVersionLoaded) {
+                        service_status.setText(UUtils.getString(R.string.未连接));
+                    }
                 }
             }
 
             @Override
             public void onFailure(@org.jetbrains.annotations.Nullable Response<String> response, @NotNull String msg, int mWhat) {
-                service_status.setText(UUtils.getString(R.string.未连接));
                 service_eg.setText(UUtils.getString(R.string.未连接));
-                LogUtils.d(TAG, "getServiceVs data error:" + response.getException());
+                if (!mReleaseVersionLoaded) {
+                    service_status.setText(UUtils.getString(R.string.未连接));
+                }
+            }
+        }, new HashMap<>(), 5555);
+
+        // 主渠道：本加固版仓库最新 Release
+        new BaseHttpUtils().getUrl(HTTPIP.GITHUB_VERSION, new HttpResponseListenerBase() {
+            @Override
+            public void onSuccessful(@NotNull Message msg, int mWhat) {
+                try {
+                    JsonObject release = new Gson().fromJson((String) msg.obj, JsonObject.class);
+                    String tag = release.get("tag_name").getAsString().replaceFirst("^v", "");
+                    String published = release.has("published_at")
+                        ? release.get("published_at").getAsString() : "";
+                    String date = published.length() >= 10 ? published.substring(0, 10) : published;
+                    mReleaseVersionLoaded = true;
+                    service_status.setText(tag);
+                    msg_tv.setText(getString(R.string.latest_release_time) + "\n" + tag + ": " + date);
+                } catch (Exception e) {
+                    LogUtils.d(TAG, "release parse error: " + e);
+                }
+            }
+
+            @Override
+            public void onFailure(@org.jetbrains.annotations.Nullable Response<String> response, @NotNull String msg, int mWhat) {
+                LogUtils.d(TAG, "release request error: " + msg);
             }
         }, new HashMap<>(), 5555);
     }

@@ -738,7 +738,7 @@ Reset successfully</string>
 
     <string name="ttyd_install_complete">IP:0.0.0.0\nport:7681</string>
 
-    <string name="qq_group">QQ Group</string>
+    <string name="qq_group">QQ Group 959116552 (tap to copy)</string>
 
     <string name="telegram_group">Telegram</string>
 
@@ -1101,10 +1101,19 @@ Reset successfully</string>
     <string name="log_output">Output LOG to memory card</string>
     <string name="log_output_note">Output the LOG file to\n[/xinhao/ZeroTermuxLog/ZeroTermux.log]\nIt may affect performance, please enable it with caution!!!!</string>
     <string name="zt_about">About ZeroTermux</string>
-    <string name="zt_about_zerotermux">ZeroTermux GITHUB</string>
-    <string name="zt_about_zerotermux_note">Jump to ZeroTermux GITHUB page</string>
-    <string name="zt_about_zerotermux_core_manage">ZeroCoreManage GITHUB (extension engine)</string>
-    <string name="zt_about_zerotermux_core_manage_note">Jump to ZeroTermux GITHUB page\nAdditional extension engine package for ZeroTermux</string>
+    <string name="zt_about_zerotermux">Our Repository (Hardened)</string>
+    <string name="zt_about_zerotermux_note">Source code, releases and contact info: HANPU5838/ZeroTermux-hardened</string>
+    <string name="zt_about_zerotermux_core_manage">Upstream &amp; Original Author</string>
+    <string name="zt_about_zerotermux_core_manage_note">Original author: hanxinhao000/ZeroTermux\nThis is a third-party derivative build (GPLv3); project ownership is unchanged.\nSee the README in our repository for the full statement.</string>
+    <string name="zt_about_upstream_title">Third-Party Derivative Build Statement</string>
+    <string name="zt_about_upstream_note">This project is NOT an official release. The upstream original author is hanxinhao000/ZeroTermux. This build only modernizes the build toolchain, upgrades dependencies, integrates X11 and repackages the app. Project ownership remains unchanged. License: GPLv3 only.</string>
+    <string name="info_personal_qq">Personal QQ 640615397 (tap to copy)</string>
+    <string name="copied_to_clip">Copied to clipboard</string>
+    <string name="donate_title">Support the author</string>
+    <string name="donate_summary">Scan to support · Thank you</string>
+    <string name="donate_dialog_title">Thank You</string>
+    <string name="donate_dialog_subtitle">Scan with WeChat / QQ</string>
+    <string name="donate_close">Done</string>
     <string name="zt_about_card_title">ZeroTermux</string>
     <string name="zt_about_card_title_note">ZeroTermux is a secondary development based on Termux, adding\nauxiliary functions that are not available in Termux, making it easy to get started quickly\nThis software can be equivalent to a mini-linux system and can be additionally installed\nOther distributions such as: Ubuntu, CentOs, etc.</string>
     <string name="zeroCore_about_card_title">ZeroCoreManage</string>
@@ -1551,6 +1560,7 @@ cd ~ &amp;&amp; pkg update -y \n
     <string name="menu_package_local_label">Local menu</string>
     <string name="official_website">Official Site</string>
     <string name="official_website_open_failed">No browser app available</string>
+    <string name="latest_release_time">【Latest Release Date】\n【Last Update Date】</string>
     <string name="menu_settings_title">Menu</string>
     <string name="menu_settings_summary">Fold menu and left-menu options</string>
     <string name="zt_developer_options_title">Developer options</string>
