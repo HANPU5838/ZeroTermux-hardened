@@ -160,11 +160,18 @@ public class UpdateDialog extends Dialog {
                 downloadedFiles.put(r.key, ready);
                 action.setText(R.string.update_action_install);
                 action.setOnClickListener(v -> install(ready));
-            } else {
-                action.setText(r.hasUpdate
-                    ? activity.getString(R.string.update_action_update)
-                    : activity.getString(R.string.update_action_download));
+            } else if (r.hasUpdate || r.installed == null) {
+                action.setText(activity.getString(r.installed == null
+                    ? R.string.update_action_download
+                    : R.string.update_action_update));
                 action.setOnClickListener(v -> startDownload(r));
+            } else {
+                // 已是最新：不提供下载/更新按钮；顺手清掉旧的安装包
+                action.setVisibility(View.GONE);
+                if (ready != null) {
+                    //noinspection ResultOfMethodCallIgnored
+                    ready.delete();
+                }
             }
             list.addView(row);
         }

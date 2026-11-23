@@ -181,6 +181,39 @@ public class AppUpdateManager {
         return r;
     }
 
+    /** 启动时清理「已安装版本」对应的旧安装包，避免占空间。 */
+    public static void cleanupInstalledApks(Context context) {
+        try {
+            File base = context.getExternalFilesDir(null);
+            if (base == null) {
+                base = context.getCacheDir();
+            }
+            File dir = new File(base, "update");
+            File[] files = dir.listFiles();
+            if (files == null) {
+                return;
+            }
+            String installed = context.getPackageManager()
+                .getPackageInfo(context.getPackageName(), 0).versionName;
+            for (File file : files) {
+                String name = file.getName();
+                if (!name.startsWith("ZeroTermux-") || !name.endsWith(".apk")) {
+                    continue;
+                }
+                int end = name.indexOf("-release");
+                if (end <= "ZeroTermux-".length()) {
+                    continue;
+                }
+                String version = name.substring("ZeroTermux-".length(), end);
+                if (compareVersion(installed, version) >= 0) {
+                    //noinspection ResultOfMethodCallIgnored
+                    file.delete();
+                }
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
     /** 配套组件用发布时间判断是否有更新（同一天视为已最新，避免刚装完就提示）。 */
     private static boolean isReleaseNewerThanInstalled(Context context, String packageName,
                                                        String publishedDate) {

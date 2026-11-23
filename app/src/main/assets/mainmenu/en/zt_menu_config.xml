@@ -116,9 +116,9 @@
         <item tag="Support the author"
             name="Support the author"
             click="java:com.termux.zerocore.config.mainmenu.config.DonateClickConfig" />
-        <!-- Connect Server -->
-        <item tag="Connect Server"
-            name="Connect Server"
+        <!-- SSH -->
+        <item tag="SSH"
+            name="SSH"
             click="java:com.termux.zerocore.config.mainmenu.config.ServerConnectClickConfig" />
         <!--Modify your new name in the name tag-->
         <item tag="Switch Source"

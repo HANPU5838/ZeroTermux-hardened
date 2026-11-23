@@ -1654,6 +1654,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         baseVersionText = UUtils.getString(R.string.版本) + " : "
             + UUtils2.INSTANCE.getVersionName(UUtils.getContext());
         version.setText(baseVersionText);
+        AppUpdateManager.cleanupInstalledApks(this);
         refreshUpdateBadge();
         String versionName = ZeroCoreManage.getVersionName();
         if (!TextUtils.isEmpty(versionName)) {
@@ -3528,6 +3529,50 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
 
     @Override
+    /**
+     * 直接新建一个 ssh 会话（不往终端里敲命令），成功返回 true。
+     * openssh 未安装时退回终端执行安装并连接。
+     */
+    public boolean startSshSession(String host, int port, String user, String keyPath) {
+        try {
+            if (mTermuxService == null || mTermuxTerminalSessionActivityClient == null) {
+                return false;
+            }
+            String sshPath = TermuxConstants.TERMUX_PREFIX_DIR + "/bin/ssh";
+            if (!new File(sshPath).exists()) {
+                StringBuilder fallback = new StringBuilder();
+                fallback.append("pkg install -y openssh >/dev/null 2>&1; ssh -o StrictHostKeyChecking=accept-new -p ")
+                    .append(port).append(" ");
+                if (!TextUtils.isEmpty(keyPath)) {
+                    fallback.append("-i '").append(keyPath).append("' ");
+                }
+                fallback.append(user).append("@").append(host);
+                sendTextToTerminal(fallback.toString() + "\n");
+                return true;
+            }
+            java.util.ArrayList<String> args = new java.util.ArrayList<>();
+            args.add("-o");
+            args.add("StrictHostKeyChecking=accept-new");
+            args.add("-p");
+            args.add(String.valueOf(port));
+            if (!TextUtils.isEmpty(keyPath)) {
+                args.add("-i");
+                args.add(keyPath);
+            }
+            args.add(user + "@" + host);
+            TermuxSession session = mTermuxService.createTermuxSession(sshPath,
+                args.toArray(new String[0]), null, null, false, "ssh " + user + "@" + host);
+            if (session == null) {
+                return false;
+            }
+            mTermuxTerminalSessionActivityClient.setCurrentSession(session.getTerminalSession());
+            return true;
+        } catch (Exception e) {
+            Log.e(TAG, "startSshSession failed", e);
+            return false;
+        }
+    }
+
     public void sendTextToTerminal(String command) {
         LogUtils.i(TAG, "sendTextToTerminal command: " + command);
         getTerminalView().sendTextToTerminal(command);

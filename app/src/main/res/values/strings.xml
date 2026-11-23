@@ -1584,8 +1584,10 @@ cd ~ &amp;&amp; pkg update -y \n
     <string name="update_hint_install_ready">Download finished. If the installer didn\'t open, tap "Install" — no re-download needed.</string>
     <string name="version_has_new">Update available</string>
     <string name="version_component_update">Component update available</string>
-    <string name="server_connect">Connect Server</string>
-    <string name="ssh_dialog_subtitle">SSH into a remote host</string>
+    <string name="server_connect">SSH</string>
+    <string name="ssh_dialog_subtitle">Direct SSH connection</string>
+    <string name="ssh_recent">Recent connections</string>
+    <string name="ssh_start_fail">Unable to start the SSH session</string>
     <string name="ssh_host_hint">Host (IP or domain)</string>
     <string name="ssh_port_hint">Port</string>
     <string name="ssh_user_hint">Username</string>

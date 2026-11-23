@@ -1650,8 +1650,10 @@
     <string name="update_hint_install_ready">下载完成。若没有弹出安装界面，点右侧「安装」继续，无需重新下载。</string>
     <string name="version_has_new">有新版本</string>
     <string name="version_component_update">组件有更新</string>
-    <string name="server_connect">连接服务器</string>
-    <string name="ssh_dialog_subtitle">SSH 登录远程主机</string>
+    <string name="server_connect">SSH</string>
+    <string name="ssh_dialog_subtitle">SSH 直连远程主机</string>
+    <string name="ssh_recent">最近连接</string>
+    <string name="ssh_start_fail">无法启动 SSH 会话</string>
     <string name="ssh_host_hint">服务器地址（IP 或域名）</string>
     <string name="ssh_port_hint">端口</string>
     <string name="ssh_user_hint">用户名</string>

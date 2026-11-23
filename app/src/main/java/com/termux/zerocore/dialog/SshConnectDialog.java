@@ -2,17 +2,21 @@ package com.termux.zerocore.dialog;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,19 +24,24 @@ import com.termux.R;
 import com.termux.app.TermuxActivity;
 import com.termux.shared.termux.TermuxConstants;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * 常用功能 -> 连接服务器：填写地址/端口/用户名/私钥（可粘贴或从文件导入），
- * 点连接后在当前终端里执行 ssh，直接进入远程服务器会话。
- * 没填私钥时走密码登录，由 ssh 在终端里提示输入。
+ * 常用功能 -> SSH：填写地址/端口/用户名/私钥（可粘贴或导入），直接新建一个 ssh 会话，
+ * 不在终端里敲命令。最近连接会记住，点一下就能再次连上。
  */
 public class SshConnectDialog extends Dialog {
 
     public static final int REQ_PICK_KEY = 0x5A11;
+    private static final String PREF = "zt_ssh";
+    private static final String KEY_RECENT = "recent";
+    private static final int MAX_RECENT = 6;
 
     private final TermuxActivity activity;
     private EditText hostInput;
@@ -74,10 +83,90 @@ public class SshConnectDialog extends Dialog {
         findViewById(R.id.ssh_cancel).setOnClickListener(v -> dismiss());
         findViewById(R.id.ssh_pick_key).setOnClickListener(v -> pickKeyFile());
         findViewById(R.id.ssh_connect).setOnClickListener(v -> connect());
+        renderRecent();
 
         findViewById(R.id.ssh_panel).setAlpha(0f);
         findViewById(R.id.ssh_panel).animate().alpha(1f).setDuration(220)
             .setInterpolator(new DecelerateInterpolator(1.4f)).start();
+    }
+
+    private void renderRecent() {
+        LinearLayout area = findViewById(R.id.ssh_recent_area);
+        TextView title = findViewById(R.id.ssh_recent_title);
+        area.removeAllViews();
+        JSONArray array = loadRecent();
+        if (array.length() == 0) {
+            title.setVisibility(View.GONE);
+            return;
+        }
+        title.setVisibility(View.VISIBLE);
+        for (int i = 0; i < array.length(); i++) {
+            JSONObject item = array.optJSONObject(i);
+            if (item == null) {
+                continue;
+            }
+            String host = item.optString("host");
+            String user = item.optString("user");
+            int port = item.optInt("port", 22);
+            String keyPath = item.optString("key", "");
+
+            TextView row = new TextView(activity);
+            row.setText(user + "@" + host + "  ·  " + port);
+            row.setTextColor(Color.parseColor("#FFD6E2F5"));
+            row.setTextSize(13f);
+            row.setPadding(dp(12), dp(10), dp(12), dp(10));
+            row.setBackgroundResource(R.drawable.bg_ssh_pick);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            params.bottomMargin = dp(6);
+            row.setLayoutParams(params);
+            row.setOnClickListener(v -> {
+                hostInput.setText(host);
+                userInput.setText(user);
+                portInput.setText(String.valueOf(port));
+                if (!TextUtils.isEmpty(keyPath)) {
+                    keyPathText.setText(keyPath);
+                }
+                connect();
+            });
+            area.addView(row);
+        }
+    }
+
+    private JSONArray loadRecent() {
+        try {
+            SharedPreferences sp = activity.getSharedPreferences(PREF, Context.MODE_PRIVATE);
+            return new JSONArray(sp.getString(KEY_RECENT, "[]"));
+        } catch (Exception e) {
+            return new JSONArray();
+        }
+    }
+
+    private void saveRecent(String host, String user, int port, String keyPath) {
+        try {
+            JSONArray old = loadRecent();
+            JSONArray next = new JSONArray();
+            JSONObject self = new JSONObject();
+            self.put("host", host);
+            self.put("user", user);
+            self.put("port", port);
+            self.put("key", keyPath == null ? "" : keyPath);
+            next.put(self);
+            for (int i = 0; i < old.length() && next.length() < MAX_RECENT; i++) {
+                JSONObject item = old.optJSONObject(i);
+                if (item == null) {
+                    continue;
+                }
+                if (host.equals(item.optString("host")) && user.equals(item.optString("user"))
+                    && port == item.optInt("port", 22)) {
+                    continue;
+                }
+                next.put(item);
+            }
+            activity.getSharedPreferences(PREF, Context.MODE_PRIVATE).edit()
+                .putString(KEY_RECENT, next.toString()).apply();
+        } catch (Exception ignored) {
+        }
     }
 
     private void pickKeyFile() {
@@ -152,26 +241,33 @@ public class SshConnectDialog extends Dialog {
                         }
                     }
                 }
+                // 私钥权限必须是 600，否则 ssh 会拒绝使用
+                //noinspection ResultOfMethodCallIgnored
+                keyFile.setReadable(false, false);
+                //noinspection ResultOfMethodCallIgnored
+                keyFile.setReadable(true, true);
+                //noinspection ResultOfMethodCallIgnored
+                keyFile.setWritable(false, false);
+                //noinspection ResultOfMethodCallIgnored
+                keyFile.setWritable(true, true);
             }
         } catch (Exception e) {
             toast(R.string.ssh_key_save_fail);
             return;
         }
 
-        StringBuilder command = new StringBuilder();
-        command.append("mkdir -p ~/.ssh && chmod 700 ~/.ssh; ");
-        command.append("command -v ssh >/dev/null 2>&1 || pkg install -y openssh >/dev/null 2>&1; ");
-        if (keyFile != null) {
-            command.append("chmod 600 '").append(keyFile.getAbsolutePath()).append("'; ");
+        String keyPath = keyFile == null ? "" : keyFile.getAbsolutePath();
+        saveRecent(host, user, port, keyPath);
+        boolean started = activity.startSshSession(host, port, user, keyPath);
+        if (!started) {
+            toast(R.string.ssh_start_fail);
+            return;
         }
-        command.append("ssh -o StrictHostKeyChecking=accept-new -p ").append(port).append(" ");
-        if (keyFile != null) {
-            command.append("-i '").append(keyFile.getAbsolutePath()).append("' ");
-        }
-        command.append(user).append("@").append(host);
-
         dismiss();
-        activity.sendTextToTerminal(command.toString() + "\n");
+    }
+
+    private int dp(int value) {
+        return (int) (value * activity.getResources().getDisplayMetrics().density);
     }
 
     private void toast(int resId) {
