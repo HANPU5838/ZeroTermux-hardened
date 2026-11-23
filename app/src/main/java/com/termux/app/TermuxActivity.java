@@ -135,6 +135,7 @@ import com.termux.zerocore.dialog.KeyWordFunDialog;
 import com.termux.zerocore.dialog.LoadingDialog;
 import com.termux.zerocore.dialog.ProtocolDialog;
 import com.termux.zerocore.dialog.SwitchDialog;
+import com.termux.zerocore.dialog.UpdateDialog;
 import com.termux.zerocore.ftp.utils.UserSetManage;
 import com.termux.zerocore.http.HTTPIP;
 import com.termux.zerocore.otg.OTGManager;
@@ -1456,6 +1457,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         qq_group_tv = findViewById(R.id.qq_group_tv);
         personal_qq_tv = findViewById(R.id.personal_qq_tv);
         donate_card = findViewById(R.id.donate_card);
+        findViewById(R.id.update_card).setOnClickListener(v -> new UpdateDialog(TermuxActivity.this).show());
         version = findViewById(R.id.version);
         eg_tv = findViewById(R.id.eg_tv);
         key_bord = findViewById(R.id.key_bord);
@@ -2129,7 +2131,15 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     String date = published.length() >= 10 ? published.substring(0, 10) : published;
                     mReleaseVersionLoaded = true;
                     service_status.setText(tag);
-                    msg_tv.setText(getString(R.string.latest_release_time) + "\n" + tag + ": " + date);
+                    String tip = "";
+                    try {
+                        if (com.termux.zerocore.update.AppUpdateManager.compareVersion(
+                                tag, com.termux.BuildConfig.VERSION_NAME) > 0) {
+                            tip = "\n" + getString(R.string.update_new_version_tip);
+                        }
+                    } catch (Exception ignored) {
+                    }
+                    msg_tv.setText(getString(R.string.latest_release_time) + "\n" + tag + ": " + date + tip);
                 } catch (Exception e) {
                     LogUtils.d(TAG, "release parse error: " + e);
                 }

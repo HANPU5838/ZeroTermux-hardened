@@ -19,15 +19,15 @@
 
 ## 📦 本项目的三个软件
 
-本仓库在 [Releases](https://github.com/HANPU5838/ZeroTermux-hardened/releases) 中提供 **3 个可独立下载、独立安装的 App**，三者签名一致（同一 `phone.jks`），可互相覆盖升级，数据不丢：
+三个软件分别在**各自的正式版仓库**发布，签名一致（同一 `phone.jks`），可互相覆盖升级，数据不丢。主程序内置「检查更新」，会同时查询这三个仓库的最新 Release 并可一键下载安装：
 
-| # | 软件 | 包名 | 作用 | 是否必装 |
+| # | 软件 | 包名 | 正式版仓库 | 是否必装 |
 | --- | --- | --- | --- | --- |
-| ① | **ZeroTermux 加固版**（主程序） | `com.termux` | 完整终端环境 | ✅ 必装 |
-| ② | **Termux:API**（配套组件） | `com.termux.api` | 让终端调用手机 API（剪贴板、传感器、通知等） | 按需 |
-| ③ | **Termux:X11**（外部通道） | `com.termux.x11` | 独立 X11 显示 App（外部通道时使用） | 按需 |
+| ① | **ZeroTermux 加固版**（主程序） | `com.termux` | [ZeroTermux-hardened](https://github.com/HANPU5838/ZeroTermux-hardened/releases) | ✅ 必装 |
+| ② | **Termux:API**（配套组件） | `com.termux.api` | [ZeroTermux-API](https://github.com/HANPU5838/ZeroTermux-API/releases) | 按需 |
+| ③ | **Termux:X11**（外部通道） | `com.termux.x11` | [ZeroTermux-X11](https://github.com/HANPU5838/ZeroTermux-X11/releases) | 按需 |
 
-> 只装 ① 就能正常用终端；②③ 是扩展组件，按需单独下载即可。
+> 只装 ① 就能正常用终端；②③ 是扩展组件，按需单独下载即可。各仓库的 **Releases 只保留当前正式版**，版本号、大小与 SHA-256 以 Release 页面为准。
 
 ---
 
@@ -37,19 +37,18 @@
 
 | 项 | 值 |
 | --- | --- |
-| 当前版本 | **0.118.3.70**（versionCode 309） |
-| 安装包 | [`ZeroTermux-0.118.3.70-release_arm64-v8a.apk`](https://github.com/HANPU5838/ZeroTermux-hardened/releases/download/v0.118.3.70/ZeroTermux-0.118.3.70-release_arm64-v8a.apk) |
-| 大小 | 80,792,182 字节（≈77.0 MiB） |
-| ABI | 仅 `arm64-v8a` |
-| SHA-256 | `a3b1d4f24a4a663bf1d99b8a596c93171329685ac8cf0bec92c58c4749cdf9e7` |
+| 当前正式版 | 见 [Releases 页面](https://github.com/HANPU5838/ZeroTermux-hardened/releases)（版本号、大小、SHA-256 均在 Release 里） |
+| ABI | `arm64-v8a`（CI 默认） |
 | 系统要求 | Android 7.0+（minSdk 23），targetSdk 28 |
+| 更新检测 | 主程序 → 菜单底部「检查更新」，自动比对三个仓库的最新 Release |
 
-**本版更新**（完整记录见 [`升级说明-0.118.3.70.md`](升级说明-0.118.3.70.md)）：
+**本版更新**：
 
-- 修复 X11 内部通道 `loader.apk` 反复提示「删除失败」的问题
-- 并入 `termux-x11`（zt 分支）源码，CI 从源码构建 X11 AAR 与内部通道 loader
-- X11 设置界面中文化
-- 构建工具链升级：AGP 9.5.1 / Gradle 9.9.1 / compileSdk 37
+- 新增**正式版一键更新**：检测三个仓库最新版本、下载 APK 并唤起安装
+- 常用功能里「DeepSeek Harness」改为「官网」，点击跳转系统浏览器打开 `hanpuhan.cn`
+- 关于页与所有仓库链接统一指向本加固版仓库，保留上游原作者与 GPLv3 声明
+- INFO 卡片加入官方群聊与个人 QQ；菜单底部加入赞赏码弹窗
+- 左侧菜单默认展开分组，移除设置页里多余的「菜单设置」入口
 
 **安装**：
 
@@ -68,10 +67,8 @@
 | 项 | 值 |
 | --- | --- |
 | 版本 | **0.53.0-zero.14**（versionCode 1016） |
-| 安装包 | [`Termux-API-0.53.0-zero.14.apk`](https://github.com/HANPU5838/ZeroTermux-hardened/releases/download/v0.118.3.70/Termux-API-0.53.0-zero.14.apk) |
-| 大小 | 7,292,589 字节（≈7.0 MiB） |
+| 正式版下载 | [ZeroTermux-API Releases](https://github.com/HANPU5838/ZeroTermux-API/releases) |
 | ABI | 全架构（无原生库） |
-| SHA-256 | `ce7c7a2455737fade160622a8ecbfa73417e2371e3f7e28cb07497f3452ec12c` |
 
 **安装**：
 
@@ -92,10 +89,8 @@
 | --- | --- |
 | 版本 | **1.03.01-fa6d456-14.11.26**（versionCode 17） |
 | 源码基线 | [termux/termux-x11](https://github.com/termux/termux-x11) master @ `488dbbd`（与官方 nightly 同 commit） |
-| 安装包 | [`Termux-X11-universal.apk`](https://github.com/HANPU5838/ZeroTermux-hardened/releases/download/v0.118.3.70/Termux-X11-universal.apk) |
-| 大小 | 13,985,846 字节（≈13.3 MiB） |
+| 正式版下载 | [ZeroTermux-X11 Releases](https://github.com/HANPU5838/ZeroTermux-X11/releases) |
 | ABI | 全架构 universal（arm64 / arm / x86 / x86_64） |
-| SHA-256 | `f20d041b7c9bb37fbc44742dcdce2848edf073228291871b49351d250f4d634b` |
 | 界面语言 | **中文**（本地化自上游英文文案） |
 
 **使用（外部通道）**：
@@ -114,8 +109,9 @@
 | 用途 | 地址 |
 | --- | --- |
 | 维护者主页 | **<https://hanpuhan.cn>** |
-| 本仓库（加固版源码） | <https://github.com/HANPU5838/ZeroTermux-hardened> |
-| 下载页（Releases） | <https://github.com/HANPU5838/ZeroTermux-hardened/releases> |
+| 本仓库（主程序正式版） | <https://github.com/HANPU5838/ZeroTermux-hardened/releases> |
+| Termux:API 正式版 | <https://github.com/HANPU5838/ZeroTermux-API/releases> |
+| Termux:X11 正式版 | <https://github.com/HANPU5838/ZeroTermux-X11/releases> |
 | 上游原项目（原作者） | <https://github.com/hanxinhao000/ZeroTermux> |
 | Termux:X11 上游 | <https://github.com/termux/termux-x11> |
 | Termux:X11（zt 分支，内部通道 AAR 来源） | <https://github.com/XiaoTong6666/termux-x11> |
@@ -124,15 +120,15 @@
 
 ## 🛠 构建与发布（开发向）
 
-三个软件都由 GitHub Actions 构建（`.github/workflows/build.yml`）：
+主程序由 GitHub Actions 构建（`.github/workflows/build.yml`）；两个配套组件在各自仓库发布正式版 APK，源码暂不迁入。
 
 | 软件 | 构建方式 |
 | --- | --- |
 | ① 主程序 | `./gradlew :app:assembleRelease`（仓库根） |
-| ② Termux:API | 版本固定，源码不在本仓库；安装包存于 `apk/`，CI 直接带入发布产物 |
-| ③ Termux:X11 | `x11/termux-x11-standalone/`（上游 master 源码 + 预编译 `libXlorie.so`） |
+| ② Termux:API | 版本固定，正式版 APK 存放于 [ZeroTermux-API](https://github.com/HANPU5838/ZeroTermux-API) |
+| ③ Termux:X11 | `x11/termux-x11-standalone/` 构建，正式版 APK 存放于 [ZeroTermux-X11](https://github.com/HANPU5838/ZeroTermux-X11) |
 
-**CI 流程**：Checkout → JDK 21 → Android SDK → 构建内部通道 X11 AAR/loader 并注入主程序 → 构建独立 Termux:X11 APK → 构建主 APK → 收集三个 APK + `SHA256SUMS.txt`；推送 `v*` tag 时自动挂到 Release。
+**CI 流程**：Checkout → JDK 21 → Android SDK → 构建内部通道 X11 AAR/loader 并注入主程序 → 构建主 APK → 收集产物与 `SHA256SUMS.txt`。**主仓库的正式版 Release 只放主程序 APK**，配套组件在各自仓库发布；三个仓库的 Release 均只保留当前正式版。
 
 ```bash
 gh workflow run build.yml -R HANPU5838/ZeroTermux-hardened -f arch=arm64
