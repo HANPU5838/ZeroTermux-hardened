@@ -14,6 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:background="@drawable/bg_ssh_panel"
+        android:clickable="true"
         android:orientation="horizontal">
 
         <!-- 左侧菜单 -->
@@ -30,16 +31,19 @@
             <TextView
                 android:id="@+id/ssh_tab_new"
                 style="@style/SshRailTab"
+                android:maxLines="1"
                 android:text="@string/ssh_tab_new" />
 
             <TextView
                 android:id="@+id/ssh_tab_recent"
                 style="@style/SshRailTab"
+                android:maxLines="1"
                 android:text="@string/ssh_tab_recent" />
 
             <TextView
                 android:id="@+id/ssh_tab_help"
                 style="@style/SshRailTab"
+                android:maxLines="1"
                 android:text="@string/ssh_tab_help" />
         </LinearLayout>
 
@@ -96,9 +100,12 @@
                         android:paddingEnd="14dp"
                         android:singleLine="true"
                         android:textColor="#FFFFFFFF"
-                        android:textColorHint="#FF6E7B91"
+                        android:textColorHint="#FF8A99B0"
                 android:textColorHighlight="#664D8DFF"
                 android:textCursorDrawable="@drawable/cursor_white"
+                android:textSelectHandle="@drawable/select_handle"
+                android:textSelectHandleLeft="@drawable/select_handle"
+                android:textSelectHandleRight="@drawable/select_handle"
                         android:textSize="14sp" />
 
                     <EditText
@@ -115,9 +122,12 @@
                         android:singleLine="true"
                         android:text="22"
                         android:textColor="#FFFFFFFF"
-                        android:textColorHint="#FF6E7B91"
+                        android:textColorHint="#FF8A99B0"
                 android:textColorHighlight="#664D8DFF"
                 android:textCursorDrawable="@drawable/cursor_white"
+                android:textSelectHandle="@drawable/select_handle"
+                android:textSelectHandleLeft="@drawable/select_handle"
+                android:textSelectHandleRight="@drawable/select_handle"
                         android:textSize="14sp" />
                 </LinearLayout>
 
@@ -133,15 +143,18 @@
                     android:paddingEnd="14dp"
                     android:singleLine="true"
                     android:textColor="#FFFFFFFF"
-                    android:textColorHint="#FF6E7B91"
+                    android:textColorHint="#FF8A99B0"
                 android:textColorHighlight="#664D8DFF"
                 android:textCursorDrawable="@drawable/cursor_white"
+                android:textSelectHandle="@drawable/select_handle"
+                android:textSelectHandleLeft="@drawable/select_handle"
+                android:textSelectHandleRight="@drawable/select_handle"
                     android:textSize="14sp" />
 
                 <EditText
                     android:id="@+id/ssh_key"
                     android:layout_width="match_parent"
-                    android:layout_height="92dp"
+                    android:layout_height="84dp"
                     android:layout_marginTop="10dp"
                     android:background="@drawable/bg_ssh_input"
                     android:gravity="top|start"
@@ -149,9 +162,12 @@
                     android:inputType="textMultiLine|textNoSuggestions"
                     android:padding="14dp"
                     android:textColor="#FFFFFFFF"
-                    android:textColorHint="#FF6E7B91"
+                    android:textColorHint="#FF8A99B0"
                 android:textColorHighlight="#664D8DFF"
                 android:textCursorDrawable="@drawable/cursor_white"
+                android:textSelectHandle="@drawable/select_handle"
+                android:textSelectHandleLeft="@drawable/select_handle"
+                android:textSelectHandleRight="@drawable/select_handle"
                     android:textSize="13sp" />
 
                 <LinearLayout

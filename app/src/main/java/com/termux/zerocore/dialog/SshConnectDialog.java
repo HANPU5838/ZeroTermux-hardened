@@ -70,15 +70,15 @@ public class SshConnectDialog extends Dialog {
             window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             window.setDimAmount(0.72f);
             window.setGravity(Gravity.CENTER);
-            window.setLayout(WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.WRAP_CONTENT);
+            int maxW = Math.min(activity.getResources().getDisplayMetrics().widthPixels - dp(40), dp(420));
+            window.setLayout(maxW, WindowManager.LayoutParams.WRAP_CONTENT);
             window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         }
 
         android.view.View panel = findViewById(R.id.ssh_panel);
         android.view.ViewGroup.LayoutParams panelParams = panel.getLayoutParams();
         int screenHeight = activity.getResources().getDisplayMetrics().heightPixels;
-        panelParams.height = Math.min(dp(540), (int) (screenHeight * 0.86f));
+        panelParams.height = Math.min(dp(600), (int) (screenHeight * 0.90f));
         panel.setLayoutParams(panelParams);
 
         hostInput = findViewById(R.id.ssh_host);
@@ -169,6 +169,7 @@ public class SshConnectDialog extends Dialog {
             row.addView(action);
 
             View.OnClickListener connectClick = v -> {
+                pendingKeyPath = keyPath;
                 hostInput.setText(host);
                 userInput.setText(user);
                 portInput.setText(String.valueOf(port));
@@ -177,10 +178,7 @@ public class SshConnectDialog extends Dialog {
                 }
                 connect();
             };
-            row.setOnClickListener(v -> {
-                pendingKeyPath = keyPath;
-                connectClick.onClick(v);
-            });
+            row.setOnClickListener(connectClick);
             action.setOnClickListener(connectClick);
             delete.setOnClickListener(v -> {
                 com.termux.zerocore.utils.SshStore.delete(item);
