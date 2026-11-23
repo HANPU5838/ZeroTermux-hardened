@@ -83,6 +83,15 @@ public class SshConnectDialog extends Dialog {
         findViewById(R.id.ssh_cancel).setOnClickListener(v -> dismiss());
         findViewById(R.id.ssh_pick_key).setOnClickListener(v -> pickKeyFile());
         findViewById(R.id.ssh_connect).setOnClickListener(v -> connect());
+        findViewById(R.id.ssh_tab_new).setOnClickListener(v -> switchTab(0));
+        findViewById(R.id.ssh_tab_recent).setOnClickListener(v -> switchTab(1));
+        findViewById(R.id.ssh_tab_help).setOnClickListener(v -> switchTab(2));
+        findViewById(R.id.ssh_recent_clear).setOnClickListener(v -> {
+            activity.getSharedPreferences(PREF, Context.MODE_PRIVATE).edit()
+                .remove(KEY_RECENT).apply();
+            renderRecent();
+        });
+        switchTab(0);
         renderRecent();
 
         findViewById(R.id.ssh_panel).setAlpha(0f);
@@ -90,16 +99,25 @@ public class SshConnectDialog extends Dialog {
             .setInterpolator(new DecelerateInterpolator(1.4f)).start();
     }
 
+    private void switchTab(int index) {
+        View[] panes = {findViewById(R.id.ssh_pane_new), findViewById(R.id.ssh_pane_recent),
+            findViewById(R.id.ssh_pane_help)};
+        TextView[] tabs = {findViewById(R.id.ssh_tab_new), findViewById(R.id.ssh_tab_recent),
+            findViewById(R.id.ssh_tab_help)};
+        for (int i = 0; i < panes.length; i++) {
+            boolean selected = i == index;
+            panes[i].setVisibility(selected ? View.VISIBLE : View.GONE);
+            tabs[i].setTextColor(selected ? Color.parseColor("#FF4D8DFF")
+                : Color.parseColor("#FF8FA0B8"));
+        }
+    }
+
     private void renderRecent() {
         LinearLayout area = findViewById(R.id.ssh_recent_area);
-        TextView title = findViewById(R.id.ssh_recent_title);
+        TextView empty = findViewById(R.id.ssh_recent_empty);
         area.removeAllViews();
         JSONArray array = loadRecent();
-        if (array.length() == 0) {
-            title.setVisibility(View.GONE);
-            return;
-        }
-        title.setVisibility(View.VISIBLE);
+        empty.setVisibility(array.length() == 0 ? View.VISIBLE : View.GONE);
         for (int i = 0; i < array.length(); i++) {
             JSONObject item = array.optJSONObject(i);
             if (item == null) {

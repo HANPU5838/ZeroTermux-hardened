@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:clickable="true"
     android:focusable="true"
-    android:padding="20dp">
+    android:padding="18dp">
 
     <LinearLayout
         android:id="@+id/ssh_panel"
@@ -14,180 +14,279 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:background="@drawable/bg_ssh_panel"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:orientation="horizontal">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/server_connect"
-            android:textColor="#FFFFFFFF"
-            android:textSize="19sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/ssh_dialog_subtitle"
-            android:textColor="#FF9AA9C0"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/ssh_recent_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:text="@string/ssh_recent"
-            android:textColor="#FF8FB8FF"
-            android:textSize="12sp"
-            android:visibility="gone" />
-
+        <!-- 左侧菜单 -->
         <LinearLayout
-            android:id="@+id/ssh_recent_area"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:orientation="vertical" />
+            android:layout_width="88dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_ssh_rail"
+            android:orientation="vertical"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/ssh_tab_new"
+                style="@style/SshRailTab"
+                android:text="@string/ssh_tab_new" />
 
-            <EditText
-                android:id="@+id/ssh_host"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="2"
-                android:background="@drawable/bg_ssh_input"
-                android:hint="@string/ssh_host_hint"
-                android:inputType="textUri"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
-                android:singleLine="true"
-                android:textColor="#FFFFFFFF"
-                android:textColorHint="#FF6E7B91"
-                android:textSize="14sp" />
+            <TextView
+                android:id="@+id/ssh_tab_recent"
+                style="@style/SshRailTab"
+                android:text="@string/ssh_tab_recent" />
 
-            <EditText
-                android:id="@+id/ssh_port"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="10dp"
-                android:layout_weight="1"
-                android:background="@drawable/bg_ssh_input"
-                android:hint="@string/ssh_port_hint"
-                android:inputType="number"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
-                android:singleLine="true"
-                android:text="22"
-                android:textColor="#FFFFFFFF"
-                android:textColorHint="#FF6E7B91"
-                android:textSize="14sp" />
+            <TextView
+                android:id="@+id/ssh_tab_help"
+                style="@style/SshRailTab"
+                android:text="@string/ssh_tab_help" />
         </LinearLayout>
 
-        <EditText
-            android:id="@+id/ssh_user"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_ssh_input"
-            android:hint="@string/ssh_user_hint"
-            android:inputType="text"
-            android:paddingStart="14dp"
-            android:paddingEnd="14dp"
-            android:singleLine="true"
-            android:textColor="#FFFFFFFF"
-            android:textColorHint="#FF6E7B91"
-            android:textSize="14sp" />
+        <!-- 右侧内容 -->
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="18dp">
 
-        <EditText
-            android:id="@+id/ssh_key"
-            android:layout_width="match_parent"
-            android:layout_height="96dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_ssh_input"
-            android:gravity="top|start"
-            android:hint="@string/ssh_key_hint"
-            android:inputType="textMultiLine|textNoSuggestions"
-            android:padding="14dp"
-            android:textColor="#FFFFFFFF"
-            android:textColorHint="#FF6E7B91"
-            android:textSize="13sp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:layout_marginTop="10dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/ssh_pick_key"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:background="@drawable/bg_ssh_pick"
-                android:gravity="center"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
-                android:text="@string/ssh_pick_key"
-                android:textColor="#FF8FB8FF"
-                android:textSize="13sp" />
-
-            <TextView
-                android:id="@+id/ssh_key_path"
-                android:layout_width="0dp"
+            <!-- 新建连接 -->
+            <LinearLayout
+                android:id="@+id/ssh_pane_new"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_weight="1"
-                android:ellipsize="middle"
-                android:singleLine="true"
-                android:text="@string/ssh_no_key_file"
-                android:textColor="#FF7A8AA6"
-                android:textSize="12sp" />
-        </LinearLayout>
+                android:orientation="vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="@string/ssh_tip"
-            android:textColor="#FF7A8AA6"
-            android:textSize="11sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/server_connect"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="19sp"
+                    android:textStyle="bold" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="46dp"
-            android:layout_marginTop="16dp"
-            android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/ssh_dialog_subtitle"
+                    android:textColor="#FF9AA9C0"
+                    android:textSize="12sp" />
 
-            <TextView
-                android:id="@+id/ssh_cancel"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@drawable/bg_ssh_cancel"
-                android:gravity="center"
-                android:text="@string/cancel"
-                android:textColor="#FFC8D3E6"
-                android:textSize="14sp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/ssh_connect"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginStart="12dp"
-                android:layout_weight="2"
-                android:background="@drawable/bg_donate_button"
-                android:gravity="center"
-                android:text="@string/ssh_connect"
-                android:textColor="#FFFFFFFF"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+                    <EditText
+                        android:id="@+id/ssh_host"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="2"
+                        android:background="@drawable/bg_ssh_input"
+                        android:hint="@string/ssh_host_hint"
+                        android:inputType="textUri"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"
+                        android:singleLine="true"
+                        android:textColor="#FFFFFFFF"
+                        android:textColorHint="#FF6E7B91"
+                        android:textSize="14sp" />
+
+                    <EditText
+                        android:id="@+id/ssh_port"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_ssh_input"
+                        android:hint="@string/ssh_port_hint"
+                        android:inputType="number"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"
+                        android:singleLine="true"
+                        android:text="22"
+                        android:textColor="#FFFFFFFF"
+                        android:textColorHint="#FF6E7B91"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <EditText
+                    android:id="@+id/ssh_user"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_ssh_input"
+                    android:hint="@string/ssh_user_hint"
+                    android:inputType="text"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:singleLine="true"
+                    android:textColor="#FFFFFFFF"
+                    android:textColorHint="#FF6E7B91"
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/ssh_key"
+                    android:layout_width="match_parent"
+                    android:layout_height="92dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_ssh_input"
+                    android:gravity="top|start"
+                    android:hint="@string/ssh_key_hint"
+                    android:inputType="textMultiLine|textNoSuggestions"
+                    android:padding="14dp"
+                    android:textColor="#FFFFFFFF"
+                    android:textColorHint="#FF6E7B91"
+                    android:textSize="13sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/ssh_pick_key"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:background="@drawable/bg_ssh_pick"
+                        android:gravity="center"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"
+                        android:text="@string/ssh_pick_key"
+                        android:textColor="#FF8FB8FF"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/ssh_key_path"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_weight="1"
+                        android:ellipsize="middle"
+                        android:singleLine="true"
+                        android:text="@string/ssh_no_key_file"
+                        android:textColor="#FF7A8AA6"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/ssh_tip"
+                    android:textColor="#FF7A8AA6"
+                    android:textSize="11sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:layout_marginTop="14dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/ssh_cancel"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_ssh_cancel"
+                        android:gravity="center"
+                        android:text="@string/cancel"
+                        android:textColor="#FFC8D3E6"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/ssh_connect"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="2"
+                        android:background="@drawable/bg_donate_button"
+                        android:gravity="center"
+                        android:text="@string/ssh_connect"
+                        android:textColor="#FFFFFFFF"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 最近连接 -->
+            <LinearLayout
+                android:id="@+id/ssh_pane_recent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ssh_recent"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="19sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/ssh_recent_empty"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/ssh_recent_empty"
+                    android:textColor="#FF7A8AA6"
+                    android:textSize="12sp" />
+
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:maxHeight="320dp">
+
+                    <LinearLayout
+                        android:id="@+id/ssh_recent_area"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </ScrollView>
+
+                <TextView
+                    android:id="@+id/ssh_recent_clear"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_ssh_cancel"
+                    android:gravity="center"
+                    android:text="@string/ssh_recent_clear"
+                    android:textColor="#FFC8D3E6"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <!-- 说明 -->
+            <LinearLayout
+                android:id="@+id/ssh_pane_help"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ssh_tab_help"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="19sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:lineSpacingExtra="5dp"
+                    android:text="@string/ssh_help_body"
+                    android:textColor="#FFC8D3E6"
+                    android:textSize="13sp" />
+            </LinearLayout>
+        </FrameLayout>
     </LinearLayout>
 
 </FrameLayout>

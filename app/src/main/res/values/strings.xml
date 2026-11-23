@@ -1587,6 +1587,16 @@ cd ~ &amp;&amp; pkg update -y \n
     <string name="server_connect">SSH</string>
     <string name="ssh_dialog_subtitle">Direct SSH connection</string>
     <string name="ssh_recent">Recent connections</string>
+    <string name="ssh_tab_new">New</string>
+    <string name="ssh_tab_recent">Recent</string>
+    <string name="ssh_tab_help">Help</string>
+    <string name="ssh_recent_empty">No connections yet</string>
+    <string name="ssh_recent_clear">Clear</string>
+    <string name="ssh_help_body">1. Host accepts an IP or domain name.
+2. Port defaults to 22.
+3. Paste a private key or import a file; leave empty to use password login.
+4. A new SSH session is created in the terminal, no command is typed into your shell.
+5. Up to 6 recent connections are kept locally and can be cleared anytime.</string>
     <string name="ssh_start_fail">Unable to start the SSH session</string>
     <string name="ssh_host_hint">Host (IP or domain)</string>
     <string name="ssh_port_hint">Port</string>

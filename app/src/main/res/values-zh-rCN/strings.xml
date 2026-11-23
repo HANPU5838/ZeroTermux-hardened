@@ -1653,6 +1653,16 @@
     <string name="server_connect">SSH</string>
     <string name="ssh_dialog_subtitle">SSH 直连远程主机</string>
     <string name="ssh_recent">最近连接</string>
+    <string name="ssh_tab_new">新建连接</string>
+    <string name="ssh_tab_recent">最近连接</string>
+    <string name="ssh_tab_help">说明</string>
+    <string name="ssh_recent_empty">还没有连接记录</string>
+    <string name="ssh_recent_clear">清空记录</string>
+    <string name="ssh_help_body">1. 服务器地址支持 IP 或域名。
+2. 端口默认 22。
+3. 私钥可以直接粘贴，也可以从文件导入；不填私钥则用密码登录。
+4. 连接成功后会在终端里新开一个 SSH 会话，不会在当前终端敲命令。
+5. 连接记录会保存在本地，最多 6 条，可随时清空。</string>
     <string name="ssh_start_fail">无法启动 SSH 会话</string>
     <string name="ssh_host_hint">服务器地址（IP 或域名）</string>
     <string name="ssh_port_hint">端口</string>
