@@ -1594,6 +1594,7 @@ cd ~ &amp;&amp; pkg update -y \n
     <string name="ssh_recent_clear">Clear</string>
     <string name="ssh_recent_path">Folder: %1$s (editable)</string>
     <string name="ssh_recent_deleted">Connection removed</string>
+    <string name="ssh_recent_connect">Connect</string>
     <string name="ssh_help_body">1. Host accepts an IP or domain name.
 2. Port defaults to 22.
 3. Paste a private key or import a file; leave empty to use password login.

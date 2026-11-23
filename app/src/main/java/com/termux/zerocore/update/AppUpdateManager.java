@@ -173,7 +173,11 @@ public class AppUpdateManager {
         }
         r.available = !r.version.isEmpty();
         if (KEY_MAIN.equals(key)) {
-            r.hasUpdate = r.available && compareVersion(r.version, r.installed) > 0;
+            // 版本号体系可能被重置（例如 0.118.x -> 0.000.1），此时纯版本号比较会认为“变旧”；
+            // 因此再加一条发布时间判断：Release 比本机安装时间新就算更新。
+            r.hasUpdate = r.available
+                && (compareVersion(r.version, r.installed) > 0
+                    || isReleaseNewerThanInstalled(context, r.packageName, r.publishedAt));
         } else {
             // 配套组件版本号体系与主程序不同（0.53.0-zero.14 / 1.03.01-fa6d456-14.11.26），
             // 直接比版本号会误判；改用「Release 发布时间 vs 本机安装/更新时间」判断。

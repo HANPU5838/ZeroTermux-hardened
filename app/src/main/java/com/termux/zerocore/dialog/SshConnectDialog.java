@@ -66,11 +66,16 @@ public class SshConnectDialog extends Dialog {
             window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             window.setDimAmount(0.72f);
             window.setGravity(Gravity.CENTER);
-            int screenH = activity.getResources().getDisplayMetrics().heightPixels;
-            int fixedH = Math.min(dp(560), (int) (screenH * 0.86f));
-            window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, fixedH);
+            window.setLayout(WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.WRAP_CONTENT);
             window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         }
+
+        android.view.View panel = findViewById(R.id.ssh_panel);
+        android.view.ViewGroup.LayoutParams panelParams = panel.getLayoutParams();
+        int screenHeight = activity.getResources().getDisplayMetrics().heightPixels;
+        panelParams.height = Math.min(dp(540), (int) (screenHeight * 0.86f));
+        panel.setLayoutParams(panelParams);
 
         hostInput = findViewById(R.id.ssh_host);
         portInput = findViewById(R.id.ssh_port);
@@ -113,10 +118,7 @@ public class SshConnectDialog extends Dialog {
     private void renderRecent() {
         LinearLayout area = findViewById(R.id.ssh_recent_area);
         TextView empty = findViewById(R.id.ssh_recent_empty);
-        TextView pathText = findViewById(R.id.ssh_recent_path);
         area.removeAllViews();
-        pathText.setText(getContext().getString(R.string.ssh_recent_path,
-            com.termux.zerocore.utils.SshStore.getDir().getAbsolutePath()));
         java.util.List<com.termux.zerocore.utils.SshStore.Entry> entries =
             com.termux.zerocore.utils.SshStore.list();
         if (entries.size() > MAX_RECENT) {
@@ -129,17 +131,34 @@ public class SshConnectDialog extends Dialog {
             int port = item.port;
             String keyPath = item.key;
 
-            TextView row = new TextView(activity);
-            row.setText(user + "@" + host + "  ·  " + port);
-            row.setTextColor(Color.parseColor("#FFD6E2F5"));
-            row.setTextSize(13f);
-            row.setPadding(dp(12), dp(10), dp(12), dp(10));
+            LinearLayout row = new LinearLayout(activity);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setGravity(android.view.Gravity.CENTER_VERTICAL);
             row.setBackgroundResource(R.drawable.bg_ssh_pick);
+            row.setPadding(dp(12), dp(6), dp(12), dp(6));
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             params.bottomMargin = dp(6);
             row.setLayoutParams(params);
-            row.setOnClickListener(v -> {
+
+            TextView label = new TextView(activity);
+            label.setText(user + "@" + host + "  ·  " + port);
+            label.setTextColor(Color.parseColor("#FFD6E2F5"));
+            label.setTextSize(13f);
+            label.setSingleLine(true);
+            label.setEllipsize(android.text.TextUtils.TruncateAt.MIDDLE);
+            LinearLayout.LayoutParams labelParams = new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+            row.addView(label, labelParams);
+
+            TextView action = new TextView(activity);
+            action.setText(R.string.ssh_recent_connect);
+            action.setTextColor(Color.parseColor("#FF4D8DFF"));
+            action.setTextSize(13f);
+            action.setPadding(dp(12), dp(6), dp(4), dp(6));
+            row.addView(action);
+
+            View.OnClickListener connectClick = v -> {
                 hostInput.setText(host);
                 userInput.setText(user);
                 portInput.setText(String.valueOf(port));
@@ -147,7 +166,9 @@ public class SshConnectDialog extends Dialog {
                     keyPathText.setText(keyPath);
                 }
                 connect();
-            });
+            };
+            row.setOnClickListener(connectClick);
+            action.setOnClickListener(connectClick);
             row.setOnLongClickListener(v -> {
                 com.termux.zerocore.utils.SshStore.delete(item);
                 renderRecent();
