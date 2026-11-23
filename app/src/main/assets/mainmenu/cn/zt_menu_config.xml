@@ -216,12 +216,6 @@
     </group>
 
     <group name="线上功能">
-        <item tag="在线脚本"
-            click="java:com.termux.zerocore.config.mainmenu.config.OnLineCommandClickConfig" />
-        <item tag="Zero论坛"
-            click="java:com.termux.zerocore.config.mainmenu.config.ZeroBBsClickConfig" />
-        <item tag="下载站"
-            click="java:com.termux.zerocore.config.mainmenu.config.DownLoadClickConfig" />
         <item tag="公共仓库"
             click="java:com.termux.zerocore.config.mainmenu.config.PublicWarehouseClickConfig" />
     </group>

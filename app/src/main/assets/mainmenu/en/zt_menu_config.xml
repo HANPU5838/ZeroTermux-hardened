@@ -212,12 +212,6 @@
     </group>
 
     <group name="Online Functions">
-        <item tag="Online Scripts"
-            click="java:com.termux.zerocore.config.mainmenu.config.OnLineCommandClickConfig" />
-        <item tag="Zero Forum"
-            click="java:com.termux.zerocore.config.mainmenu.config.ZeroBBsClickConfig" />
-        <item tag="Download Station"
-            click="java:com.termux.zerocore.config.mainmenu.config.DownLoadClickConfig" />
         <item tag="Public Repository"
             click="java:com.termux.zerocore.config.mainmenu.config.PublicWarehouseClickConfig" />
     </group>

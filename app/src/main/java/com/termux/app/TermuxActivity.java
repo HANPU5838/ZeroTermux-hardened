@@ -1560,7 +1560,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     /**
      * 音量键手势的唯一入口（终端视图 / Activity / 内嵌主视图三处共用）：
      * 抽屉已开 → 关闭；否则 音量+ 开左菜单、音量- 开右侧面板/AI 面板。
-     * 同一次按键只会被处理一次（220ms 去抖），避免多入口重复触发导致“开了又关”。
+     * 同一次按键只会被处理一次（100ms 去抖），避免多入口重复触发导致“开了又关”。
      */
     private boolean handleVolumeKeyGesture(int keyCode) {
         if (keyCode != KeyEvent.KEYCODE_VOLUME_UP && keyCode != KeyEvent.KEYCODE_VOLUME_DOWN) {
@@ -1571,7 +1571,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             return false;
         }
         long now = SystemClock.elapsedRealtime();
-        if (now - lastVolumeKeyHandledAt < 220L) {
+        if (now - lastVolumeKeyHandledAt < 100L) {
             return true;
         }
         lastVolumeKeyHandledAt = now;
@@ -1664,8 +1664,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         }
         updateBadgeChecked = true;
         try {
-            // 延后 1.2s 再联网：先让界面与终端首屏渲染完，避免启动瞬间抢网络与主线程
-            new Handler(getMainLooper()).postDelayed(() -> {
+            // 后台线程立即检测：不占主线程，也不人为等待
                 AppUpdateManager.fetchAll(this, new AppUpdateManager.FetchCallback() {
                     @Override
                     public void onResult(java.util.List<AppUpdateManager.Release> releases) {
@@ -1686,8 +1685,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     public void onError(String message) {
                         // 网络不可用时静默，不打扰用户
                     }
-                });
-            }, 1200);
+            });
         } catch (Exception e) {
             Log.e(TAG, "refreshUpdateBadge failed", e);
         }
@@ -2354,6 +2352,10 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             // 旧版「一键安装 DeepSeek Harness」入口已下线，替换为「官网」
             updated = updated.replaceAll("\\s*<!--[^\\r\\n]*DeepSeek Harness[^\\r\\n]*-->", "");
             updated = updated.replaceAll("\\s*<item\\b[^>]*DeepSeekHarnessClickConfig[^>]*?/>", "");
+            // 2026-11 下线：在线脚本 / Zero论坛 / 下载站
+            updated = updated.replaceAll("\\s*<item\\b[^>]*OnLineCommandClickConfig[^>]*?/>", "");
+            updated = updated.replaceAll("\\s*<item\\b[^>]*ZeroBBsClickConfig[^>]*?/>", "");
+            updated = updated.replaceAll("\\s*<item\\b[^>]*DownLoadClickConfig[^>]*?/>", "");
 
             int insertIndex = findCommonGroupInsertIndex(updated);
             if (insertIndex < 0) {

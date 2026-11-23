@@ -3,16 +3,24 @@ package com.termux.zerocore.config.mainmenu.config;
 import static com.termux.zerocore.config.mainmenu.MainMenuConfig.CODE_ONLINE_FEATURES;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.view.View;
-import android.widget.EditText;
 
-import com.example.xh_lib.utils.UUtils;
+import com.example.xh_lib.utils.LogUtils;
 import com.termux.R;
-import com.termux.app.TermuxActivity;
-import com.termux.zerocore.dialog.EditDialog;
 
+/**
+ * 线上功能 -> 公共仓库：直接打开维护者的 GitHub 主页。
+ */
 public class PublicWarehouseClickConfig extends BaseMenuClickConfig {
+
+    private static final String TAG = "PublicWarehouse";
+
+    /** 公共仓库指向的 GitHub 主页。 */
+    public static final String REPO_URL = "https://github.com/HANPU5838";
+
     @Override
     public int getType() {
         return CODE_ONLINE_FEATURES;
@@ -30,27 +38,12 @@ public class PublicWarehouseClickConfig extends BaseMenuClickConfig {
 
     @Override
     public void onClick(View view, Context context) {
-        TermuxActivity termuxActivity = (TermuxActivity) context;
-        EditDialog editDialog = new EditDialog(context);
-        EditText edit_text = editDialog.getEdit_text();
-        editDialog.getCancel().setText(UUtils.getString(R.string.如何创建服务器));
-        editDialog.getCancel().setVisibility(View.GONE);
-        editDialog.getCancel().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            }
-        });
-        editDialog.getOk().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String s = edit_text.getText().toString();
-                if (s == null || s.isEmpty()) {
-                    s = "http://10.242.164.19";
-                }
-                editDialog.dismiss();
-                termuxActivity.startHttp(s);
-            }
-        });
-        editDialog.show();
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(REPO_URL));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        } catch (Exception e) {
+            LogUtils.e(TAG, "open repo failed: " + e);
+        }
     }
 }
