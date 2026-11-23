@@ -88,7 +88,9 @@ public class AppUpdateManager {
                 });
             }
             try {
-                latch.await();
+                if (!latch.await(20, java.util.concurrent.TimeUnit.SECONDS)) {
+                    LogUtils.e(TAG, "fetchAll timeout, using partial results");
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -340,6 +342,9 @@ public class AppUpdateManager {
                 out = null;
                 in.close();
                 in = null;
+                if (total > 0 && done < total) {
+                    throw new java.io.IOException("incomplete download");
+                }
                 if (target.exists()) target.delete();
                 if (!tmp.renameTo(target)) {
                     throw new java.io.IOException("rename failed");

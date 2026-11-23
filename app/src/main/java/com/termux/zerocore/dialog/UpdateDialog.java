@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -94,25 +95,59 @@ public class UpdateDialog extends Dialog {
 
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        // 每次重新显示都刷新一次：装完组件回来时不再显示旧状态
-        if (hint == null) {
+    private final android.content.BroadcastReceiver packageReceiver =
+        new android.content.BroadcastReceiver() {
+            @Override
+            public void onReceive(android.content.Context context, Intent intent) {
+                // 组件装完返回时，弹窗仍在栈上：收到包变更就重新检测
+                refresh();
+            }
+        };
+
+    private void refresh() {
+        if (hint == null || downloadedFiles == null) {
             return;
         }
         hint.setText(R.string.update_loading);
         AppUpdateManager.fetchAll(activity, new AppUpdateManager.FetchCallback() {
             @Override
             public void onResult(List<AppUpdateManager.Release> releases) {
+                if (!isShowing()) {
+                    return;
+                }
                 render(releases);
             }
 
             @Override
             public void onError(String message) {
-                hint.setText(R.string.update_fetch_fail);
+                if (isShowing()) {
+                    hint.setText(R.string.update_fetch_fail);
+                }
             }
         });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        filter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        filter.addDataScheme("package");
+        try {
+            activity.registerReceiver(packageReceiver, filter);
+        } catch (Exception ignored) {
+        }
+        refresh();
+    }
+
+    @Override
+    protected void onStop() {
+        try {
+            activity.unregisterReceiver(packageReceiver);
+        } catch (Exception ignored) {
+        }
+        super.onStop();
     }
 
     private void render(List<AppUpdateManager.Release> releases) {
@@ -155,7 +190,7 @@ public class UpdateDialog extends Dialog {
             if (r.apkUrl == null || r.apkUrl.isEmpty()) {
                 action.setText(R.string.update_action_open);
                 action.setOnClickListener(v -> openUrl(r.repoUrl));
-            } else if (ready != null && r.hasUpdate) {
+            } else if (ready != null && (r.hasUpdate || r.installed == null)) {
                 // 还需要更新、且本地已有包：直接「安装」，不再走网络
                 downloadedFiles.put(r.key, ready);
                 action.setText(R.string.update_action_install);

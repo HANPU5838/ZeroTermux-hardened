@@ -1670,20 +1670,17 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
      * 点击打开检查更新弹窗；检查失败或已是最新时不显示任何东西。
      */
     private void refreshUpdateBadge() {
-        if (updateBadgeChecked) {
-            return;
-        }
-        updateBadgeChecked = true;
+        lastBadgeCheckAt = SystemClock.elapsedRealtime();
         fetchAndApplyBadge();
     }
 
     /** 回到前台时如果已经显示过更新提示，再核对一次，装完就撤掉红字。 */
     private void recheckUpdateBadgeIfShown() {
-        if (!updateBadgeShown) {
-            return;
-        }
         long now = SystemClock.elapsedRealtime();
-        if (now - lastBadgeCheckAt < 5000L) {
+        long wait = 5000L - (now - lastBadgeCheckAt);
+        if (wait > 0) {
+            // 节流不丢请求：到点补一次，避免「装完返回」正好落在窗口内导致红字一直挂着
+            new Handler(getMainLooper()).postDelayed(this::recheckUpdateBadgeIfShown, wait);
             return;
         }
         lastBadgeCheckAt = now;
