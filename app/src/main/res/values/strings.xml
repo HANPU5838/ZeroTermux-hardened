@@ -1549,6 +1549,8 @@ cd ~ &amp;&amp; pkg update -y \n
     <string name="menu_package_ai_created_label">AI Created</string>
     <string name="menu_package_network_label">Network menu</string>
     <string name="menu_package_local_label">Local menu</string>
+    <string name="official_website">Official Site</string>
+    <string name="official_website_open_failed">No browser app available</string>
     <string name="menu_settings_title">Menu</string>
     <string name="menu_settings_summary">Fold menu and left-menu options</string>
     <string name="zt_developer_options_title">Developer options</string>

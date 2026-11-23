@@ -104,10 +104,10 @@
     <!--Do not attempt to modify the TAG attribute! This tag is for notes! For click attributes starting with 'java:', the icon cannot be modified. Groups can be freely rearranged and sorted.-->
     <!--Do not attempt to modify the TAG attribute! This tag is for notes! For click attributes starting with 'java:', the icon cannot be modified. Groups can be freely rearranged and sorted.-->
     <!--Do not attempt to modify the TAG attribute! This tag is for notes! For click attributes starting with 'java:', the icon cannot be modified. Groups can be freely rearranged and sorted.-->
-    <group name="Common Functions">        <!-- One-click install DeepSeek Harness -->
-        <item tag="DeepSeek Harness"
-            name="DeepSeek Harness"
-            click="java:com.termux.zerocore.config.mainmenu.config.DeepSeekHarnessClickConfig" />
+    <group name="Common Functions">        <!-- Official website -->
+        <item tag="Official Site"
+            name="Official Site"
+            click="java:com.termux.zerocore.config.mainmenu.config.OfficialWebsiteClickConfig" />
         <!-- Start DeepSeek -->
         <item tag="Start DeepSeek"
             name="Start DeepSeek"

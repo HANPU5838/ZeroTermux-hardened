@@ -108,10 +108,10 @@
     <!--不要尝试修改TAG标签，此标签是备注标签！对于click属性java: 开头的无法修改icon,可自由替换组和排序-->
     <!--不要尝试修改TAG标签，此标签是备注标签！对于click属性java: 开头的无法修改icon,可自由替换组和排序-->
     <!--不要尝试修改TAG标签，此标签是备注标签！对于click属性java: 开头的无法修改icon,可自由替换组和排序-->
-    <group name="常用功能">        <!-- 一键安装 DeepSeek Harness -->
-        <item tag="DeepSeek Harness"
-            name="DeepSeek Harness"
-            click="java:com.termux.zerocore.config.mainmenu.config.DeepSeekHarnessClickConfig" />
+    <group name="常用功能">        <!-- 官网 -->
+        <item tag="官网"
+            name="官网"
+            click="java:com.termux.zerocore.config.mainmenu.config.OfficialWebsiteClickConfig" />
         <!-- 启动 DeepSeek -->
         <item tag="启动 DeepSeek"
             name="启动 DeepSeek"

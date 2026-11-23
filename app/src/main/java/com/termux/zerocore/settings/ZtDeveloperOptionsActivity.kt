@@ -93,6 +93,10 @@ class ZtDeveloperOptionsActivity : BaseTitleActivity() {
             UserSetManage.get().setZTUserBean(ztUserBean)
         }
 
+        findViewById<CardView>(R.id.menu_update_source_card).setOnClickListener {
+            startActivity(Intent(this, MenuUpdateSourceActivity::class.java))
+        }
+
         findViewById<CardView>(R.id.crash_history_settings_card).setOnClickListener {
             startActivity(Intent(this, ZtCrashHistoryActivity::class.java))
         }

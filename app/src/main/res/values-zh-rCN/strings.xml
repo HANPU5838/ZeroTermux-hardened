@@ -1615,6 +1615,8 @@
     <string name="menu_package_ai_created_label">AI创建</string>
     <string name="menu_package_network_label">网络菜单</string>
     <string name="menu_package_local_label">本地菜单</string>
+    <string name="official_website">官网</string>
+    <string name="official_website_open_failed">未找到可用浏览器</string>
     <string name="menu_settings_title">菜单设置</string>
     <string name="menu_settings_summary">折叠菜单与左侧菜单相关选项</string>
     <string name="zt_developer_options_title">开发者选项</string>

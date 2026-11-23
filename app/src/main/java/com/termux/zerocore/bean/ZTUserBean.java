@@ -75,8 +75,8 @@ public class ZTUserBean {
     private String mDeepSeekApiUrl;
     // 是否让DeepSeek 看见你的终端?
     private boolean mIsDeepSeekVisibleTerminal;
-    // 是否折叠菜单
-    private boolean isCloseFoldMenu;
+    // 是否折叠菜单（默认关闭折叠：分组始终展开）
+    private boolean isCloseFoldMenu = true;
     // 是否禁用主菜单配置文件
     private boolean isDisableMainConfigMenu;
     // 是否显示引导页面

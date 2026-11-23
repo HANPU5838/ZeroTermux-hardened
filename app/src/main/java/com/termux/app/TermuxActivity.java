@@ -2130,6 +2130,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
     private void initMenu() {
         writerMainMenuConfig(false);
+        migrateFoldMenuDefault();
         loadActiveMainMenu();
         ZTUserBean ztUserBean = UserSetManage.Companion.get().getZTUserBean();
         UUtils.runOnThread(() -> {
@@ -2198,11 +2199,11 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         } else {
             Log.i(TAG, "writerMainMenuConfig keep existing menu file");
         }
-        ensureDeepSeekMenuItems(mainMenuXmlPathFile);
+        ensureDefaultMenuItems(mainMenuXmlPathFile);
         ensureDefaultTerminalFont();
     }
 
-    private void ensureDeepSeekMenuItems(File menuFile) {
+    private void ensureDefaultMenuItems(File menuFile) {
         try {
             if (menuFile == null || !menuFile.exists()) {
                 return;
@@ -2215,61 +2216,104 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 return;
             }
             String content = new String(buffer, 0, length, "UTF-8");
-            if (content.contains("DeepSeekHarnessClickConfig")) {
+            String updated = content;
+            // 旧版「一键安装 DeepSeek Harness」入口已下线，替换为「官网」
+            updated = updated.replaceAll("\\s*<!--[^\\r\\n]*DeepSeek Harness[^\\r\\n]*-->", "");
+            updated = updated.replaceAll("\\s*<item\\b[^>]*DeepSeekHarnessClickConfig[^>]*?/>", "");
+
+            int insertIndex = findCommonGroupInsertIndex(updated);
+            if (insertIndex < 0) {
+                if (!updated.equals(content)) {
+                    writeMenuFile(menuFile, updated);
+                }
                 return;
             }
-            String items = "\n        <!-- 一键安装 DeepSeek Harness -->\n"
-                + "        <item tag=\"DeepSeek Harness\"\n"
-                + "            name=\"DeepSeek Harness\"\n"
-                + "            click=\"java:com.termux.zerocore.config.mainmenu.config.DeepSeekHarnessClickConfig\" />\n"
-                + "        <!-- 启动 DeepSeek -->\n"
-                + "        <item tag=\"启动 DeepSeek\"\n"
-                + "            name=\"启动 DeepSeek\"\n"
-                + "            click=\"java:com.termux.zerocore.config.mainmenu.config.StartDeepSeekClickConfig\" />";
-            int insertIndex = -1;
-            boolean inComment = false;
-            int i = 0;
-            while (i < content.length()) {
-                if (!inComment && content.startsWith("<!--", i)) {
-                    i += 4;
-                    inComment = true;
+
+            StringBuilder inject = new StringBuilder();
+            if (!updated.contains("OfficialWebsiteClickConfig")) {
+                String label = getString(R.string.official_website);
+                inject.append("\n        <!-- ").append(label).append(" -->\n")
+                    .append("        <item tag=\"").append(label).append("\"\n")
+                    .append("            name=\"").append(label).append("\"\n")
+                    .append("            click=\"java:com.termux.zerocore.config.mainmenu.config.OfficialWebsiteClickConfig\" />");
+            }
+            if (!updated.contains("StartDeepSeekClickConfig")) {
+                inject.append("\n        <!-- 启动 DeepSeek -->\n")
+                    .append("        <item tag=\"启动 DeepSeek\"\n")
+                    .append("            name=\"启动 DeepSeek\"\n")
+                    .append("            click=\"java:com.termux.zerocore.config.mainmenu.config.StartDeepSeekClickConfig\" />");
+            }
+            if (inject.length() == 0 && updated.equals(content)) {
+                return;
+            }
+            String newContent = updated.substring(0, insertIndex) + inject + updated.substring(insertIndex);
+            writeMenuFile(menuFile, newContent);
+        } catch (Exception e) {
+            Log.e(TAG, "ensureDefaultMenuItems failed", e);
+        }
+    }
+
+    /** 找到「常用功能」分组开始标签的结束位置，用于把默认按钮插到组首。 */
+    private int findCommonGroupInsertIndex(String content) {
+        boolean inComment = false;
+        int i = 0;
+        while (i < content.length()) {
+            if (!inComment && content.startsWith("<!--", i)) {
+                i += 4;
+                inComment = true;
+                continue;
+            }
+            if (inComment) {
+                if (content.startsWith("-->", i)) {
+                    i += 3;
+                    inComment = false;
                     continue;
-                }
-                if (inComment) {
-                    if (content.startsWith("-->", i)) {
-                        i += 3;
-                        inComment = false;
-                        continue;
-                    }
-                    i++;
-                    continue;
-                }
-                if (content.startsWith("<group", i)) {
-                    int groupEnd = content.indexOf('>', i);
-                    if (groupEnd > 0) {
-                        int afterTag = groupEnd + 1;
-                        String groupTag = content.substring(i, afterTag);
-                        if (groupTag.contains("常用功能") || groupTag.contains("Common Functions")) {
-                            insertIndex = afterTag;
-                            i = afterTag;
-                            continue;
-                        }
-                    }
                 }
                 i++;
+                continue;
             }
-            if (insertIndex < 0) {
-                Log.i(TAG, "ensureDeepSeekMenuItems: group not found, skip");
-                return;
+            if (content.startsWith("<group", i)) {
+                int groupEnd = content.indexOf('>', i);
+                if (groupEnd > 0) {
+                    int afterTag = groupEnd + 1;
+                    String groupTag = content.substring(i, afterTag);
+                    if (groupTag.contains("常用功能") || groupTag.contains("Common Functions")) {
+                        return afterTag;
+                    }
+                }
             }
-            String newContent = content.substring(0, insertIndex) + items + content.substring(insertIndex);
+            i++;
+        }
+        return -1;
+    }
+
+    private void writeMenuFile(File menuFile, String content) {
+        try {
             FileOutputStream outputStream = new FileOutputStream(menuFile);
-            outputStream.write(newContent.getBytes("UTF-8"));
+            outputStream.write(content.getBytes("UTF-8"));
             outputStream.flush();
             outputStream.close();
-            Log.i(TAG, "ensureDeepSeekMenuItems: injected into " + menuFile.getAbsolutePath());
+            Log.i(TAG, "ensureDefaultMenuItems: updated " + menuFile.getAbsolutePath());
         } catch (Exception e) {
-            Log.e(TAG, "ensureDeepSeekMenuItems failed", e);
+            Log.e(TAG, "writeMenuFile failed", e);
+        }
+    }
+
+    /** 折叠功能默认关闭：菜单分组始终展开（一次性迁移，旧用户也生效）。 */
+    private void migrateFoldMenuDefault() {
+        try {
+            if ("1".equals(SaveData.INSTANCE.getStringOther("zt_fold_menu_default_v1"))) {
+                return;
+            }
+            ZTUserBean ztUserBean = UserSetManage.Companion.get().getZTUserBean();
+            if (!ztUserBean.isCloseFoldMenu()) {
+                ztUserBean.setCloseFoldMenu(true);
+                UserSetManage.Companion.get().setZTUserBean(ztUserBean);
+            }
+            SaveData.INSTANCE.saveStringOther("zt_fold_menu_default_v1", "1");
+            Log.i(TAG, "migrateFoldMenuDefault: fold menu disabled");
+        } catch (Exception e) {
+            Log.e(TAG, "migrateFoldMenuDefault failed", e);
         }
     }
 

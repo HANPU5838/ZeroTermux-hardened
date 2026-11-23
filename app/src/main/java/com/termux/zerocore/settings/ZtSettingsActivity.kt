@@ -18,9 +18,6 @@ class ZtSettingsActivity : BaseTitleActivity() {
         findViewById<CardView>(R.id.zt_termux_settings).setOnClickListener {
             startActivity(Intent(this, ZeroTermuxSettingsActivity::class.java))
         }
-        findViewById<CardView>(R.id.left_menu_settings_card).setOnClickListener {
-            startActivity(Intent(this, MenuSettingsActivity::class.java))
-        }
         findViewById<CardView>(R.id.ai).setOnClickListener {
             startActivity(Intent(this, MainAiSettings::class.java))
         }
