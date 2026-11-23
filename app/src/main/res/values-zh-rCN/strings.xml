@@ -1658,6 +1658,8 @@
     <string name="ssh_tab_help">说明</string>
     <string name="ssh_recent_empty">还没有连接记录</string>
     <string name="ssh_recent_clear">清空记录</string>
+    <string name="ssh_recent_path">资料目录：%1$s（可直接编辑）</string>
+    <string name="ssh_recent_deleted">已删除该条连接</string>
     <string name="ssh_help_body">1. 服务器地址支持 IP 或域名。
 2. 端口默认 22。
 3. 私钥可以直接粘贴，也可以从文件导入；不填私钥则用密码登录。

@@ -39,8 +39,6 @@ import java.io.OutputStream;
 public class SshConnectDialog extends Dialog {
 
     public static final int REQ_PICK_KEY = 0x5A11;
-    private static final String PREF = "zt_ssh";
-    private static final String KEY_RECENT = "recent";
     private static final int MAX_RECENT = 6;
 
     private final TermuxActivity activity;
@@ -68,8 +66,9 @@ public class SshConnectDialog extends Dialog {
             window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             window.setDimAmount(0.72f);
             window.setGravity(Gravity.CENTER);
-            window.setLayout(WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.WRAP_CONTENT);
+            int screenH = activity.getResources().getDisplayMetrics().heightPixels;
+            int fixedH = Math.min(dp(560), (int) (screenH * 0.86f));
+            window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, fixedH);
             window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         }
 
@@ -87,8 +86,7 @@ public class SshConnectDialog extends Dialog {
         findViewById(R.id.ssh_tab_recent).setOnClickListener(v -> switchTab(1));
         findViewById(R.id.ssh_tab_help).setOnClickListener(v -> switchTab(2));
         findViewById(R.id.ssh_recent_clear).setOnClickListener(v -> {
-            activity.getSharedPreferences(PREF, Context.MODE_PRIVATE).edit()
-                .remove(KEY_RECENT).apply();
+            com.termux.zerocore.utils.SshStore.clearAll();
             renderRecent();
         });
         switchTab(0);
@@ -115,18 +113,21 @@ public class SshConnectDialog extends Dialog {
     private void renderRecent() {
         LinearLayout area = findViewById(R.id.ssh_recent_area);
         TextView empty = findViewById(R.id.ssh_recent_empty);
+        TextView pathText = findViewById(R.id.ssh_recent_path);
         area.removeAllViews();
-        JSONArray array = loadRecent();
-        empty.setVisibility(array.length() == 0 ? View.VISIBLE : View.GONE);
-        for (int i = 0; i < array.length(); i++) {
-            JSONObject item = array.optJSONObject(i);
-            if (item == null) {
-                continue;
-            }
-            String host = item.optString("host");
-            String user = item.optString("user");
-            int port = item.optInt("port", 22);
-            String keyPath = item.optString("key", "");
+        pathText.setText(getContext().getString(R.string.ssh_recent_path,
+            com.termux.zerocore.utils.SshStore.getDir().getAbsolutePath()));
+        java.util.List<com.termux.zerocore.utils.SshStore.Entry> entries =
+            com.termux.zerocore.utils.SshStore.list();
+        if (entries.size() > MAX_RECENT) {
+            entries = entries.subList(0, MAX_RECENT);
+        }
+        empty.setVisibility(entries.isEmpty() ? View.VISIBLE : View.GONE);
+        for (com.termux.zerocore.utils.SshStore.Entry item : entries) {
+            String host = item.host;
+            String user = item.user;
+            int port = item.port;
+            String keyPath = item.key;
 
             TextView row = new TextView(activity);
             row.setText(user + "@" + host + "  ·  " + port);
@@ -147,43 +148,13 @@ public class SshConnectDialog extends Dialog {
                 }
                 connect();
             });
+            row.setOnLongClickListener(v -> {
+                com.termux.zerocore.utils.SshStore.delete(item);
+                renderRecent();
+                toast(R.string.ssh_recent_deleted);
+                return true;
+            });
             area.addView(row);
-        }
-    }
-
-    private JSONArray loadRecent() {
-        try {
-            SharedPreferences sp = activity.getSharedPreferences(PREF, Context.MODE_PRIVATE);
-            return new JSONArray(sp.getString(KEY_RECENT, "[]"));
-        } catch (Exception e) {
-            return new JSONArray();
-        }
-    }
-
-    private void saveRecent(String host, String user, int port, String keyPath) {
-        try {
-            JSONArray old = loadRecent();
-            JSONArray next = new JSONArray();
-            JSONObject self = new JSONObject();
-            self.put("host", host);
-            self.put("user", user);
-            self.put("port", port);
-            self.put("key", keyPath == null ? "" : keyPath);
-            next.put(self);
-            for (int i = 0; i < old.length() && next.length() < MAX_RECENT; i++) {
-                JSONObject item = old.optJSONObject(i);
-                if (item == null) {
-                    continue;
-                }
-                if (host.equals(item.optString("host")) && user.equals(item.optString("user"))
-                    && port == item.optInt("port", 22)) {
-                    continue;
-                }
-                next.put(item);
-            }
-            activity.getSharedPreferences(PREF, Context.MODE_PRIVATE).edit()
-                .putString(KEY_RECENT, next.toString()).apply();
-        } catch (Exception ignored) {
         }
     }
 
@@ -275,7 +246,7 @@ public class SshConnectDialog extends Dialog {
         }
 
         String keyPath = keyFile == null ? "" : keyFile.getAbsolutePath();
-        saveRecent(host, user, port, keyPath);
+        com.termux.zerocore.utils.SshStore.save(host, user, port, keyPath);
         boolean started = activity.startSshSession(host, port, user, keyPath);
         if (!started) {
             toast(R.string.ssh_start_fail);

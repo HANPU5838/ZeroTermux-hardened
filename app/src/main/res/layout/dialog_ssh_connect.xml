@@ -90,6 +90,7 @@
                         android:singleLine="true"
                         android:textColor="#FFFFFFFF"
                         android:textColorHint="#FF6E7B91"
+                android:textColorHighlight="#664D8DFF"
                         android:textSize="14sp" />
 
                     <EditText
@@ -107,6 +108,7 @@
                         android:text="22"
                         android:textColor="#FFFFFFFF"
                         android:textColorHint="#FF6E7B91"
+                android:textColorHighlight="#664D8DFF"
                         android:textSize="14sp" />
                 </LinearLayout>
 
@@ -123,6 +125,7 @@
                     android:singleLine="true"
                     android:textColor="#FFFFFFFF"
                     android:textColorHint="#FF6E7B91"
+                android:textColorHighlight="#664D8DFF"
                     android:textSize="14sp" />
 
                 <EditText
@@ -137,6 +140,7 @@
                     android:padding="14dp"
                     android:textColor="#FFFFFFFF"
                     android:textColorHint="#FF6E7B91"
+                android:textColorHighlight="#664D8DFF"
                     android:textSize="13sp" />
 
                 <LinearLayout
@@ -248,6 +252,14 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical" />
                 </ScrollView>
+
+                <TextView
+                    android:id="@+id/ssh_recent_path"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:textColor="#FF6E7B91"
+                    android:textSize="11sp" />
 
                 <TextView
                     android:id="@+id/ssh_recent_clear"
