@@ -170,10 +170,36 @@ public class AppUpdateManager {
             r.installed = BuildConfig.VERSION_NAME;
         }
         r.available = !r.version.isEmpty();
-        // 只有主程序能可靠地按版本号比较；配套组件和主程序版本号体系不同，不做比较
-        r.hasUpdate = KEY_MAIN.equals(key) && r.available
-            && compareVersion(r.version, r.installed) > 0;
+        if (KEY_MAIN.equals(key)) {
+            r.hasUpdate = r.available && compareVersion(r.version, r.installed) > 0;
+        } else {
+            // 配套组件版本号体系与主程序不同（0.53.0-zero.14 / 1.03.01-fa6d456-14.11.26），
+            // 直接比版本号会误判；改用「Release 发布时间 vs 本机安装/更新时间」判断。
+            r.hasUpdate = r.available
+                && isReleaseNewerThanInstalled(context, r.packageName, r.publishedAt);
+        }
         return r;
+    }
+
+    /** 配套组件用发布时间判断是否有更新（同一天视为已最新，避免刚装完就提示）。 */
+    private static boolean isReleaseNewerThanInstalled(Context context, String packageName,
+                                                       String publishedDate) {
+        try {
+            if (publishedDate == null || publishedDate.length() < 10) {
+                return false;
+            }
+            java.text.SimpleDateFormat fmt =
+                new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US);
+            java.util.Date remote = fmt.parse(publishedDate.substring(0, 10));
+            if (remote == null) {
+                return false;
+            }
+            android.content.pm.PackageInfo info =
+                context.getPackageManager().getPackageInfo(packageName, 0);
+            return remote.getTime() > info.lastUpdateTime;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private static String installedVersion(Context context, String packageName) {

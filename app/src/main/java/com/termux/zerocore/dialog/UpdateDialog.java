@@ -119,7 +119,6 @@ public class UpdateDialog extends Dialog {
             TextView action = row.findViewById(R.id.row_action);
 
             name.setText(r.name);
-            boolean isMain = "main".equals(r.key);
             if (r.available) {
                 if (r.installed == null) {
                     version.setText(activity.getString(R.string.update_version_not_installed, r.version));
@@ -127,17 +126,12 @@ public class UpdateDialog extends Dialog {
                     badge.setVisibility(View.VISIBLE);
                 } else {
                     version.setText(activity.getString(R.string.update_version_line, r.installed, r.version));
-                    if (isMain) {
-                        badge.setText(r.hasUpdate
-                            ? activity.getString(R.string.update_status_new)
-                            : activity.getString(R.string.update_status_latest));
-                        badge.setVisibility(View.VISIBLE);
-                    } else {
-                        // 配套组件版本号体系与主程序不同，不做「是否最新」判断
-                        badge.setVisibility(View.GONE);
-                    }
+                    badge.setText(r.hasUpdate
+                        ? activity.getString(R.string.update_status_new)
+                        : activity.getString(R.string.update_status_latest));
+                    badge.setVisibility(View.VISIBLE);
                 }
-                if (isMain && r.hasUpdate) any = true;
+                if (r.hasUpdate) any = true;
             } else {
                 version.setText(R.string.update_version_unknown);
                 badge.setVisibility(View.GONE);
@@ -159,7 +153,7 @@ public class UpdateDialog extends Dialog {
                 action.setText(R.string.update_action_install);
                 action.setOnClickListener(v -> install(ready));
             } else {
-                action.setText(("main".equals(r.key) && r.hasUpdate)
+                action.setText(r.hasUpdate
                     ? activity.getString(R.string.update_action_update)
                     : activity.getString(R.string.update_action_download));
                 action.setOnClickListener(v -> startDownload(r));

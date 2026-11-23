@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.SystemClock;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -689,26 +690,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTermuxTerminalViewClient.onCreate();
 		// ZeroTermux add {@
         if (mTermuxTerminalViewClient != null) {
-            mTermuxTerminalViewClient.setKeyUpDown(key -> {
-                ZTUserBean bean = UserSetManage.Companion.get().getZTUserBean();
-                if (bean.isResetVolume()) {
-                    return;
-                }
-                if (getDrawer().isOpened()) {
-                    getDrawer().smoothClose();
-                    return;
-                }
-                if (key == KeyEvent.KEYCODE_VOLUME_UP) {
-                    if (!bean.isResetVolume()) {
-                        getDrawer().smoothLeftOpen();
-                    }
-                    return;
-                }
-
-                if (key == KeyEvent.KEYCODE_VOLUME_DOWN) {
-                    openRightSideOrAiPanel();
-                }
-            });
+            mTermuxTerminalViewClient.setKeyUpDown(key -> handleVolumeKeyGesture(key));
 			// @}
         }
 
@@ -1416,6 +1398,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     private TextView double_tishi;
     /** 版本号旁的更新提示只检查一次，避免重复联网。 */
     private boolean updateBadgeChecked;
+    /** 音量键手势去抖：同一次按键可能被多个入口投递，避免重复开/关。 */
+    private long lastVolumeKeyHandledAt;
     public FrameLayout xue_fragment;
     public FireworkView firework_view;
     private View back_color;
@@ -1571,6 +1555,36 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         if (!getDrawer().isOpened()) {
             getDrawer().smoothRightOpen();
         }
+    }
+
+    /**
+     * 音量键手势的唯一入口（终端视图 / Activity / 内嵌主视图三处共用）：
+     * 抽屉已开 → 关闭；否则 音量+ 开左菜单、音量- 开右侧面板/AI 面板。
+     * 同一次按键只会被处理一次（220ms 去抖），避免多入口重复触发导致“开了又关”。
+     */
+    private boolean handleVolumeKeyGesture(int keyCode) {
+        if (keyCode != KeyEvent.KEYCODE_VOLUME_UP && keyCode != KeyEvent.KEYCODE_VOLUME_DOWN) {
+            return false;
+        }
+        ZTUserBean bean = UserSetManage.Companion.get().getZTUserBean();
+        if (bean.isResetVolume() && !MainActivity.isConnected()) {
+            return false;
+        }
+        long now = SystemClock.elapsedRealtime();
+        if (now - lastVolumeKeyHandledAt < 220L) {
+            return true;
+        }
+        lastVolumeKeyHandledAt = now;
+        if (getDrawer().isOpened()) {
+            getDrawer().smoothClose();
+            return true;
+        }
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            getDrawer().smoothLeftOpen();
+        } else {
+            openRightSideOrAiPanel();
+        }
+        return true;
     }
 
     private void openRightSideOrAiPanel() {
@@ -2493,21 +2507,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             }
             return false;
         }
-        ZTUserBean ztUserBean = UserSetManage.Companion.get().getZTUserBean();
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-            if (!ztUserBean.isResetVolume() || MainActivity.isConnected()) {
-                openRightSideOrAiPanel();
-                return true;
-            }
-        } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-            if (!ztUserBean.isResetVolume() || MainActivity.isConnected()) {
-                if (getDrawer().isOpened()) {
-                    getDrawer().smoothClose();
-                } else {
-                    getDrawer().smoothLeftOpen();
-                }
-                return true;
-            }
+        if (handleVolumeKeyGesture(keyCode)) {
+            return true;
         }
         return super.onKeyDown(keyCode, event);
     }
@@ -3168,25 +3169,11 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         if (mMainActivity != null) {
             mMainActivity.setMainActivityOnKeyDown((keyCode, keyEvent) -> {
                 Log.i(TAG, "handleKey keyCode termux: " + keyCode);
-                ZTUserBean bean = UserSetManage.Companion.get().getZTUserBean();
-                if (bean.isResetVolume()) {
-                    return false;
-                }
-                Log.i(TAG, "handleKey keyCode getDrawer().isOpened(): " + getDrawer().isOpened());
-                if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-                    openRightSideOrAiPanel();
-                } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-                    if (!bean.isResetVolume()) {
-                        if (getDrawer().isOpened()) {
-                            getDrawer().smoothClose();
-                        } else {
-                            getDrawer().smoothLeftOpen();
-                        }
-                    }
-                } else if (keyCode == KeyEvent.FLAG_KEEP_TOUCH_MODE) {
+                if (keyCode == KeyEvent.FLAG_KEEP_TOUCH_MODE) {
                     finish();
+                    return true;
                 }
-                return true;
+                return handleVolumeKeyGesture(keyCode);
             });
             if (mInternalPassage) {
                 mMainActivity.setSettingsClick(() -> startActivity(new Intent(TermuxActivity.this, ZtSettingsActivity.class)));

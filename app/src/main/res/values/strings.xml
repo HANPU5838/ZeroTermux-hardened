@@ -1116,6 +1116,9 @@ Reset successfully</string>
     <string name="donate_close">Done</string>
     <string name="donate_caption">Scan to support · thank you</string>
     <string name="donate_footer">Your support keeps this project improving</string>
+    <string name="donate_save">Save to gallery</string>
+    <string name="donate_save_ok">Saved to Pictures/ZeroTermux</string>
+    <string name="donate_save_fail">Save failed — check storage permission</string>
     <string name="zt_about_card_title">ZeroTermux</string>
     <string name="zt_about_card_title_note">ZeroTermux is a secondary development based on Termux, adding\nauxiliary functions that are not available in Termux, making it easy to get started quickly\nThis software can be equivalent to a mini-linux system and can be additionally installed\nOther distributions such as: Ubuntu, CentOs, etc.</string>
     <string name="zeroCore_about_card_title">ZeroCoreManage</string>

@@ -1179,6 +1179,9 @@
     <string name="donate_close">完成</string>
     <string name="donate_caption">扫码赞赏 · 感谢一路相伴</string>
     <string name="donate_footer">你的支持，是我持续打磨的动力</string>
+    <string name="donate_save">保存到相册</string>
+    <string name="donate_save_ok">已保存到相册：Pictures/ZeroTermux</string>
+    <string name="donate_save_fail">保存失败，请检查存储权限</string>
     <string name="zt_about_card_title">ZeroTermux</string>
     <string name="zt_about_card_title_note">ZeroTermux 是基于Termux二次开发，增加了\n相对于Termux没有的的辅助功能，方便快速上手\n此软件可相当于一个微型linux系统,可额外安装\n其他发行版本如：Ubuntu、CentOs等</string>
     <string name="zeroCore_about_card_title">ZeroCoreManage</string>

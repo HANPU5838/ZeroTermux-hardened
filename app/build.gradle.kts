@@ -27,8 +27,8 @@ android {
         minSdk = project.properties["minSdkVersion"].toString().toInt()
         targetSdk = project.properties["targetSdkVersion"].toString().toInt()
 
-        versionCode = 314
-        versionName = "0.118.4.0"
+        versionCode = 315
+        versionName = "0.118.4.1"
         if (appVersionName.isNotEmpty()) versionName = appVersionName
         validateVersionName(versionName!!)
 
