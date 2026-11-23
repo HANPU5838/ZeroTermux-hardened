@@ -263,19 +263,6 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical" />
                 </ScrollView>
-
-
-
-                <TextView
-                    android:id="@+id/ssh_recent_clear"
-                    android:layout_width="match_parent"
-                    android:layout_height="44dp"
-                    android:layout_marginTop="12dp"
-                    android:background="@drawable/bg_ssh_cancel"
-                    android:gravity="center"
-                    android:text="@string/ssh_recent_clear"
-                    android:textColor="#FFC8D3E6"
-                    android:textSize="14sp" />
             </LinearLayout>
 
             <!-- 说明 -->

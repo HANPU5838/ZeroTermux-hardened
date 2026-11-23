@@ -1,29 +1,64 @@
 package com.termux.zerocore.utils;
 
+import android.content.Context;
+
 import com.termux.shared.termux.TermuxConstants;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * SSH 连接资料的落盘存储：每条连接一个 .conf 文件，放在 ~/ssh-connect/ 下，
- * 用户可以直接用编辑器改，也可以整个删掉。
+ * SSH 连接资料与私钥的独立存储。
  *
- * 文件格式（简单 key=value，便于手改）：
+ * 位置：应用私有目录下的 ssh-connect/（不在 home 里，也不和用户文件混在一起）：
+ *   <filesDir>/ssh-connect/*.conf    连接资料
+ *   <filesDir>/ssh-connect/keys/*.key 私钥
+ *
+ * 文件格式（简单 key=value，便于排查与备份）：
  *   host=1.2.3.4
  *   port=22
  *   user=root
- *   key=/data/data/com.termux/files/home/.ssh/xxx.key
+ *   key=<filesDir>/ssh-connect/keys/xxx.key
+ *
+ * 首次使用会把旧版 ~/ssh-connect 里的资料和 ~/.ssh/zt_server_*.key 迁移过来。
  */
 public final class SshStore {
+
+    private static final String DIR_NAME = "ssh-connect";
+    private static final String KEY_DIR_NAME = "keys";
+
+    private static Context appContext;
 
     private SshStore() {
     }
 
+    /** 由 UI 在打开弹窗时调用一次。 */
+    public static void attach(Context context) {
+        if (context != null) {
+            appContext = context.getApplicationContext();
+        }
+    }
+
     public static File getDir() {
-        return new File(TermuxConstants.TERMUX_HOME_DIR, "ssh-connect");
+        if (appContext != null) {
+            return new File(appContext.getFilesDir(), DIR_NAME);
+        }
+        // 兜底：没有上下文时退回旧位置，保证不崩
+        return new File(TermuxConstants.TERMUX_HOME_DIR, DIR_NAME);
+    }
+
+    public static File getKeyDir() {
+        File dir = new File(getDir(), KEY_DIR_NAME);
+        if (!dir.exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            dir.mkdirs();
+        }
+        return dir;
     }
 
     public static class Entry {
@@ -34,7 +69,7 @@ public final class SshStore {
         public File file;
     }
 
-    /** 读取目录里的全部连接资料（坏文件跳过）。 */
+    /** 读取全部连接资料（坏文件跳过）。 */
     public static List<Entry> list() {
         List<Entry> result = new ArrayList<>();
         File dir = getDir();
@@ -78,32 +113,87 @@ public final class SshStore {
         }
     }
 
-    /** 清空全部连接资料，返回是否成功。 */
-    public static boolean clearAll() {
-        try {
-            File dir = getDir();
-            File[] files = dir.listFiles();
-            if (files == null) {
-                return true;
-            }
-            for (File f : files) {
-                if (f != null && f.isFile()) {
-                    //noinspection ResultOfMethodCallIgnored
-                    f.delete();
-                }
-            }
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
     /** 删除某条连接资料。 */
     public static boolean delete(Entry entry) {
         try {
             return entry != null && entry.file != null && entry.file.delete();
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    /**
+     * 旧数据迁移：~/ssh-connect 的 conf、~/.ssh/zt_server_*.key 搬到新目录。
+     * 幂等，只在目标目录为空时执行。
+     */
+    public static void migrateIfNeeded() {
+        try {
+            File newDir = getDir();
+            File oldDir = new File(TermuxConstants.TERMUX_HOME_DIR, DIR_NAME);
+            if (oldDir.equals(newDir) || !oldDir.isDirectory()) {
+                return;
+            }
+            if (!newDir.exists() && !newDir.mkdirs()) {
+                return;
+            }
+            File[] existing = newDir.listFiles();
+            if (existing != null && existing.length > 0) {
+                return;
+            }
+            File[] oldFiles = oldDir.listFiles();
+            if (oldFiles == null) {
+                return;
+            }
+            for (File src : oldFiles) {
+                if (src == null || !src.isFile()) {
+                    continue;
+                }
+                File dst = new File(newDir, src.getName());
+                copy(src, dst);
+                //noinspection ResultOfMethodCallIgnored
+                src.delete();
+            }
+            //noinspection ResultOfMethodCallIgnored
+            oldDir.delete();
+            migrateKeys();
+        } catch (Exception ignored) {
+        }
+    }
+
+    private static void migrateKeys() {
+        try {
+            File sshDir = new File(TermuxConstants.TERMUX_HOME_DIR, ".ssh");
+            File[] keys = sshDir.listFiles();
+            if (keys == null) {
+                return;
+            }
+            File keyDir = getKeyDir();
+            for (File src : keys) {
+                if (src == null || !src.isFile() || !src.getName().startsWith("zt_server_")) {
+                    continue;
+                }
+                File dst = new File(keyDir, src.getName());
+                copy(src, dst);
+                //noinspection ResultOfMethodCallIgnored
+                src.delete();
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    private static void copy(File src, File dst) {
+        try (InputStream in = new FileInputStream(src);
+             OutputStream out = new FileOutputStream(dst)) {
+            byte[] buf = new byte[8192];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            //noinspection ResultOfMethodCallIgnored
+            dst.setReadable(true, true);
+            //noinspection ResultOfMethodCallIgnored
+            dst.setWritable(true, true);
+        } catch (Exception ignored) {
         }
     }
 

@@ -62,6 +62,8 @@ public class SshConnectDialog extends Dialog {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_ssh_connect);
+        com.termux.zerocore.utils.SshStore.attach(activity);
+        com.termux.zerocore.utils.SshStore.migrateIfNeeded();
 
         Window window = getWindow();
         if (window != null) {
@@ -92,10 +94,6 @@ public class SshConnectDialog extends Dialog {
         findViewById(R.id.ssh_tab_new).setOnClickListener(v -> switchTab(0));
         findViewById(R.id.ssh_tab_recent).setOnClickListener(v -> switchTab(1));
         findViewById(R.id.ssh_tab_help).setOnClickListener(v -> switchTab(2));
-        findViewById(R.id.ssh_recent_clear).setOnClickListener(v -> {
-            com.termux.zerocore.utils.SshStore.clearAll();
-            renderRecent();
-        });
         switchTab(0);
         renderRecent();
 
@@ -156,6 +154,13 @@ public class SshConnectDialog extends Dialog {
                 0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
             row.addView(label, labelParams);
 
+            TextView delete = new TextView(activity);
+            delete.setText(R.string.ssh_recent_delete);
+            delete.setTextColor(Color.parseColor("#FF8A93A6"));
+            delete.setTextSize(13f);
+            delete.setPadding(dp(8), dp(6), dp(8), dp(6));
+            row.addView(delete);
+
             TextView action = new TextView(activity);
             action.setText(R.string.ssh_recent_connect);
             action.setTextColor(Color.parseColor("#FF4D8DFF"));
@@ -177,11 +182,10 @@ public class SshConnectDialog extends Dialog {
                 connectClick.onClick(v);
             });
             action.setOnClickListener(connectClick);
-            row.setOnLongClickListener(v -> {
+            delete.setOnClickListener(v -> {
                 com.termux.zerocore.utils.SshStore.delete(item);
                 renderRecent();
                 toast(R.string.ssh_recent_deleted);
-                return true;
             });
             area.addView(row);
         }
@@ -233,11 +237,7 @@ public class SshConnectDialog extends Dialog {
 
         File keyFile = null;
         try {
-            File sshDir = new File(TermuxConstants.TERMUX_HOME_DIR, ".ssh");
-            if (!sshDir.exists() && !sshDir.mkdirs()) {
-                toast(R.string.ssh_key_save_fail);
-                return;
-            }
+            File sshDir = com.termux.zerocore.utils.SshStore.getKeyDir();
             String safeHost = host.replaceAll("[^a-zA-Z0-9_.\\-]", "_");
             File autoKey = new File(sshDir, "zt_server_" + safeHost + ".key");
             if (!TextUtils.isEmpty(keyText)) {
@@ -262,6 +262,11 @@ public class SshConnectDialog extends Dialog {
                 }
             } else if (!TextUtils.isEmpty(pendingKeyPath) && new File(pendingKeyPath).exists()) {
                 keyFile = new File(pendingKeyPath);
+            } else if (!TextUtils.isEmpty(pendingKeyPath)) {
+                File moved = new File(sshDir, new File(pendingKeyPath).getName());
+                if (moved.exists()) {
+                    keyFile = moved;
+                }
             } else if (autoKey.exists() && autoKey.length() > 0) {
                 keyFile = autoKey;
             }
