@@ -70,15 +70,15 @@ public class SshConnectDialog extends Dialog {
             window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             window.setDimAmount(0.72f);
             window.setGravity(Gravity.CENTER);
-            int maxW = Math.min(activity.getResources().getDisplayMetrics().widthPixels - dp(40), dp(420));
-            window.setLayout(maxW, WindowManager.LayoutParams.WRAP_CONTENT);
+            window.setLayout(WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.WRAP_CONTENT);
             window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         }
 
         android.view.View panel = findViewById(R.id.ssh_panel);
         android.view.ViewGroup.LayoutParams panelParams = panel.getLayoutParams();
         int screenHeight = activity.getResources().getDisplayMetrics().heightPixels;
-        panelParams.height = Math.min(dp(600), (int) (screenHeight * 0.90f));
+        panelParams.height = Math.min(dp(520), (int) (screenHeight * 0.86f));
         panel.setLayoutParams(panelParams);
 
         hostInput = findViewById(R.id.ssh_host);

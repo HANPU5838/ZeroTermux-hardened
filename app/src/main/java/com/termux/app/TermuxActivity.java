@@ -1395,7 +1395,6 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     private TextView msg_tv;
     private TextView ip_status;
     private TextView qq_group_tv;
-    private TextView telegram_group_tv;
     private TextView personal_qq_tv;
     private TextView double_tishi;
     /** 版本号旁的更新提示只检查一次，避免重复联网。 */
@@ -1451,7 +1450,6 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         info_card = findViewById(R.id.info_card);
         frame_file = findViewById(R.id.frame_file);
         session_rl = findViewById(R.id.session_rl);
-        telegram_group_tv = findViewById(R.id.telegram_group_tv);
         qq_group_tv = findViewById(R.id.qq_group_tv);
         personal_qq_tv = findViewById(R.id.personal_qq_tv);
         version = findViewById(R.id.version);
@@ -1481,7 +1479,6 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         mKeyBordButton.setOnClickListener(v -> {
             showKeyBord();
         });
-        telegram_group_tv.setOnClickListener(this);
         try {
             double_tishi.setText(double_tishi.getText() + "\n" + TermuxInstaller.determineTermuxArchName().toUpperCase());
 
@@ -1798,11 +1795,6 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         } else if (v.getId() == R.id.personal_qq_tv) {
             UUtils.copyToClip(ZTConstantConfig.ContactInformation.ZT_PERSONAL_QQ);
             UUtils.showMsg(getString(R.string.copied_to_clip));
-        } else if (v.getId() == R.id.telegram_group_tv) {
-            Intent intent1 = new Intent();
-            intent1.setData(Uri.parse(ZTConstantConfig.ContactInformation.ZT_TELEGRAM_GROUP));
-            intent1.setAction(Intent.ACTION_VIEW);
-            this.startActivity(intent1);
         }
     }
 

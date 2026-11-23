@@ -299,16 +299,7 @@
                                     android:textSize="12sp"
                                     android:textStyle="bold" />
 
-                                <TextView
-                                    android:id="@+id/telegram_group_tv"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginLeft="14dp"
-                                    android:gravity="center"
-                                    android:text="@string/telegram_group"
-                                    android:textColor="@color/color_48baf3"
-                                    android:textSize="12sp"
-                                    android:textStyle="bold" />
+
                             </LinearLayout>
 
                             <TextView

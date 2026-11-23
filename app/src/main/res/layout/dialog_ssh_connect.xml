@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:clickable="true"
     android:focusable="true"
-    android:padding="18dp">
+    android:padding="8dp">
 
     <LinearLayout
         android:id="@+id/ssh_panel"
@@ -57,7 +57,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:padding="18dp">
+            android:padding="8dp">
 
             <!-- 新建连接 -->
             <LinearLayout
