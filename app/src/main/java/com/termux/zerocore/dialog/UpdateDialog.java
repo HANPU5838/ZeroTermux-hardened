@@ -92,6 +92,15 @@ public class UpdateDialog extends Dialog {
             .setInterpolator(new DecelerateInterpolator(1.4f))
             .start();
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // 每次重新显示都刷新一次：装完组件回来时不再显示旧状态
+        if (hint == null) {
+            return;
+        }
         hint.setText(R.string.update_loading);
         AppUpdateManager.fetchAll(activity, new AppUpdateManager.FetchCallback() {
             @Override
@@ -102,7 +111,6 @@ public class UpdateDialog extends Dialog {
             @Override
             public void onError(String message) {
                 hint.setText(R.string.update_fetch_fail);
-                renderFallback();
             }
         });
     }
@@ -147,8 +155,8 @@ public class UpdateDialog extends Dialog {
             if (r.apkUrl == null || r.apkUrl.isEmpty()) {
                 action.setText(R.string.update_action_open);
                 action.setOnClickListener(v -> openUrl(r.repoUrl));
-            } else if (ready != null) {
-                // 之前已经下载过：直接进入「安装」，不再走网络
+            } else if (ready != null && r.hasUpdate) {
+                // 还需要更新、且本地已有包：直接「安装」，不再走网络
                 downloadedFiles.put(r.key, ready);
                 action.setText(R.string.update_action_install);
                 action.setOnClickListener(v -> install(ready));

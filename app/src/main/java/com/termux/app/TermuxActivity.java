@@ -463,6 +463,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         // ZeroTermux add OTG{@
         onResumeInit();
 		// @}
+        recheckUpdateBadgeIfShown();
 
     }
 
@@ -1400,6 +1401,12 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     private boolean updateBadgeChecked;
     /** 音量键手势去抖：同一次按键可能被多个入口投递，避免重复开/关。 */
     private long lastVolumeKeyHandledAt;
+    /** 版本号原始文案（去掉更新提示时用）。 */
+    private String baseVersionText;
+    /** 连接服务器弹窗：等待文件选择结果。 */
+    public com.termux.zerocore.dialog.SshConnectDialog pendingSshConnectDialog;
+    private boolean updateBadgeShown;
+    private long lastBadgeCheckAt;
     public FrameLayout xue_fragment;
     public FireworkView firework_view;
     private View back_color;
@@ -1644,7 +1651,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     }
 
     private void setEgInstallStatus() {
-        version.setText(UUtils.getString(R.string.版本) + " : " + UUtils2.INSTANCE.getVersionName(UUtils.getContext()));
+        baseVersionText = UUtils.getString(R.string.版本) + " : "
+            + UUtils2.INSTANCE.getVersionName(UUtils.getContext());
+        version.setText(baseVersionText);
         refreshUpdateBadge();
         String versionName = ZeroCoreManage.getVersionName();
         if (!TextUtils.isEmpty(versionName)) {
@@ -1663,54 +1672,88 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             return;
         }
         updateBadgeChecked = true;
-        try {
-            // 后台线程立即检测：不占主线程，也不人为等待
-                AppUpdateManager.fetchAll(this, new AppUpdateManager.FetchCallback() {
-                    @Override
-                    public void onResult(java.util.List<AppUpdateManager.Release> releases) {
-                        boolean hasNew = false;
-                        for (AppUpdateManager.Release release : releases) {
-                            if ("main".equals(release.key) && release.available && release.hasUpdate) {
-                                hasNew = true;
-                                break;
-                            }
-                        }
-                        if (!hasNew) {
-                            return;
-                        }
-                        applyUpdateBadge();
-                    }
+        fetchAndApplyBadge();
+    }
 
-                    @Override
-                    public void onError(String message) {
-                        // 网络不可用时静默，不打扰用户
+    /** 回到前台时如果已经显示过更新提示，再核对一次，装完就撤掉红字。 */
+    private void recheckUpdateBadgeIfShown() {
+        if (!updateBadgeShown) {
+            return;
+        }
+        long now = SystemClock.elapsedRealtime();
+        if (now - lastBadgeCheckAt < 5000L) {
+            return;
+        }
+        lastBadgeCheckAt = now;
+        fetchAndApplyBadge();
+    }
+
+    private void fetchAndApplyBadge() {
+        try {
+            AppUpdateManager.fetchAll(this, new AppUpdateManager.FetchCallback() {
+                @Override
+                public void onResult(java.util.List<AppUpdateManager.Release> releases) {
+                    boolean mainHasNew = false;
+                    boolean componentHasNew = false;
+                    for (AppUpdateManager.Release release : releases) {
+                        if (!release.available || !release.hasUpdate) {
+                            continue;
+                        }
+                        if ("main".equals(release.key)) {
+                            mainHasNew = true;
+                        } else {
+                            componentHasNew = true;
+                        }
                     }
+                    if (mainHasNew || componentHasNew) {
+                        applyUpdateBadge(mainHasNew);
+                    } else {
+                        clearUpdateBadge();
+                    }
+                }
+
+                @Override
+                public void onError(String message) {
+                    // 网络不可用时保持现状，不打扰用户
+                }
             });
         } catch (Exception e) {
-            Log.e(TAG, "refreshUpdateBadge failed", e);
+            Log.e(TAG, "fetchAndApplyBadge failed", e);
         }
     }
 
-    private void applyUpdateBadge() {
+    private void applyUpdateBadge(boolean mainHasNew) {
         try {
-            if (version == null) {
+            if (version == null || baseVersionText == null) {
                 return;
             }
-            String tip = getString(R.string.version_has_new);
-            String base = version.getText().toString();
-            if (base.contains(tip)) {
-                return;
-            }
-            SpannableString text = new SpannableString(base + "  " + tip);
-            int start = base.length() + 2;
+            String tip = getString(mainHasNew
+                ? R.string.version_has_new
+                : R.string.version_component_update);
+            SpannableString text = new SpannableString(baseVersionText + "  " + tip);
+            int start = baseVersionText.length() + 2;
             text.setSpan(new ForegroundColorSpan(Color.parseColor("#FF5252")), start, text.length(),
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             text.setSpan(new StyleSpan(Typeface.BOLD), start, text.length(),
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             version.setText(text);
             version.setOnClickListener(v -> new UpdateDialog(TermuxActivity.this).show());
+            updateBadgeShown = true;
         } catch (Exception e) {
             Log.e(TAG, "applyUpdateBadge failed", e);
+        }
+    }
+
+    private void clearUpdateBadge() {
+        try {
+            if (version == null || baseVersionText == null) {
+                return;
+            }
+            version.setText(baseVersionText);
+            version.setOnClickListener(null);
+            updateBadgeShown = false;
+        } catch (Exception e) {
+            Log.e(TAG, "clearUpdateBadge failed", e);
         }
     }
 
@@ -2378,6 +2421,13 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     .append("        <item tag=\"启动 DeepSeek\"\n")
                     .append("            name=\"启动 DeepSeek\"\n")
                     .append("            click=\"java:com.termux.zerocore.config.mainmenu.config.StartDeepSeekClickConfig\" />");
+            }
+            if (!updated.contains("ServerConnectClickConfig")) {
+                String label = getString(R.string.server_connect);
+                inject.append("\n        <!-- ").append(label).append(" -->\n")
+                    .append("        <item tag=\"").append(label).append("\"\n")
+                    .append("            name=\"").append(label).append("\"\n")
+                    .append("            click=\"java:com.termux.zerocore.config.mainmenu.config.ServerConnectClickConfig\" />");
             }
             if (!updated.contains("DonateClickConfig")) {
                 String label = getString(R.string.donate_title);
@@ -3415,6 +3465,12 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     }
 
     private void onActivityResultZtInit(int requestCode, int resultCode, @Nullable Intent data) {
+        // 连接服务器：导入私钥文件
+        if (requestCode == com.termux.zerocore.dialog.SshConnectDialog.REQ_PICK_KEY
+            && pendingSshConnectDialog != null) {
+            pendingSshConnectDialog.onKeyFilePicked(resultCode, data);
+            return;
+        }
         //导入SSH密钥
         if (requestCode == com.termux.zerocore.view.BoomWindow.REQUEST_CODE_IMPORT_KEY && resultCode == RESULT_OK && data != null) {
             Uri uri = data.getData();

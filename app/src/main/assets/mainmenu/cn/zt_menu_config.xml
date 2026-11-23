@@ -120,6 +120,10 @@
         <item tag="支持作者"
             name="支持作者"
             click="java:com.termux.zerocore.config.mainmenu.config.DonateClickConfig" />
+        <!-- 连接服务器 -->
+        <item tag="连接服务器"
+            name="连接服务器"
+            click="java:com.termux.zerocore.config.mainmenu.config.ServerConnectClickConfig" />
         <!--在name标签修改你的新名称-->
         <item tag="切换源"
             name="切换源"
