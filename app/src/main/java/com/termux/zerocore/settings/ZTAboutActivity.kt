@@ -17,9 +17,9 @@ class ZTAboutActivity : BaseTitleActivity() {
             UUtils.startUrl(ZTConstantConfig.URL.ZT_REPO_URL)
         }
 
-        // 上游与原作者声明：保留归属说明，链接同样指向本仓库 README
+        // 上游原仓库：原作者 hanxinhao000 的 ZeroTermux，点开即跳转原仓库
         findViewById<CardView>(R.id.zt_core_manage_termux_github_card_view).setOnClickListener {
-            UUtils.startUrl("${ZTConstantConfig.URL.ZT_REPO_URL}#readme")
+            UUtils.startUrl(ZTConstantConfig.URL.ZT_UPSTREAM_REPO_URL)
         }
     }
 }

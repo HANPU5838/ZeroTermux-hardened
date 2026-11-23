@@ -19,7 +19,7 @@ public class DonateClickConfig extends BaseMenuClickConfig {
     @Override
     public Drawable getIcon(Context context) {
         try {
-            Drawable drawable = context.getDrawable(R.drawable.ic_donate_heart);
+            Drawable drawable = context.getDrawable(R.drawable.ic_menu_donate);
             if (drawable != null) {
                 return drawable;
             }

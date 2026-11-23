@@ -2,7 +2,7 @@
 
 <!DOCTYPE resources [
     <!ENTITY TERMUX_PACKAGE_NAME "com.termux">
-    <!ENTITY TERMUX_APP_NAME "Termux">
+    <!ENTITY TERMUX_APP_NAME "ZeroTermux 加固版">
     <!ENTITY TERMUX_API_APP_NAME "Termux:API">
     <!ENTITY TERMUX_BOOT_APP_NAME "Termux:Boot">
     <!ENTITY TERMUX_FLOAT_APP_NAME "Termux:Float">
@@ -16,7 +16,7 @@
     <string name="application_name">&TERMUX_APP_NAME;</string>
     <string name="shared_user_label">ZeroTermux user</string>
 
-    <string name="app_name">ZeroTermux</string>
+    <string name="app_name">ZeroTermux 加固版</string>
 
     <!-- Termux RUN_COMMAND permission -->
     <string name="permission_run_command_label">Run commands in &TERMUX_APP_NAME; environment</string>
@@ -1103,8 +1103,8 @@ Reset successfully</string>
     <string name="zt_about">About ZeroTermux</string>
     <string name="zt_about_zerotermux">Our Repository (Hardened)</string>
     <string name="zt_about_zerotermux_note">Source code, releases and contact info: HANPU5838/ZeroTermux-hardened</string>
-    <string name="zt_about_zerotermux_core_manage">Upstream &amp; Original Author</string>
-    <string name="zt_about_zerotermux_core_manage_note">Original author: hanxinhao000/ZeroTermux\nThis is a third-party derivative build (GPLv3); project ownership is unchanged.\nSee the README in our repository for the full statement.</string>
+    <string name="zt_about_zerotermux_core_manage">Upstream Original Repository</string>
+    <string name="zt_about_zerotermux_core_manage_note">Upstream repository: github.com/hanxinhao000/ZeroTermux\nThis software (ZeroTermux Hardened) is a derivative build under GPLv3; ownership is unchanged.\nTap to open the upstream repository; source and releases are in the project repository above.</string>
     <string name="zt_about_upstream_title">Third-Party Derivative Build Statement</string>
     <string name="zt_about_upstream_note">This project is NOT an official release. The upstream original author is hanxinhao000/ZeroTermux. This build only modernizes the build toolchain, upgrades dependencies, integrates X11 and repackages the app. Project ownership remains unchanged. License: GPLv3 only.</string>
     <string name="info_personal_qq">Personal QQ 640615397 (tap to copy)</string>
@@ -1114,6 +1114,8 @@ Reset successfully</string>
     <string name="donate_dialog_title">Thank You</string>
     <string name="donate_dialog_subtitle">Scan with WeChat / QQ</string>
     <string name="donate_close">Done</string>
+    <string name="donate_caption">Scan to support · thank you</string>
+    <string name="donate_footer">Your support keeps this project improving</string>
     <string name="zt_about_card_title">ZeroTermux</string>
     <string name="zt_about_card_title_note">ZeroTermux is a secondary development based on Termux, adding\nauxiliary functions that are not available in Termux, making it easy to get started quickly\nThis software can be equivalent to a mini-linux system and can be additionally installed\nOther distributions such as: Ubuntu, CentOs, etc.</string>
     <string name="zeroCore_about_card_title">ZeroCoreManage</string>

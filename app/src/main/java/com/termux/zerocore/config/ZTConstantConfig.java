@@ -10,5 +10,7 @@ public class ZTConstantConfig {
     public @interface URL {
         public static final String ZT_GITHUB_URL = "https://github.com/HANPU5838/ZeroTermux-hardened/releases";
         public static final String ZT_REPO_URL = "https://github.com/HANPU5838/ZeroTermux-hardened";
+        /** 上游原仓库（原作者 hanxinhao000 的 ZeroTermux）。 */
+        public static final String ZT_UPSTREAM_REPO_URL = "https://github.com/hanxinhao000/ZeroTermux";
     }
 }

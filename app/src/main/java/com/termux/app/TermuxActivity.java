@@ -1650,27 +1650,30 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         }
         updateBadgeChecked = true;
         try {
-            AppUpdateManager.fetchAll(this, new AppUpdateManager.FetchCallback() {
-                @Override
-                public void onResult(java.util.List<AppUpdateManager.Release> releases) {
-                    boolean hasNew = false;
-                    for (AppUpdateManager.Release release : releases) {
-                        if ("main".equals(release.key) && release.available && release.hasUpdate) {
-                            hasNew = true;
-                            break;
+            // 延后 1.2s 再联网：先让界面与终端首屏渲染完，避免启动瞬间抢网络与主线程
+            new Handler(getMainLooper()).postDelayed(() -> {
+                AppUpdateManager.fetchAll(this, new AppUpdateManager.FetchCallback() {
+                    @Override
+                    public void onResult(java.util.List<AppUpdateManager.Release> releases) {
+                        boolean hasNew = false;
+                        for (AppUpdateManager.Release release : releases) {
+                            if ("main".equals(release.key) && release.available && release.hasUpdate) {
+                                hasNew = true;
+                                break;
+                            }
                         }
+                        if (!hasNew) {
+                            return;
+                        }
+                        applyUpdateBadge();
                     }
-                    if (!hasNew) {
-                        return;
-                    }
-                    runOnUiThread(TermuxActivity.this::applyUpdateBadge);
-                }
 
-                @Override
-                public void onError(String message) {
-                    // 网络不可用时静默，不打扰用户
-                }
-            });
+                    @Override
+                    public void onError(String message) {
+                        // 网络不可用时静默，不打扰用户
+                    }
+                });
+            }, 1200);
         } catch (Exception e) {
             Log.e(TAG, "refreshUpdateBadge failed", e);
         }

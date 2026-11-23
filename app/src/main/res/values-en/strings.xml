@@ -2,7 +2,7 @@
 
 <!DOCTYPE resources [
     <!ENTITY TERMUX_PACKAGE_NAME "com.termux">
-    <!ENTITY TERMUX_APP_NAME "Termux">
+    <!ENTITY TERMUX_APP_NAME "ZeroTermux 加固版">
     <!ENTITY TERMUX_API_APP_NAME "Termux:API">
     <!ENTITY TERMUX_BOOT_APP_NAME "Termux:Boot">
     <!ENTITY TERMUX_FLOAT_APP_NAME "Termux:Float">
@@ -16,7 +16,7 @@
     <string name="application_name">&TERMUX_APP_NAME;</string>
     <string name="shared_user_label">ZeroTermux user</string>
 
-    <string name="app_name">ZeroTermux</string>
+    <string name="app_name">ZeroTermux 加固版</string>
 
     <!-- Termux RUN_COMMAND permission -->
     <string name="permission_run_command_label">Run commands in &TERMUX_APP_NAME; environment</string>
