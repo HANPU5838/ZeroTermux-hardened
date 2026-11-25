@@ -15,7 +15,7 @@ public enum ControlCapability {
     SMS("sms", "SMS", "Read SMS threads/messages and send SMS."),
     CONTACTS("contacts", "Contacts", "Read the device contact list."),
     ROOT("root", "Root", "Root shell execution and ADB over TCP."),
-    X11("x11", "X11 / VNC", "X11/VNC status, start and editor integration."),
+    X11("x11", "X11", "X11 dock and editor integration."),
     QEMU("qemu", "QEMU", "QEMU / Windows VM helpers shipped with ZeroTermux."),
     UI("ui", "UI automation", "Input injection, app launching, screenshots and zt UI commands."),
     LOGS("logs", "Logs", "logcat, dmesg and crash history."),

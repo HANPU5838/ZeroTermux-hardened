@@ -8,6 +8,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.example.xh_lib.utils.UUtils
 import com.termux.R
 
@@ -16,6 +18,8 @@ public open class BaseTitleActivity: AppCompatActivity() {
     private var mCancel: ImageView? = null
     private var mBaseFrame: FrameLayout? = null
     override fun onCreate(savedInstanceState: Bundle?) {
+        // 让页面背景一直画到状态栏/导航栏后面，避免顶部留一条纯黑的状态栏区域
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
     }
 
@@ -28,6 +32,12 @@ public open class BaseTitleActivity: AppCompatActivity() {
         mCancel!!.setOnClickListener { finish() }
         mBaseFrame!!.addView(childView)
         super.setContentView(thisView)
+        ViewCompat.setOnApplyWindowInsetsListener(thisView) { view, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(0, bars.top, 0, bars.bottom)
+            insets
+        }
+        ViewCompat.requestApplyInsets(thisView)
     }
 
     public fun setBaseTitle(title: String) {

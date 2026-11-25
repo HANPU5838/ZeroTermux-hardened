@@ -24,7 +24,6 @@ object PackageMsg {
     final val ZERO_TERMUX_TERMUX_WEB_START = "org.join.web.serv"
     final val ZERO_TERMUX_TERMUX_FLOAT = "com.termux.window"
     final val ZERO_TERMUX_EG = "com.xinhao.zerocoremanage"
-    final val ZERO_TERMUX_VNC = "com.iiordanov.bVNC"
     final val REQUEST_CODE = 3000
     private var index: Int = 0
 
@@ -97,53 +96,48 @@ object PackageMsg {
         val arrayList = ArrayList<PackageBean>()
         val packageAPI = PackageBean()
         packageAPI.packageName = ZERO_TERMUX_TERMUX_API
-        packageAPI.showName = "API(1/10)"
+        packageAPI.showName = "API(1/9)"
         arrayList.add(packageAPI)
 
         val packageBoot = PackageBean()
         packageBoot.packageName = ZERO_TERMUX_TERMUX_BOOT
-        packageBoot.showName = "BOOT(2/10)"
+        packageBoot.showName = "BOOT(2/9)"
         arrayList.add(packageBoot)
 
         val packageStyling = PackageBean()
         packageStyling.packageName = ZERO_TERMUX_TERMUX_STYLING
-        packageStyling.showName = "STYLING(3/10)"
+        packageStyling.showName = "STYLING(3/9)"
         arrayList.add(packageStyling)
 
         val packageTasker = PackageBean()
         packageTasker.packageName = ZERO_TERMUX_TERMUX_TASKER
-        packageTasker.showName = "TASKER(4/10)"
+        packageTasker.showName = "TASKER(4/9)"
         arrayList.add(packageTasker)
 
         val packageX11 = PackageBean()
         packageX11.packageName = ZERO_TERMUX_TERMUX_X11
-        packageX11.showName = "X11(5/10)"
+        packageX11.showName = "X11(5/9)"
         arrayList.add(packageX11)
 
         val packageFileMsg = PackageBean()
         packageFileMsg.packageName = ZERO_TERMUX_TERMUX_FILE_MSG
-        packageFileMsg.showName = "FILE_MSG(6/10)"
+        packageFileMsg.showName = "FILE_MSG(6/9)"
         arrayList.add(packageFileMsg)
 
         val packageWebStart = PackageBean()
         packageWebStart.packageName = ZERO_TERMUX_TERMUX_WEB_START
-        packageWebStart.showName = "WEB_START(7/10)"
+        packageWebStart.showName = "WEB_START(7/9)"
         arrayList.add(packageWebStart)
 
         val packageFloat = PackageBean()
         packageFloat.packageName = ZERO_TERMUX_TERMUX_FLOAT
-        packageFloat.showName = "FLOAT(8/10)"
+        packageFloat.showName = "FLOAT(8/9)"
         arrayList.add(packageFloat)
 
         val packageEg = PackageBean()
         packageEg.packageName = ZERO_TERMUX_EG
-        packageEg.showName = "EG(9/10)"
+        packageEg.showName = "EG(9/9)"
         arrayList.add(packageEg)
-
-        val packageVnc = PackageBean()
-        packageVnc.packageName = ZERO_TERMUX_VNC
-        packageVnc.showName = "VNC(10/10)"
-        arrayList.add(packageVnc)
 
         var mMessageBean = MessageBean()
         mMessageBean.mActivity = activity

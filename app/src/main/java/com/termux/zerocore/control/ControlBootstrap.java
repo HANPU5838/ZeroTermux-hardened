@@ -69,7 +69,6 @@ public final class ControlBootstrap {
         zt(registry, "openright", ControlCapability.UI, "Open the right drawer.");
         zt(registry, "reboot", ControlCapability.SYSTEM, "Restart the Termux service.");
         zt(registry, "ln", ControlCapability.FILES, "Create a symlink: ln <link> <target>.");
-        zt(registry, "vnc", ControlCapability.X11, "Open AVnc with a server profile.");
         zt(registry, "x11commandshow", ControlCapability.X11, "Show the X11 command bar.");
         zt(registry, "x11commandhide", ControlCapability.X11, "Hide the X11 command bar.");
         zt(registry, "x11status", ControlCapability.X11, "Query the X11 connection status.");

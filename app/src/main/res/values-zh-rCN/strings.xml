@@ -368,15 +368,10 @@
     <string name="正在连接到下载站服务器">正在连接到下载站服务器</string>
     <string name="无法连接到下载站服务器">无法连接到下载站服务器</string>
     <string name="正在连接">正在连接</string>
-    <string name="VNC">VNC</string>
-    <string name="快速VNC">快速VNC</string>
-    <string name="自定VNC">自定VNC</string>
-    <string name="高级VNC">高级VNC</string>
     <string name="请下载插件">请下载插件</string>
     <string name="请输入地址">请输入地址</string>
     <string name="请输入端口">请输入端口</string>
     <string name="请输入密码">请输入密码</string>
-    <string name="连接到自定VNC">连接到自定VNC</string>
     <string name="协议">协议</string>
     <string name="protocol_subtitle">本软件为开源二次开发版本，请完整阅读以下条款</string>
     <string name="protocol_hint_scroll">请向下滑动，阅读至底部后即可同意</string>
@@ -856,19 +851,6 @@
     <string name="editor_x11_status_starting">GUI 启动中</string>
     <string name="editor_x11_status_installing">GUI 环境安装中</string>
     <string name="editor_x11_status_connecting">GUI 连接中</string>
-    <string name="editor_vnc_install_repo">正在安装 x11-repo…</string>
-    <string name="editor_vnc_install_packages">正在安装 Xvfb 与 x11vnc…</string>
-    <string name="editor_vnc_installing_env">正在安装 GUI/VNC 环境（x11-repo、Xvfb、x11vnc），请稍候…</string>
-    <string name="editor_vnc_starting_env">正在启动 VNC 服务，请稍候…</string>
-    <string name="editor_vnc_env_missing">缺少 X11/VNC 组件。打开 GUI 标签将自动安装；也可点击重试。</string>
-    <string name="editor_vnc_start_failed">VNC 调试环境启动失败。请确认终端可执行 pkg install，然后点击重试。</string>
-    <string name="editor_vnc_retry">重试</string>
-    <string name="editor_vnc_init_failed">VNC 窗口初始化失败</string>
-    <string name="editor_vnc_status_connected">VNC 已连接</string>
-    <string name="editor_vnc_status_connecting">VNC 连接中…</string>
-    <string name="editor_vnc_status_installing">正在安装环境…</string>
-    <string name="editor_vnc_status_starting">正在启动 VNC…</string>
-    <string name="editor_vnc_status_disconnected">VNC 未连接</string>
     <string name="editor_toolbar_run">运行 build.sh</string>
     <string name="editor_build_script_long_press">长按运行按钮可编辑 build.sh</string>
     <string name="editor_build_script_header_note">可手动编辑或由 AI 修改</string>
@@ -1435,15 +1417,7 @@
         \n
         图形连接相关:\n
         \n
-        vnc - 连接vnc(zt vnc 地址_端口_用户名_密码) \n
-        vnc[ \n
-        示例: zt vnc 127.0.0.1_5900_admin_admin \n
-        用户名或密码为空则输入none \n
-        示例(密码为空)：zt vnc 127.0.0.1_5900_admin_none \n
-        示例(用户名为空)：zt vnc 127.0.0.1_5900_none_admin \n
-        示例(或都为空)：zt vnc 127.0.0.1_5900_none_none \n
-        注意 地址和端口不能为空！\n
-        ] \n
+
         x11commandshow(x11xs) - 显示终端(x11需打开) \n
         x11commandhide(x11xh) - 隐藏终端(x11需打开) \n
         x11keyboardshow(x11kbs) -显示x11键盘 \n

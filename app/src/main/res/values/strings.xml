@@ -386,15 +386,10 @@ error</string>
     <string name="正在连接到下载站服务器">Connecting to download station server</string>
     <string name="无法连接到下载站服务器">Unable to connect to the download station server</string>
     <string name="正在连接">Connecting…</string>
-    <string name="VNC">VNC</string>
-    <string name="快速VNC">Fast VNC</string>
-    <string name="自定VNC">Custom VNC</string>
-    <string name="高级VNC">Advanced VNC</string>
     <string name="请下载插件">Please download the plugin</string>
     <string name="请输入地址">Please enter the address</string>
     <string name="请输入端口">Please enter the port</string>
     <string name="请输入密码">Please enter the password</string>
-    <string name="连接到自定VNC">Connect to custom VNC</string>
     <string name="协议">protocol</string>
     <string name="protocol_subtitle">Open-source secondary build — please read the terms below in full</string>
     <string name="protocol_hint_scroll">Scroll down to the bottom to continue</string>
@@ -1392,14 +1387,7 @@ Known Issue: Rapid consecutive back operations may cause black screen in Interna
         \n
         Graphics Connection Related:\n
         \n
-        vnc - Connect to vnc (zt vnc address_port_username_password) \n
-        vnc[ \n
-        Example: zt vnc 127.0.0.1_5900_admin_admin \n
-        Enter \'none\' if username or password is empty \n
-        Example (empty password): zt vnc 127.0.0.1_5900_admin_none \n
-        Example (empty username): zt vnc 127.0.0.1_5900_none_admin \n
-        Example (both empty): zt vnc 127.0.0.1_5900_none_none \n
-        Note: Address and port cannot be empty!\n ] \n
+
         x11commandshow(x11xs) - Show terminal (x11 must be running) \n
         x11commandhide(x11xh) - Hide terminal (x11 must be running) \n
         x11keyboardshow(x11kbs) - Show x11 keyboard \n
@@ -2047,19 +2035,6 @@ cd ~ &amp;&amp; pkg update -y \n
     <string name="editor_x11_status_starting">GUI starting</string>
     <string name="editor_x11_status_installing">GUI installing</string>
     <string name="editor_x11_status_connecting">GUI connecting</string>
-    <string name="editor_vnc_install_repo">Installing x11-repo…</string>
-    <string name="editor_vnc_install_packages">Installing Xvfb and x11vnc…</string>
-    <string name="editor_vnc_installing_env">Installing GUI/VNC environment (x11-repo, Xvfb, x11vnc)…</string>
-    <string name="editor_vnc_starting_env">Starting VNC server…</string>
-    <string name="editor_vnc_env_missing">X11/VNC packages are missing. Opening the GUI tab installs them automatically; tap Retry if needed.</string>
-    <string name="editor_vnc_start_failed">Failed to start the VNC debug environment. Ensure the terminal can run pkg install, then tap Retry.</string>
-    <string name="editor_vnc_retry">Retry</string>
-    <string name="editor_vnc_init_failed">VNC viewer init failed</string>
-    <string name="editor_vnc_status_connected">VNC connected</string>
-    <string name="editor_vnc_status_connecting">Connecting VNC…</string>
-    <string name="editor_vnc_status_installing">Installing environment…</string>
-    <string name="editor_vnc_status_starting">Starting VNC…</string>
-    <string name="editor_vnc_status_disconnected">VNC disconnected</string>
     <string name="editor_x11_internal_required">Preparing GUI environment…</string>
     <string name="editor_x11_setup_open_settings">Retry</string>
     <string name="editor_x11_maximize">Maximize X11</string>

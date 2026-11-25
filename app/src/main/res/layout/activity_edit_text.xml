@@ -550,13 +550,6 @@
                     </LinearLayout>
                 </FrameLayout>
 
-                <com.termux.shared.termux.extrakeys.ExtraKeysView
-                    android:id="@+id/editor_vnc_extra_keys"
-                    style="?android:attr/buttonBarStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="64dp"
-                    android:background="#1E1E1E"
-                    android:orientation="horizontal" />
             </LinearLayout>
         </FrameLayout>
     </LinearLayout>

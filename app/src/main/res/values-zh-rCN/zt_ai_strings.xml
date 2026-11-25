@@ -327,7 +327,6 @@
     <string name="zt_ai_zt_cmd_x11kbshow">显示 X11 键盘</string>
     <string name="zt_ai_zt_cmd_x11kbhide">隐藏 X11 键盘</string>
     <string name="zt_ai_zt_cmd_dialog">弹窗</string>
-    <string name="zt_ai_zt_cmd_vnc">打开 VNC</string>
     <string name="zt_ai_zt_cmd_ln">创建软链接</string>
     <string name="zt_ai_zt_cmd_qr">二维码扫描</string>
 </resources>

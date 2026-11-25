@@ -32,10 +32,6 @@ public class ZTKeyConstants {
     public static final int ZT_ID_LN = 7;
     public static final String ZT_COMMAND_LN = "ln";
 
-    //AVnc
-    public static final int ZT_ID_VNC = 8;
-    public static final String ZT_COMMAND_VNC = "vnc";
-
     //显示终端
     public static final int ZT_ID_X11_COMMAND_SHOW = 9;
     public static final String ZT_COMMAND_X11_COMMAND_SHOW = "x11commandshow";

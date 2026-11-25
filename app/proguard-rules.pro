@@ -110,12 +110,6 @@
 -keep class com.google.crypto.tink.** { *; }
 -dontwarn com.google.crypto.tink.**
 
--keep class com.gaurav.avnc.model.** { *; }
--dontwarn com.gaurav.avnc.model.**
-
--keep class com.gaurav.avnc.ui.vnc.** { *; }
--dontwarn com.gaurav.avnc.ui.vnc.**
-
 # Keep BouncyCastle
 -keep class org.bouncycastle.** { *; }
 -dontwarn org.bouncycastle.**

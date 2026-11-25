@@ -104,12 +104,12 @@ object ZtEditorAiTools {
         ))
         tools.put(tool(
             "run_build_script",
-            "Same as the editor Run button: ensure build.sh, boot embedded GUI VNC (Xvfb DISPLAY=:99) if needed, then execute ./build.sh in the project directory. Prefer this over raw send_terminal_command for GUI/windowed programs (Java Swing/AWT, etc.).",
+            "Same as the editor Run button: ensure build.sh, switch to the built-in GUI (X11) dock tab if needed, then execute ./build.sh in the project directory. Prefer this over raw send_terminal_command for GUI/windowed programs (Java Swing/AWT, etc.).",
             JSONObject().put("type", "object").put("properties", JSONObject()).put("required", JSONArray())
         ))
         tools.put(tool(
             "switch_editor_dock_tab",
-            "Switch the editor bottom dock tab. Use tab=gui to show the embedded VNC viewer after a GUI app starts; use tab=terminal for compile logs.",
+            "Switch the editor bottom dock tab. Use tab=gui to show the built-in GUI (X11) panel after a GUI app starts; use tab=terminal for compile logs.",
             JSONObject().put("type", "object").put(
                 "properties",
                 JSONObject().put(

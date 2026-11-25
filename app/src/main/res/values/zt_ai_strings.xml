@@ -316,7 +316,6 @@
     <string name="zt_ai_zt_cmd_x11kbshow">Show X11 keyboard</string>
     <string name="zt_ai_zt_cmd_x11kbhide">Hide X11 keyboard</string>
     <string name="zt_ai_zt_cmd_dialog">Dialog</string>
-    <string name="zt_ai_zt_cmd_vnc">Open VNC</string>
     <string name="zt_ai_zt_cmd_ln">Create symlink</string>
     <string name="zt_ai_zt_cmd_qr">QR scan</string>
 </resources>

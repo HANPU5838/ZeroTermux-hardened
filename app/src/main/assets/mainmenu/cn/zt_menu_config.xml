@@ -180,8 +180,6 @@
             click="java:com.termux.zerocore.config.mainmenu.config.ShowX11KeyboardClickConfig" />
         <item tag="隐藏键盘"
             click="java:com.termux.zerocore.config.mainmenu.config.HideX11KeyboardClickConfig" />
-        <item tag="VNC"
-            click="java:com.termux.zerocore.config.mainmenu.config.VNCClickConfig" />
     </group>
 
     <group name="美化/UI 功能">

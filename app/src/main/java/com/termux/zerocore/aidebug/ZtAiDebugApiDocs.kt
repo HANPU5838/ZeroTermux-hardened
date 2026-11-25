@@ -205,8 +205,6 @@ object ZtAiDebugApiDocs {
             mapOf("method" to "GET", "path" to "/api/sms/threads", "desc" to if (lang == "zh") "短信会话 ($codeNote READ_SMS)" else "SMS threads ($codeNote READ_SMS)"),
             mapOf("method" to "GET", "path" to "/api/sms/messages", "desc" to if (lang == "zh") "?address= ($codeNote READ_SMS)" else "?address= ($codeNote READ_SMS)"),
             mapOf("method" to "GET", "path" to "/api/phone/info", "desc" to if (lang == "zh") "SIM/运营商 ($codeNote READ_PHONE_STATE)" else "SIM/operator ($codeNote READ_PHONE_STATE)"),
-            mapOf("method" to "GET", "path" to "/api/vnc/status", "desc" to if (lang == "zh") "编辑器 VNC 诊断（Xvfb/x11vnc/端口/日志）" else "Editor VNC diagnostics (Xvfb/x11vnc/port/log)"),
-            mapOf("method" to "POST", "path" to "/api/vnc/start", "desc" to if (lang == "zh") "启动 Xvfb + x11vnc（:99 端口 15901）" else "Start Xvfb + x11vnc (:99 port 15901)"),
             mapOf("method" to "POST", "path" to "/api/editor/open", "desc" to if (lang == "zh") "JSON {path} 打开 EditTextActivity" else "JSON {path} open EditTextActivity"),
             mapOf(
                 "method" to "GET",
@@ -267,7 +265,7 @@ object ZtAiDebugApiDocs {
             ),
             mapOf(
                 "name" to if (lang == "zh") "logcat" else "logcat",
-                "cmd" to "curl -s \"$base/api/logs/logcat$q&lines=300&filter=EditorVncPanel\""
+                "cmd" to "curl -s \"$base/api/logs/logcat$q&lines=300&filter=EditorLsp\""
             ),
             mapOf(
                 "name" to if (lang == "zh") "历史报错列表" else "Crash history",
@@ -311,23 +309,11 @@ object ZtAiDebugApiDocs {
             ),
             mapOf(
                 "name" to if (lang == "zh") "读文件" else "Read file",
-                "cmd" to "curl -s \"$base/api/files/read$q&path=.zerotermux/x11vnc.log\""
-            ),
-            mapOf(
-                "name" to if (lang == "zh") "VNC 状态" else "VNC status",
-                "cmd" to "curl -s \"$base/api/vnc/status$q\""
-            ),
-            mapOf(
-                "name" to if (lang == "zh") "启动 VNC" else "Start VNC",
-                "cmd" to "curl -s -X POST \"$base/api/vnc/start$q\""
+                "cmd" to "curl -s \"$base/api/files/read$q&path=.bashrc\""
             ),
             mapOf(
                 "name" to if (lang == "zh") "打开编辑器" else "Open editor",
                 "cmd" to "curl -s -X POST \"$base/api/editor/open$q\" -H \"Content-Type: application/json\" -d '{\"path\":\"project/project_java/Hello.java\"}'"
-            ),
-            mapOf(
-                "name" to if (lang == "zh") "VNC 黑屏排查" else "VNC black screen",
-                "cmd" to "curl -s -X POST \"$base/api/terminal/exec$q\" -H \"Content-Type: application/json\" -d '{\"command\":\"export DISPLAY=:99; pgrep -af x11vnc\",\"waitMs\":4000}'"
             ),
             mapOf(
                 "name" to if (lang == "zh") "美化颜色" else "Beautify colors",
@@ -472,11 +458,11 @@ object ZtAiDebugApiDocs {
                 "POST $base/api/input/tap?code=$codePh {\"x\":540,\"y\":1200}",
                 "POST $base/api/adb/tcp/enable?code=$codePh {\"port\":5555}"
             ),
-            "vnc_debug_sequence" to listOf(
-                "POST $base/api/terminal/exec?code=$codePh {\"command\":\"export DISPLAY=:99; pgrep -af x11vnc\",\"waitMs\":4000}",
-                "GET $base/api/files/read?code=$codePh&path=.zerotermux/x11vnc.log",
+            "editor_debug_sequence" to listOf(
+                "POST $base/api/editor/open?code=$codePh {\"path\":\"project/project_java/Hello.java\"}",
                 "GET $base/api/screenshot?code=$codePh",
-                "GET $base/api/logs/logcat?code=$codePh&lines=200&filter=EditorVncPanel"
+                "GET $base/api/editor/lsp/status?code=$codePh",
+                "GET $base/api/logs/logcat?code=$codePh&lines=200&filter=EditorLsp"
             )
         )
     }

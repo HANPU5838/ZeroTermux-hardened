@@ -275,7 +275,6 @@ object ZtAiStrings {
         "x11keyboardshow / x11kbs" to R.string.zt_ai_zt_cmd_x11kbshow,
         "x11keyboardhide / x11kbh" to R.string.zt_ai_zt_cmd_x11kbhide,
         "dialog ..." to R.string.zt_ai_zt_cmd_dialog,
-        "vnc <ip_port_user_pass>" to R.string.zt_ai_zt_cmd_vnc,
         "ln <src> <dst>" to R.string.zt_ai_zt_cmd_ln,
         "qr" to R.string.zt_ai_zt_cmd_qr,
     )

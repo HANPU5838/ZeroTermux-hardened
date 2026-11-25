@@ -427,8 +427,8 @@ class EditTextActivity : AppCompatActivity(), ZtEditorAiHost {
     }
 
     private fun handleAiDebugIntentExtras() {
-        val openX11 = intent.getBooleanExtra(com.termux.zerocore.aidebug.ZtAiDebugVncHelper.EXTRA_OPEN_X11_TAB, false)
-        val autoRun = intent.getBooleanExtra(com.termux.zerocore.aidebug.ZtAiDebugVncHelper.EXTRA_AUTO_RUN, false)
+        val openX11 = intent.getBooleanExtra(com.termux.zerocore.aidebug.ZtAiDebugEditorHelper.EXTRA_OPEN_X11_TAB, false)
+        val autoRun = intent.getBooleanExtra(com.termux.zerocore.aidebug.ZtAiDebugEditorHelper.EXTRA_AUTO_RUN, false)
         if (openX11) {
             code_editor?.postDelayed({
                 editorBottomDock?.openX11Tab()
@@ -748,10 +748,6 @@ class EditTextActivity : AppCompatActivity(), ZtEditorAiHost {
         val displayBtn = findViewById<TextView>(R.id.editor_x11_display)
         val connectBtn = findViewById<TextView>(R.id.editor_x11_connect)
         val maximize = findViewById<android.widget.ImageView>(R.id.editor_x11_maximize) ?: return
-        val vncExtraKeysView = findViewById<com.termux.shared.termux.extrakeys.ExtraKeysView>(
-            R.id.editor_vnc_extra_keys
-        )
-        vncExtraKeysView?.visibility = View.GONE
 
         editorX11Panel = EditorX11Panel(
             activity = this,

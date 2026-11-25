@@ -176,8 +176,6 @@
             click="java:com.termux.zerocore.config.mainmenu.config.ShowX11KeyboardClickConfig" />
         <item tag="Hide Keyboard"
             click="java:com.termux.zerocore.config.mainmenu.config.HideX11KeyboardClickConfig" />
-        <item tag="VNC"
-            click="java:com.termux.zerocore.config.mainmenu.config.VNCClickConfig" />
     </group>
 
     <group name="Beautification/UI Functions">

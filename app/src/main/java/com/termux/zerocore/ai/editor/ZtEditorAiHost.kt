@@ -20,7 +20,7 @@ interface ZtEditorAiHost {
     fun sendTerminalText(text: String)
     fun sendTerminalKey(key: String)
 
-    /** 等同编辑器「运行」按钮：准备 build.sh、启动嵌入式 VNC（如需）、执行 ./build.sh。 */
+    /** 等同编辑器「运行」按钮：准备 build.sh、按需切到内置 GUI（X11）面板、执行 ./build.sh。 */
     fun runBuildScriptForAi(): String
 
     /** @param tab `gui` 或 `terminal` */

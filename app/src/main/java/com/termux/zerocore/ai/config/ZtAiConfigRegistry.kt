@@ -131,7 +131,7 @@ object ZtAiConfigRegistry {
             "reboot / rb", "openpage <id> / op <id>", "menu update|reset", "backgroundimage <path> / bgi",
             "x11commandshow / x11xs", "x11commandhide / x11xh", "x11status",
             "x11keyboardshow / x11kbs", "x11keyboardhide / x11kbh", "dialog ...",
-            "vnc <ip_port_user_pass>", "ln <src> <dst>", "qr"
+            "ln <src> <dst>", "qr"
         )
         val risky = setOf("reboot / rb")
         return JSONArray(signatures.map { sig ->

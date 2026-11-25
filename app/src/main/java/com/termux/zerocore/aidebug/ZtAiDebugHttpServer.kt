@@ -108,10 +108,6 @@ class ZtAiDebugHttpServer(
                     guardFeature("storage") {
                         textResponse(ZtWorkstationFileHelper.readText(session.parms["path"] ?: ""), MIME_JSON)
                     }
-                uri == "/api/vnc/status" && method == Method.GET ->
-                    textResponse(ZtAiDebugVncHelper.statusJson(), MIME_JSON)
-                uri == "/api/vnc/start" && method == Method.POST ->
-                    textResponse(ZtAiDebugVncHelper.startJson(), MIME_JSON)
                 uri == "/api/editor/open" && method == Method.POST ->
                     handleEditorOpen(session)
                 uri == "/api/editor/lsp/status" && method == Method.GET ->
@@ -724,7 +720,7 @@ class ZtAiDebugHttpServer(
         val openX11 = parseBool(session, body, "open_x11_tab", "openX11")
         val autoRun = parseBool(session, body, "auto_run", "autoRun")
         return textResponse(
-            ZtAiDebugVncHelper.openEditorJson(appContext, path ?: "", openX11, autoRun),
+            ZtAiDebugEditorHelper.openEditorJson(appContext, path ?: "", openX11, autoRun),
             MIME_JSON
         )
     }

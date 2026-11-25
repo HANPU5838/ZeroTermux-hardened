@@ -55,7 +55,6 @@ import com.termux.zerocore.config.mainmenu.config.ShowX11KeyboardClickConfig;
 import com.termux.zerocore.config.mainmenu.config.SnowflakeClickConfig;
 import com.termux.zerocore.config.mainmenu.config.SwitchSourceClickConfig;
 import com.termux.zerocore.config.mainmenu.config.UnInstallClickConfig;
-import com.termux.zerocore.config.mainmenu.config.VNCClickConfig;
 import com.termux.zerocore.config.mainmenu.config.WebDataClickConfigImp;
 import com.termux.zerocore.config.mainmenu.config.X11EnvironmentClickConfig;
 import com.termux.zerocore.config.mainmenu.config.X11SettingsClickConfig;
@@ -115,7 +114,6 @@ public class MainMenuConfig implements BaseConfig {
         x11Clicks.add(new InstallX11ClickConfig());
         x11Clicks.add(new ShowX11KeyboardClickConfig());
         x11Clicks.add(new HideX11KeyboardClickConfig());
-        x11Clicks.add(new VNCClickConfig());
         MAIN_MENU_CATEGORY_DATAS.add(new MainMenuCategoryData(context.getString(R.string.x11_features), CODE_X11_FEATURES, x11Clicks));
 
         // 美化/UI 功能

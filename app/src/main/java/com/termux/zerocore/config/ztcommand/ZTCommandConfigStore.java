@@ -3,7 +3,6 @@ package com.termux.zerocore.config.ztcommand;
 
 import android.util.SparseArray;
 
-import com.termux.zerocore.config.ztcommand.config.AVncConfig;
 import com.termux.zerocore.config.ztcommand.config.ConfirmedDialogConfig;
 import com.termux.zerocore.config.ztcommand.config.ForWardOpenLeftConfig;
 import com.termux.zerocore.config.ztcommand.config.ForWardOpenRightConfig;
@@ -50,7 +49,6 @@ public class ZTCommandConfigStore {
         map_array_command.put(ZTKeyConstants.ZT_COMMAND_REBOOT_1, ZTKeyConstants.ZT_ID_REBOOT);
 
         map_array_command.put(ZTKeyConstants.ZT_COMMAND_LN, ZTKeyConstants.ZT_ID_LN);
-        map_array_command.put(ZTKeyConstants.ZT_COMMAND_VNC, ZTKeyConstants.ZT_ID_VNC);
 
         map_array_command.put(ZTKeyConstants.ZT_COMMAND_X11_COMMAND_SHOW, ZTKeyConstants.ZT_ID_X11_COMMAND_SHOW);
         map_array_command.put(ZTKeyConstants.ZT_COMMAND_X11_COMMAND_SHOW_1, ZTKeyConstants.ZT_ID_X11_COMMAND_SHOW);
@@ -87,7 +85,6 @@ public class ZTCommandConfigStore {
         register(new XmlMenuConfig());
         register(new RebootConfig());
         register(new LnConfig());
-        register(new AVncConfig());
         register(new X11CommandShowConfig());
         register(new X11CommandHideConfig());
         register(new X11StatusConfig());
